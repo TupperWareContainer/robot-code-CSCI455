@@ -1,5 +1,18 @@
-# robot-project1
+# README.md
 
+
+# PROJECT 2
+
+## TODO: 
+1. Dialog parser
+2. Robot State Machine
+    - Robot Actions
+
+
+
+
+
+# PROJECT 1
 ## The data Received from the controller
 - The joystick x and y positions
 - The angles for the waist, head tilt, and head pan
