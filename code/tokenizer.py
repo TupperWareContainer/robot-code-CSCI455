@@ -80,12 +80,14 @@ class Tokenizer:
     def _tokenize_var(self, line : str):
         self._consume_char()
         char : str = line[self.pose]
-        token = ""
+        token_val = ""
 
         while self.pose < len(line) or not char.isspace():
             char = line[self.pose]
-            token += char
+            token_val += char
             self._consume_char()
+        token = Token(token_val, TokenType.VAR)
+        self.token_list.append(token)
 
     def _consume_char(self):
         self.pose += 1
