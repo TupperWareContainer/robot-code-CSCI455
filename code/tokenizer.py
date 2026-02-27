@@ -55,6 +55,8 @@ class Tokenizer:
                 elif char == ':':
                     token = Token(char, TokenType.COLON)
                     self.token_list.append(token)
+                elif char == '<':
+                    self._tokenize_action(line)
                 else:
                     # Just throw out the character if it's not known!
                     self._consume_char()
@@ -103,6 +105,21 @@ class Tokenizer:
         self._consume_char()
         token = Token(token_val, token_type)
         self.token_list.append(token)
+
+    def _tokenize_action(self, line : str):
+        self._consume_char()
+        char = line[self.pose]
+        token_val = ""
+
+        while self.pose < len(line) or not char.isspace() or not char != '>':
+            char = line[self.pose]
+            token_val += char
+            self._consume_char()
+        _require(char, '>')
+        self._consume_char()
+        token = Token(token_val, TokenType.ACTION)
+        self.token_list.append(token)
+
 
     def _consume_char(self):
         self.pose += 1

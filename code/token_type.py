@@ -8,3 +8,4 @@ class TokenType(Enum):
     LEFT_BRACKET = 4
     RIGHT_BRACKET = 5
     COLON = 6
+    ACTION = 7
