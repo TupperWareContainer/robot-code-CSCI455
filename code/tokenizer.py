@@ -56,6 +56,7 @@ class Tokenizer:
             self._consume_char()
 
         _require(char, ' ')
+        self._consume_char()
         token = Token(token_val, TokenType.STRING)
         self.token_list.append(token)
 
@@ -70,7 +71,9 @@ class Tokenizer:
             self._consume_char()
 
         _require(char, '"')
+        self._consume_char()
         _require(char, ' ')
+        self._consume_char()
         token = Token(token_val, TokenType.STRING)
         self.token_list.append(token)
 
