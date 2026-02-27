@@ -36,7 +36,8 @@ class Tokenizer:
                     self._tokenize_str(line)
                 elif char == '&':
                     self._tokenize_var(line)
-                elif char == ' ' or char == '\t':
+                else:
+                    # Just throw out the character if it's not known!
                     self._consume_char()
             self.pose = 0
 
