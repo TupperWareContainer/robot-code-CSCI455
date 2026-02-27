@@ -37,7 +37,7 @@ class Tokenizer:
                     continue
                 elif char == '"':
                     self._tokenize_str_with_quotes(line)
-                elif char.isalpha():
+                elif char.isalpha() or char.isdigit():
                     self._tokenize_str_without_quotes(line)
                 elif char == '&':
                     self._tokenize_var(line, TokenType.VAR)
