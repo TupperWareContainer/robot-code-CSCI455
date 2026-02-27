@@ -40,7 +40,21 @@ class Tokenizer:
                 elif char.isalpha():
                     self._tokenize_str_without_quotes(line)
                 elif char == '&':
-                    self._tokenize_var(line)
+                    self._tokenize_var(line, TokenType.VAR)
+                elif char == '~':
+                    self._tokenize_var(line, TokenType.DEFINITION)
+                elif char == '_':
+                    token = Token(char, TokenType.VAR_CAPTURE)
+                    self.token_list.append(token)
+                elif char == '[':
+                    token = Token(char, TokenType.LEFT_BRACKET)
+                    self.token_list.append(token)
+                elif char == ']':
+                    token = Token(char, TokenType.RIGHT_BRACKET)
+                    self.token_list.append(token)
+                elif char == ':':
+                    token = Token(char, TokenType.COLON)
+                    self.token_list.append(token)
                 else:
                     # Just throw out the character if it's not known!
                     self._consume_char()
@@ -77,7 +91,7 @@ class Tokenizer:
         token = Token(token_val, TokenType.STRING)
         self.token_list.append(token)
 
-    def _tokenize_var(self, line : str):
+    def _tokenize_var(self, line : str, token_type : TokenType):
         self._consume_char()
         char : str = line[self.pose]
         token_val = ""
@@ -86,7 +100,8 @@ class Tokenizer:
             char = line[self.pose]
             token_val += char
             self._consume_char()
-        token = Token(token_val, TokenType.VAR)
+        self._consume_char()
+        token = Token(token_val, token_type)
         self.token_list.append(token)
 
     def _consume_char(self):
