@@ -1,11 +1,19 @@
-from enum import Enum
+from enum import Enum, auto
 
 class TokenType(Enum):
-    STRING = 0
-    VAR = 1
-    DEFINITION = 2
-    VAR_CAPTURE = 3
-    LEFT_BRACKET = 4
-    RIGHT_BRACKET = 5
-    COLON = 6
-    ACTION = 7
+    STRING = auto()
+    VAR = auto()
+    DEFINITION = auto()
+    VAR_CAPTURE = auto()
+    VAR_RECALL = auto()  # $name
+    LEFT_BRACKET = auto()
+    RIGHT_BRACKET = auto()
+    LEFT_PAREN = auto()
+    RIGHT_PAREN = auto()
+    COLON = auto()
+    ACTION = auto()
+    LEVEL = auto()  # u, u1, u2
+    NEWLINE = auto()
+    INDENT = auto()
+    DEDENT = auto()
+    EOF = auto()
