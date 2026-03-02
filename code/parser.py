@@ -9,6 +9,7 @@ class Parser:
     def __init__(self, tokens):
         self.tokens = tokens
         self.pos = 0
+        self.variables = {}  # Store captured variable values
 
     def current(self):
         return self.tokens[self.pos]
@@ -35,11 +36,13 @@ class Parser:
             elif self.current().get_token_type() == TokenType.LEVEL:
                 rule = self._parse_rule()
 
+                # Process dynamic text in pattern and output
+                rule.pattern = self._parse_dynamic_text(rule.pattern)
+                rule.output = self._parse_dynamic_text(rule.output)
+
                 level_depth = self._level_depth(rule.get_level())
 
-                # -----------------------------
                 # MAX DEPTH GUARD
-                # -----------------------------
                 if level_depth > MAX_DEPTH:
                     print(
                         f"Error: Rule depth {level_depth} exceeds max depth {MAX_DEPTH}. "
@@ -108,3 +111,32 @@ class Parser:
             self.advance()
 
         return items
+
+    # -----------------------------
+    # New Dynamic Text Handling
+    # -----------------------------
+    def _parse_dynamic_text(self, tokens_list):
+        """Process a list of tokens to handle VAR_CAPTURE (_) and VAR_RECALL ($)."""
+        result = []
+        for token in tokens_list:
+            ttype = token.get_token_type()
+            value = token.value
+
+            if ttype == TokenType.VAR_CAPTURE:
+                # Placeholder: user will provide value later manually
+                placeholder_name = f"__var{len(self.variables)}__"
+                self.variables[placeholder_name] = None
+                result.append(placeholder_name)
+
+            elif ttype == TokenType.VAR_RECALL:
+                # Insert previously captured variable
+                var_name = value
+                if var_name in self.variables:
+                    result.append(self.variables[var_name])
+                else:
+                    result.append(f"<undefined:{var_name}>")
+
+            else:
+                result.append(value)
+
+        return result
