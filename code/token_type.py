@@ -14,6 +14,4 @@ class TokenType(Enum):
     ACTION = auto()
     LEVEL = auto()  # u, u1, u2
     NEWLINE = auto()
-    INDENT = auto()
-    DEDENT = auto()
     EOF = auto()
