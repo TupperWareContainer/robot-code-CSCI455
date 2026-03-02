@@ -44,6 +44,9 @@ class RobotController:
         else: 
             self.__state = RobotState.IDLE
 
+        
+        self.__StateMachine()
+
     
     def __StateMachine(self):
         match self.__state:
