@@ -5,6 +5,8 @@ def PerformHeadNod(robotInstance : Robot):
     print("Nodding Head")
     robotInstance.tilt_head(8000)
     time.sleep(1.5)
+    robotInstance.tilt_head(4000)
+    time.sleep(1.5)
     robotInstance.tilt_head(6000)
     time.sleep(1.5)
     return

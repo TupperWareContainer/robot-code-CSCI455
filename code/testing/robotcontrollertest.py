@@ -22,13 +22,13 @@ print("Added action HEAD_NO")
 inp = input()
 
 cont.Update()
-print("Updating...")
+print("Action Performed")
 
 inp = input()
 
 
 cont.Update()
-print("Updating...")
+print("Action Performed")
 inp = input()
 
 cont.AddAction(RobotAction.NONE)
@@ -37,6 +37,6 @@ print("Added action NONE")
 inp = input()
 
 cont.Update()
-print("Updating")
+print("Action Performed")
 
 inp = input()
