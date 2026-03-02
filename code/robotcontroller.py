@@ -1,5 +1,7 @@
+import robot_actions
 from robot import Robot
 from enum import Enum
+from collections import deque 
 '''
 RobotController.py
 Command Based Interface for controlling a Robot instance
@@ -24,28 +26,53 @@ class RobotState(Enum):
 class RobotController:
     __robotInstance : Robot
     __scope : list[str]
-    __actionQueue : list[RobotAction]
+    __actionQueue : deque[RobotAction]
     __state : RobotState
+
+    __isPerformingAction : bool
+
     def __init__(self):
-        self.__actionQueue = list[RobotAction]
+        self.__actionQueue = deque[RobotAction]()
         self.__state = RobotState.BOOT
         self.__robotInstance = Robot()
         self.__scope = list[str]
+        self.__isPerformingAction = False
 
-   
+    def Update(self):
+        if (len(self.__actionQueue) > 0) or self.__isPerformingAction: 
+            self.__state = RobotState.ACTION_EXEC
+        else: 
+            self.__state = RobotState.IDLE
+
+    
     def __StateMachine(self):
         match self.__state:
             case RobotState.BOOT:
                 pass
             case RobotState.ACTION_EXEC:
+                self.__PerformAction()
                 pass
             case _:
                 pass
 
+    def __PerformAction(self):
+        actionID : RobotAction = self.__actionQueue.pop()
+
+        match actionID:
+            case RobotAction.HEAD_YES:
+                robot_actions.PerformHeadNod(self.__robotInstance)
+                pass
+            case RobotAction.HEAD_NO:
+                robot_actions.ShakeHead(self.__robotInstance)
+                pass
+            case RobotAction.NONE:
+                pass
+            case _:
+                pass 
 
 
     def AddAction(self, action : RobotAction):
-        self.__actionQueue.append(action) 
+        self.__actionQueue.append(action)
 
     
 
