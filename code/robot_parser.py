@@ -11,7 +11,6 @@ class Parser:
     def __init__(self, tokens):
         self.tokens = tokens
         self.pos = 0
-        self.variables = {}  # Store captured variable values
 
     def current(self) -> Token:
         return self.tokens[self.pos]
@@ -110,7 +109,7 @@ class Parser:
 
         self.expect(TokenType.LEFT_BRACKET)
 
-        while self.current().token_type not in (
+        while self.current().get_token_type() not in (
             TokenType.NEWLINE,
             TokenType.RIGHT_PAREN,
             TokenType.EOF,
@@ -133,14 +132,9 @@ class Parser:
         return items
 
     def _parse_str(self, items):
-        item = ""
-
         while self.current().get_token_type() == TokenType.STRING:
-            item = item + self.current().get_value()
+            items.append(self.current())
             self.advance()
-            item = item + " "
-        item = item.strip()
-        items.append(item)
 
     def _parse_optional(self, items):
         self.expect(TokenType.LEFT_CURLY)
@@ -149,34 +143,32 @@ class Parser:
         self.expect(TokenType.RIGHT_CURLY)
 
     def _parse_dynamic_text(self, tokens_list):
-        """Recursively process tokens to handle VAR_CAPTURE (_) and VAR_RECALL ($)."""
         result = []
 
         for token in tokens_list:
-            # If token is a nested list (from nested expressions), recurse
+
+            # Handle nested expressions
             if isinstance(token, list):
                 result.append(self._parse_dynamic_text(token))
                 continue
 
+            # Preserve optional blocks
             if isinstance(token, OptionalStr):
+                result.append(token)
                 continue
 
-            if token.get_token_type() == TokenType.VAR_CAPTURE:
-                # Create a unique placeholder for captured variable
-                placeholder_name = f"__var{len(self.variables)}__"
-                self.variables[placeholder_name] = None
-                result.append(placeholder_name)
+            token_type = token.get_token_type()
 
-            elif token.get_token_type() == TokenType.VAR_RECALL:
-                # Insert previously captured variable
-                var_name = token.get_name()
-                if var_name in self.variables:
-                    result.append(self.variables[var_name])
-                else:
-                    result.append(f"<undefined:{var_name}>")
+            # Preserve capture tokens for runtime handling
+            if token_type == TokenType.VAR_CAPTURE:
+                result.append(token)
+
+            # Preserve recall tokens for runtime handling
+            elif token_type == TokenType.VAR_RECALL:
+                result.append(token)
+
+            # Convert regular tokens to their string value
             else:
-                # Regular token, keep its value
-                value = token.get_value()
-                result.append(value)
+                result.append(token.get_value())
 
         return result
