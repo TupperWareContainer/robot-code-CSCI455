@@ -98,9 +98,9 @@ class Parser:
             raise Exception(f"Rule level '{level}' does not start with 'u'")
 
         self.expect(TokenType.COLON)
-
         self.expect(TokenType.LEFT_PAREN)
 
+        # Pattern can be a definition token or expression
         if self.current().get_token_type() == TokenType.DEFINITION:
             pattern = self.current()
             self.advance()
@@ -110,12 +110,14 @@ class Parser:
         self.expect(TokenType.RIGHT_PAREN)
         self.expect(TokenType.COLON)
 
+        # Output can be a definition token or expression
         if self.current().get_token_type() == TokenType.DEFINITION:
             output = self.current()
             self.advance()
         else:
             output = self._parse_expression()
 
+        # Collect multiple action tokens
         actions = []
         while self.current().get_token_type() == TokenType.ACTION:
             actions.append(self.current())
@@ -157,9 +159,9 @@ class Parser:
         return items
 
     def _parse_str(self, items):
-        while (self.current().get_token_type() == TokenType.STRING
-               or self.current().get_token_type() == TokenType.VAR_CAPTURE
-               or self.current().get_token_type() == TokenType.VAR_RECALL):
+        while self.current().get_token_type() in (TokenType.STRING,
+                                                  TokenType.VAR_CAPTURE,
+                                                  TokenType.VAR_RECALL):
             items.append(self.current())
             self.advance()
 
