@@ -1,4 +1,4 @@
-from definition import Definition
+from robot_definition import Definition
 
 class Program:
     def __init__(self):

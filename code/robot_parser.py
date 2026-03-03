@@ -1,6 +1,6 @@
-from program import Program
+from robot_program import Program
 from rule import Rule
-from token_type import TokenType
+from robot_token_type import TokenType
 
 MAX_DEPTH = 6
 
@@ -101,29 +101,36 @@ class Parser:
 
     def _parse_expression(self):
         items = []
+        self.expect(TokenType.LEFT_BRACKET)
 
         while self.current().token_type not in (
             TokenType.NEWLINE,
             TokenType.RIGHT_PAREN,
-            TokenType.EOF
+            TokenType.EOF,
+            TokenType.RIGHT_BRACKET
         ):
-            items.append(self.current())
+            items.append(self.current().get_value())
             self.advance()
+
+        self.expect(TokenType.RIGHT_BRACKET)
 
         return items
 
-    # -----------------------------
-    # New Dynamic Text Handling
-    # -----------------------------
     def _parse_dynamic_text(self, tokens_list):
-        """Process a list of tokens to handle VAR_CAPTURE (_) and VAR_RECALL ($)."""
+        """Recursively process tokens to handle VAR_CAPTURE (_) and VAR_RECALL ($)."""
         result = []
+
         for token in tokens_list:
+            # If token is a nested list (from nested expressions), recurse
+            if isinstance(token, list):
+                result.append(self._parse_dynamic_text(token))
+                continue
+
             ttype = token.get_token_type()
             value = token.value
 
             if ttype == TokenType.VAR_CAPTURE:
-                # Placeholder: user will provide value later manually
+                # Create a unique placeholder for captured variable
                 placeholder_name = f"__var{len(self.variables)}__"
                 self.variables[placeholder_name] = None
                 result.append(placeholder_name)
@@ -137,6 +144,7 @@ class Parser:
                     result.append(f"<undefined:{var_name}>")
 
             else:
+                # Regular token, keep its value
                 result.append(value)
 
         return result

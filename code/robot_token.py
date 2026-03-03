@@ -1,4 +1,4 @@
-from token_type import TokenType
+from robot_token_type import TokenType
 
 class Token:
     value : str
