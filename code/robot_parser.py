@@ -36,11 +36,6 @@ class Parser:
 
             elif self.current().get_token_type() == TokenType.LEVEL:
                 rule = self._parse_rule()
-
-                # Process dynamic text in pattern and output
-                rule.pattern = self._parse_dynamic_text(rule.pattern)
-                rule.output = self._parse_dynamic_text(rule.output)
-
                 level_depth = self._level_depth(rule.get_level())
 
                 # MAX DEPTH GUARD
@@ -89,16 +84,32 @@ class Parser:
         level = self.current().value
         self.advance()
         self.expect(TokenType.COLON)
+
         self.expect(TokenType.LEFT_PAREN)
 
-        pattern = self._parse_expression()
+        if self.current().get_token_type() == TokenType.DEFINITION:
+            pattern = self.current()
+            self.advance()
+        else:
+            pattern = self._parse_expression()
 
         self.expect(TokenType.RIGHT_PAREN)
         self.expect(TokenType.COLON)
 
-        output = self._parse_expression()
+        if self.current().get_token_type() == TokenType.DEFINITION:
+            output = self.current()
+            self.advance()
+        else:
+            output = self._parse_expression()
 
-        return Rule(level, pattern, output)
+        actions = []
+        while self.current().get_token_type() == TokenType.ACTION:
+            actions.append(self.current())
+            self.advance()
+
+        rule = Rule(level, pattern, output)
+        rule.set_actions(actions)
+        return rule
 
     def _parse_expression(self):
         items = []
@@ -132,43 +143,20 @@ class Parser:
         return items
 
     def _parse_str(self, items):
-        while self.current().get_token_type() == TokenType.STRING:
+        while (self.current().get_token_type() == TokenType.STRING
+               or self.current().get_token_type() == TokenType.VAR_CAPTURE
+               or self.current().get_token_type() == TokenType.VAR_RECALL):
             items.append(self.current())
             self.advance()
 
     def _parse_optional(self, items):
         self.expect(TokenType.LEFT_CURLY)
-        items.append(OptionalStr(self.current().get_value()))
-        self.advance()
+
+        optional_tokens = []
+
+        while self.current().get_token_type() != TokenType.RIGHT_CURLY:
+            optional_tokens.append(self.current())
+            self.advance()
+
         self.expect(TokenType.RIGHT_CURLY)
-
-    def _parse_dynamic_text(self, tokens_list):
-        result = []
-
-        for token in tokens_list:
-
-            # Handle nested expressions
-            if isinstance(token, list):
-                result.append(self._parse_dynamic_text(token))
-                continue
-
-            # Preserve optional blocks
-            if isinstance(token, OptionalStr):
-                result.append(token)
-                continue
-
-            token_type = token.get_token_type()
-
-            # Preserve capture tokens for runtime handling
-            if token_type == TokenType.VAR_CAPTURE:
-                result.append(token)
-
-            # Preserve recall tokens for runtime handling
-            elif token_type == TokenType.VAR_RECALL:
-                result.append(token)
-
-            # Convert regular tokens to their string value
-            else:
-                result.append(token.get_value())
-
-        return result
+        items.append(OptionalStr(optional_tokens))
