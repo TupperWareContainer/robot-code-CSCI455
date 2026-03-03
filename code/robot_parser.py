@@ -12,29 +12,35 @@ class Parser:
         self.tokens = tokens
         self.pos = 0
 
-    def current(self) -> Token:
+    def _current(self) -> Token:
         return self.tokens[self.pos]
 
-    def advance(self):
+    def _advance(self):
         self.pos += 1
 
-    def expect(self, token_type):
-        token = self.current()
+    def _expect(self, token_type):
+        token = self._current()
         if token.get_token_type() != token_type:
             raise Exception(f"Expected {token_type}, got {token.get_token_type()} with value {token.get_value()}")
-        self.advance()
+        self._advance()
         return token
 
+    """
+        This method parses the a token list from an ALDialog file that are passed in when the Parser is created. 
+        
+        :return: program: This is an object oriented representation of the tokens that has been parsed! 
+        The parser keeps the original tokens that were passed!
+    """
     def parse(self):
         program = Program()
         rule_stack = []
 
-        while self.current().get_token_type() != TokenType.EOF:
+        while self._current().get_token_type() != TokenType.EOF:
             try:
-                if self.current().get_token_type() == TokenType.DEFINITION:
+                if self._current().get_token_type() == TokenType.DEFINITION:
                     self._parse_definition(program)
 
-                elif self.current().get_token_type() == TokenType.LEVEL:
+                elif self._current().get_token_type() == TokenType.LEVEL:
                     rule = self._parse_rule()
                     level_depth = self._level_depth(rule.get_level())
 
@@ -62,10 +68,10 @@ class Parser:
                     rule_stack.append(rule)
 
                 else:
-                    self.advance()
+                    self._advance()
             except Exception as e:
                 # Non-fatal error: log and skip the current line
-                token = self.current()
+                token = self._current()
                 print(f"Warning: {e}. Skipping line starting with token '{token.get_value()}'")
                 self._skip_line()
 
@@ -82,46 +88,46 @@ class Parser:
             return -1
 
     def _parse_definition(self, program):
-        name = self.current().value
-        self.advance()
-        self.expect(TokenType.COLON)
+        name = self._current().value
+        self._advance()
+        self._expect(TokenType.COLON)
 
         choices = self._parse_expression()
         program.add_definition(name, choices)
 
     def _parse_rule(self):
-        level = self.current().value
-        self.advance()
+        level = self._current().value
+        self._advance()
 
         if not level.startswith("u"):
             # fatal: missing 'u'
             raise Exception(f"Rule level '{level}' does not start with 'u'")
 
-        self.expect(TokenType.COLON)
-        self.expect(TokenType.LEFT_PAREN)
+        self._expect(TokenType.COLON)
+        self._expect(TokenType.LEFT_PAREN)
 
         # Pattern can be a definition token or expression
-        if self.current().get_token_type() == TokenType.DEFINITION:
-            pattern = self.current()
-            self.advance()
+        if self._current().get_token_type() == TokenType.DEFINITION:
+            pattern = self._current()
+            self._advance()
         else:
             pattern = self._parse_expression()
 
-        self.expect(TokenType.RIGHT_PAREN)
-        self.expect(TokenType.COLON)
+        self._expect(TokenType.RIGHT_PAREN)
+        self._expect(TokenType.COLON)
 
         # Output can be a definition token or expression
-        if self.current().get_token_type() == TokenType.DEFINITION:
-            output = self.current()
-            self.advance()
+        if self._current().get_token_type() == TokenType.DEFINITION:
+            output = self._current()
+            self._advance()
         else:
             output = self._parse_expression()
 
         # Collect multiple action tokens
         actions = []
-        while self.current().get_token_type() == TokenType.ACTION:
-            actions.append(self.current())
-            self.advance()
+        while self._current().get_token_type() == TokenType.ACTION:
+            actions.append(self._current())
+            self._advance()
 
         rule = Rule(level, pattern, output)
         rule.set_actions(actions)
@@ -130,55 +136,55 @@ class Parser:
     def _parse_expression(self):
         items = []
 
-        if self.current().get_token_type() != TokenType.LEFT_BRACKET:
+        if self._current().get_token_type() != TokenType.LEFT_BRACKET:
             self._parse_str(items)
             return items
 
-        self.expect(TokenType.LEFT_BRACKET)
+        self._expect(TokenType.LEFT_BRACKET)
 
-        while self.current().get_token_type() not in (
+        while self._current().get_token_type() not in (
             TokenType.NEWLINE,
             TokenType.RIGHT_PAREN,
             TokenType.EOF,
             TokenType.RIGHT_BRACKET
         ):
-            if self.current().get_token_type() == TokenType.LEFT_CURLY:
+            if self._current().get_token_type() == TokenType.LEFT_CURLY:
                 self._parse_optional(items)
-            elif self.current().get_token_type() == TokenType.VAR_CAPTURE:
-                items.append(self.current())
-                self.advance()
-            elif self.current().get_token_type() == TokenType.VAR_RECALL:
-                items.append(self.current())
-                self.advance()
+            elif self._current().get_token_type() == TokenType.VAR_CAPTURE:
+                items.append(self._current())
+                self._advance()
+            elif self._current().get_token_type() == TokenType.VAR_RECALL:
+                items.append(self._current())
+                self._advance()
             else:
-                items.append(self.current())
-                self.advance()
+                items.append(self._current())
+                self._advance()
 
-        self.expect(TokenType.RIGHT_BRACKET)
+        self._expect(TokenType.RIGHT_BRACKET)
 
         return items
 
     def _parse_str(self, items):
-        while self.current().get_token_type() in (TokenType.STRING,
-                                                  TokenType.VAR_CAPTURE,
-                                                  TokenType.VAR_RECALL):
-            items.append(self.current())
-            self.advance()
+        while self._current().get_token_type() in (TokenType.STRING,
+                                                   TokenType.VAR_CAPTURE,
+                                                   TokenType.VAR_RECALL):
+            items.append(self._current())
+            self._advance()
 
     def _parse_optional(self, items):
-        self.expect(TokenType.LEFT_CURLY)
+        self._expect(TokenType.LEFT_CURLY)
 
         optional_tokens = []
 
-        while self.current().get_token_type() != TokenType.RIGHT_CURLY:
-            optional_tokens.append(self.current())
-            self.advance()
+        while self._current().get_token_type() != TokenType.RIGHT_CURLY:
+            optional_tokens.append(self._current())
+            self._advance()
 
-        self.expect(TokenType.RIGHT_CURLY)
+        self._expect(TokenType.RIGHT_CURLY)
         items.append(OptionalStr(optional_tokens))
 
     def _skip_line(self):
-        while self.current().get_token_type() not in (TokenType.NEWLINE, TokenType.EOF):
-            self.advance()
-        if self.current().get_token_type() == TokenType.NEWLINE:
-            self.advance()
+        while self._current().get_token_type() not in (TokenType.NEWLINE, TokenType.EOF):
+            self._advance()
+        if self._current().get_token_type() == TokenType.NEWLINE:
+            self._advance()
