@@ -15,3 +15,5 @@ class TokenType(Enum):
     LEVEL = auto()  # u, u1, u2
     NEWLINE = auto()
     EOF = auto()
+    RIGHT_CURLY = auto()
+    LEFT_CURLY = auto()

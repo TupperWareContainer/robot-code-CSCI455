@@ -33,6 +33,12 @@ class Tokenizer:
                 self.tokens.append(Token("(", TokenType.LEFT_PAREN))
                 pos += 1
 
+            elif char == '{':
+                self.tokens.append(Token("{", TokenType.RIGHT_CURLY))
+
+            elif char == '}':
+                self.tokens.append(Token("}", TokenType.LEFT_CURLY))
+
             elif char == ')':
                 self.tokens.append(Token(")", TokenType.RIGHT_PAREN))
                 pos += 1

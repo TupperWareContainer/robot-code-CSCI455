@@ -20,7 +20,7 @@ class Parser:
     def expect(self, token_type):
         token = self.current()
         if token.get_token_type() != token_type:
-            raise Exception(f"Expected {token_type}, got {token.get_token_type()}")
+            raise Exception(f"Expected {token_type}, got {token.get_token_type()} with value {token.get_value()}")
         self.advance()
         return token
 
@@ -109,12 +109,21 @@ class Parser:
             TokenType.EOF,
             TokenType.RIGHT_BRACKET
         ):
-            items.append(self.current().get_value())
-            self.advance()
+            if self.current().get_token_type() == TokenType.LEFT_CURLY:
+                self._parse_optional(items)
+            else:
+                items.append(self.current().get_value())
+                self.advance()
 
         self.expect(TokenType.RIGHT_BRACKET)
 
         return items
+
+    def _parse_optional(self, items):
+        self.expect(TokenType.LEFT_CURLY)
+        items.append(self.current().get_value())
+        self.advance()
+        self.expect(TokenType.RIGHT_CURLY)
 
     def _parse_dynamic_text(self, tokens_list):
         """Recursively process tokens to handle VAR_CAPTURE (_) and VAR_RECALL ($)."""
