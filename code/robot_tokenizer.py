@@ -103,7 +103,7 @@ class Tokenizer:
 
             elif char.isalnum():
                 start = pos
-                while pos < len(line) and line[pos].isalnum():
+                while pos < len(line) and (line[pos].isalnum() or line[pos] == '.'):
                     pos += 1
                 value = line[start:pos]
 

@@ -1,6 +1,8 @@
 from robot_program import Program
 from rule import Rule
 from robot_token_type import TokenType
+from optional_str import OptionalStr
+from robot_token import Token
 
 MAX_DEPTH = 6
 
@@ -11,7 +13,7 @@ class Parser:
         self.pos = 0
         self.variables = {}  # Store captured variable values
 
-    def current(self):
+    def current(self) -> Token:
         return self.tokens[self.pos]
 
     def advance(self):
@@ -101,6 +103,11 @@ class Parser:
 
     def _parse_expression(self):
         items = []
+
+        if self.current().get_token_type() != TokenType.LEFT_BRACKET:
+            self._parse_str(items)
+            return items
+
         self.expect(TokenType.LEFT_BRACKET)
 
         while self.current().token_type not in (
@@ -111,17 +118,33 @@ class Parser:
         ):
             if self.current().get_token_type() == TokenType.LEFT_CURLY:
                 self._parse_optional(items)
+            elif self.current().get_token_type() == TokenType.VAR_CAPTURE:
+                items.append(self.current())
+                self.advance()
+            elif self.current().get_token_type() == TokenType.VAR_RECALL:
+                items.append(self.current())
+                self.advance()
             else:
-                items.append(self.current().get_value())
+                items.append(self.current())
                 self.advance()
 
         self.expect(TokenType.RIGHT_BRACKET)
 
         return items
 
+    def _parse_str(self, items):
+        item = ""
+
+        while self.current().get_token_type() == TokenType.STRING:
+            item = item + self.current().get_value()
+            self.advance()
+            item = item + " "
+        item = item.strip()
+        items.append(item)
+
     def _parse_optional(self, items):
         self.expect(TokenType.LEFT_CURLY)
-        items.append(self.current().get_value())
+        items.append(OptionalStr(self.current().get_value()))
         self.advance()
         self.expect(TokenType.RIGHT_CURLY)
 
@@ -135,25 +158,25 @@ class Parser:
                 result.append(self._parse_dynamic_text(token))
                 continue
 
-            ttype = token.get_token_type()
-            value = token.value
+            if isinstance(token, OptionalStr):
+                continue
 
-            if ttype == TokenType.VAR_CAPTURE:
+            if token.get_token_type() == TokenType.VAR_CAPTURE:
                 # Create a unique placeholder for captured variable
                 placeholder_name = f"__var{len(self.variables)}__"
                 self.variables[placeholder_name] = None
                 result.append(placeholder_name)
 
-            elif ttype == TokenType.VAR_RECALL:
+            elif token.get_token_type() == TokenType.VAR_RECALL:
                 # Insert previously captured variable
-                var_name = value
+                var_name = token.get_name()
                 if var_name in self.variables:
                     result.append(self.variables[var_name])
                 else:
                     result.append(f"<undefined:{var_name}>")
-
             else:
                 # Regular token, keep its value
+                value = token.get_value()
                 result.append(value)
 
         return result
