@@ -1,5 +1,5 @@
-from robot_token import Token
-from robot_token_type import TokenType
+from al_dialog_token import Token
+from al_dialog_token_type import TokenType
 
 
 class Tokenizer:

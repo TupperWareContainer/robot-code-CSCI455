@@ -1,4 +1,4 @@
-from robot_definition import Definition
+from al_dialog_definition import Definition
 
 class Program:
     def __init__(self):

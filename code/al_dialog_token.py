@@ -1,4 +1,4 @@
-from robot_token_type import TokenType
+from al_dialog_token_type import TokenType
 
 class Token:
     value : str

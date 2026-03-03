@@ -1,8 +1,8 @@
-from robot_program import Program
-from rule import Rule
-from robot_token_type import TokenType
-from optional_str import OptionalStr
-from robot_token import Token
+from al_dialog_program import Program
+from al_dialog_rule import Rule
+from al_dialog_token_type import TokenType
+from al_dialog_optional_str import OptionalStr
+from al_dialog_token import Token
 
 MAX_DEPTH = 6
 

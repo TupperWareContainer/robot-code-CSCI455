@@ -1,5 +1,5 @@
-from robot_tokenizer import Tokenizer
-from robot_parser import Parser
+from al_dialog_tokenizer import Tokenizer
+from al_dialog_parser import Parser
 
 def main():
     tokenizer = Tokenizer("./testDialogFileForPractice.txt")
