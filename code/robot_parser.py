@@ -30,35 +30,44 @@ class Parser:
         rule_stack = []
 
         while self.current().get_token_type() != TokenType.EOF:
+            try:
+                if self.current().get_token_type() == TokenType.DEFINITION:
+                    self._parse_definition(program)
 
-            if self.current().get_token_type() == TokenType.DEFINITION:
-                self._parse_definition(program)
+                elif self.current().get_token_type() == TokenType.LEVEL:
+                    rule = self._parse_rule()
+                    level_depth = self._level_depth(rule.get_level())
 
-            elif self.current().get_token_type() == TokenType.LEVEL:
-                rule = self._parse_rule()
-                level_depth = self._level_depth(rule.get_level())
+                    # FATAL: missing u level is not allowed
+                    if level_depth < 0:
+                        raise Exception(f"Fatal error: Invalid rule level '{rule.get_level()}'")
 
-                # MAX DEPTH GUARD
-                if level_depth > MAX_DEPTH:
-                    print(
-                        f"Error: Rule depth {level_depth} exceeds max depth {MAX_DEPTH}. "
-                        f"Rule '{rule.get_level()}' ignored."
-                    )
-                    continue
+                    # MAX DEPTH GUARD
+                    if level_depth > MAX_DEPTH:
+                        print(
+                            f"Error: Rule depth {level_depth} exceeds max depth {MAX_DEPTH}. "
+                            f"Rule '{rule.get_level()}' ignored."
+                        )
+                        continue
 
-                # adjust stack to correct depth
-                while len(rule_stack) > level_depth:
-                    rule_stack.pop()
+                    # adjust stack to correct depth
+                    while len(rule_stack) > level_depth:
+                        rule_stack.pop()
 
-                if rule_stack:
-                    rule_stack[-1].children.append(rule)
+                    if rule_stack:
+                        rule_stack[-1].children.append(rule)
+                    else:
+                        program.rules.append(rule)
+
+                    rule_stack.append(rule)
+
                 else:
-                    program.rules.append(rule)
-
-                rule_stack.append(rule)
-
-            else:
-                self.advance()
+                    self.advance()
+            except Exception as e:
+                # Non-fatal error: log and skip the current line
+                token = self.current()
+                print(f"Warning: {e}. Skipping line starting with token '{token.get_value()}'")
+                self._skip_line()
 
         return program
 
@@ -83,6 +92,11 @@ class Parser:
     def _parse_rule(self):
         level = self.current().value
         self.advance()
+
+        if not level.startswith("u"):
+            # fatal: missing 'u'
+            raise Exception(f"Rule level '{level}' does not start with 'u'")
+
         self.expect(TokenType.COLON)
 
         self.expect(TokenType.LEFT_PAREN)
@@ -160,3 +174,9 @@ class Parser:
 
         self.expect(TokenType.RIGHT_CURLY)
         items.append(OptionalStr(optional_tokens))
+
+    def _skip_line(self):
+        while self.current().get_token_type() not in (TokenType.NEWLINE, TokenType.EOF):
+            self.advance()
+        if self.current().get_token_type() == TokenType.NEWLINE:
+            self.advance()
