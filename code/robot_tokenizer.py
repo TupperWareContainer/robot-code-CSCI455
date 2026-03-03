@@ -7,12 +7,12 @@ class Tokenizer:
         self.file_path = file_path
         self.tokens = []
 
-    """
-        This method is used to tokenize an ALDialog file's contents.
-        
-        :return: list: A list of tokens from the file!
-    """
     def tokenize(self):
+        """
+            This method is used to tokenize an ALDialog file's contents.
+            :return: list: A list of tokens from the file!
+        """
+
         with open(self.file_path, 'r', encoding='utf-8') as file:
             for line in file:
                 self._tokenize_line(line)

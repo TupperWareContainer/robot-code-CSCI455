@@ -25,13 +25,15 @@ class Parser:
         self._advance()
         return token
 
-    """
-        This method parses the a token list from an ALDialog file that are passed in when the Parser is created. 
-        
-        :return: program: This is an object oriented representation of the tokens that has been parsed! 
-        The parser keeps the original tokens that were passed!
-    """
+
     def parse(self):
+        """
+            This method parses the token list from an ALDialog file that is passed in when the Parser is created.
+
+            :return: program: This is an object-oriented representation of the tokens that has been parsed!
+            The parser keeps the original tokens that were passed!
+        """
+
         program = Program()
         rule_stack = []
 
