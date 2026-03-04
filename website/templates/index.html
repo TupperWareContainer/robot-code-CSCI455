@@ -340,7 +340,7 @@
         })
         say_custom.addEventListener('keydown', function (event) {
           if (event.key === 'Enter') {
-            const inputValue = say_custom.value;
+            const inputValue = say_custom.value.toLowerCase();
 
             console.log("The user entered:", inputValue);
             sendMessage(inputValue)
