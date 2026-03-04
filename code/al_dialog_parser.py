@@ -1,3 +1,5 @@
+import os
+
 from al_dialog_program import Program
 from al_dialog_rule import Rule
 from al_dialog_token_type import TokenType
@@ -8,9 +10,10 @@ MAX_DEPTH = 6
 
 class Parser:
 
-    def __init__(self, tokens):
+    def __init__(self, tokens, path):
         self.tokens = tokens
         self.pos = 0
+        self.file_name = os.path.basename(path)
 
     def _current(self) -> Token:
         return self.tokens[self.pos]
@@ -21,10 +24,9 @@ class Parser:
     def _expect(self, token_type):
         token = self._current()
         if token.get_token_type() != token_type:
-            raise Exception(f"Expected {token_type}, got {token.get_token_type()} with value {token.get_value()}")
+            raise Exception(f"Expected {token_type}, got {token.get_token_type()} with value '{token.get_value()}'")
         self._advance()
         return token
-
 
     def parse(self):
         """
@@ -48,13 +50,14 @@ class Parser:
 
                     # FATAL: missing u level is not allowed
                     if level_depth < 0:
-                        raise Exception(f"Fatal error: Invalid rule level '{rule.get_level()}'")
+                        raise Exception(f"Fatal Error: Invalid rule level '{rule.get_level()}'")
 
                     # MAX DEPTH GUARD
                     if level_depth > MAX_DEPTH:
+                        token = self._current()
                         print(
-                            f"Error: Rule depth {level_depth} exceeds max depth {MAX_DEPTH}. "
-                            f"Rule '{rule.get_level()}' ignored."
+                            f"Non-fatal Error: Rule depth {level_depth} exceeds max depth {MAX_DEPTH}. "
+                            f"Rule '{rule.get_level()}' ignored. In file {self.file_name}, skipping line {token.get_line_num()}"
                         )
                         continue
 
@@ -74,7 +77,7 @@ class Parser:
             except Exception as e:
                 # Non-fatal error: log and skip the current line
                 token = self._current()
-                print(f"Warning: {e}. Skipping line starting with token '{token.get_value()}'")
+                print(f"Non-fatal Error: {str(e)}, file name: {self.file_name}, skipping line {token.get_line_num()}")
                 self._skip_line()
 
         return program
@@ -103,7 +106,9 @@ class Parser:
 
         if not level.startswith("u"):
             # fatal: missing 'u'
-            raise Exception(f"Rule level '{level}' does not start with 'u'")
+            token = self._current()
+            raise Exception(f"Fatal: Rule level '{level}' does not start with 'u' "
+                            f"in file {self.file_name} at line {token.get_line_num()}")
 
         self._expect(TokenType.COLON)
         self._expect(TokenType.LEFT_PAREN)

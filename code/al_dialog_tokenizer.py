@@ -14,18 +14,21 @@ class Tokenizer:
         """
 
         with open(self.file_path, 'r', encoding='utf-8') as file:
-            for line in file:
-                self._tokenize_line(line)
+            line_num : int = 1
 
-        self.tokens.append(Token("", TokenType.EOF))
+            for line in file:
+                self._tokenize_line(line, line_num)
+                line_num += 1
+
+        self.tokens.append(Token("", TokenType.EOF, line_num))
         return self.tokens
 
-    def _tokenize_line(self, line):
+    def _tokenize_line(self, line, line_num):
         # Ignore full-line comments
         if line.strip().startswith("#"):
             return
 
-        line = line.strip()
+        line = line.strip().lower()
         pos = 0
 
         while pos < len(line):
@@ -35,29 +38,29 @@ class Tokenizer:
                 pos += 1
 
             elif char == '(':
-                self.tokens.append(Token("(", TokenType.LEFT_PAREN))
+                self.tokens.append(Token("(", TokenType.LEFT_PAREN, line_num))
                 pos += 1
 
             elif char == '{':
-                self.tokens.append(Token("{", TokenType.RIGHT_CURLY))
+                self.tokens.append(Token("{", TokenType.RIGHT_CURLY, line_num))
 
             elif char == '}':
-                self.tokens.append(Token("}", TokenType.LEFT_CURLY))
+                self.tokens.append(Token("}", TokenType.LEFT_CURLY, line_num))
 
             elif char == ')':
-                self.tokens.append(Token(")", TokenType.RIGHT_PAREN))
+                self.tokens.append(Token(")", TokenType.RIGHT_PAREN, line_num))
                 pos += 1
 
             elif char == '[':
-                self.tokens.append(Token("[", TokenType.LEFT_BRACKET))
+                self.tokens.append(Token("[", TokenType.LEFT_BRACKET, line_num))
                 pos += 1
 
             elif char == ']':
-                self.tokens.append(Token("]", TokenType.RIGHT_BRACKET))
+                self.tokens.append(Token("]", TokenType.RIGHT_BRACKET, line_num))
                 pos += 1
 
             elif char == ':':
-                self.tokens.append(Token(":", TokenType.COLON))
+                self.tokens.append(Token(":", TokenType.COLON, line_num))
                 pos += 1
 
             elif char == '<':
@@ -66,7 +69,7 @@ class Tokenizer:
                 while pos < len(line) and line[pos] != '>':
                     pos += 1
                 value = line[start:pos]
-                self.tokens.append(Token(value, TokenType.ACTION))
+                self.tokens.append(Token(value, TokenType.ACTION, line_num))
                 pos += 1  # skip '>'
 
             elif char == '"':
@@ -75,7 +78,7 @@ class Tokenizer:
                 while pos < len(line) and line[pos] != '"':
                     pos += 1
                 value = line[start:pos]
-                self.tokens.append(Token(value, TokenType.STRING))
+                self.tokens.append(Token(value, TokenType.STRING, line_num))
                 pos += 1  # skip closing quote
 
             elif char == '~':
@@ -84,7 +87,7 @@ class Tokenizer:
                 while pos < len(line) and (line[pos].isalnum() or line[pos] == '_'):
                     pos += 1
                 value = line[start:pos]
-                self.tokens.append(Token(value, TokenType.DEFINITION))
+                self.tokens.append(Token(value, TokenType.DEFINITION, line_num))
 
             elif char == '&':
                 pos += 1
@@ -92,7 +95,7 @@ class Tokenizer:
                 while pos < len(line) and (line[pos].isalnum() or line[pos] == '_'):
                     pos += 1
                 value = line[start:pos]
-                self.tokens.append(Token(value, TokenType.VAR))
+                self.tokens.append(Token(value, TokenType.VAR, line_num))
 
             elif char == '$':
                 pos += 1
@@ -100,25 +103,25 @@ class Tokenizer:
                 while pos < len(line) and (line[pos].isalnum() or line[pos] == '_'):
                     pos += 1
                 value = line[start:pos]
-                self.tokens.append(Token(value, TokenType.VAR_RECALL))
+                self.tokens.append(Token(value, TokenType.VAR_RECALL, line_num))
 
             elif char == '_':
-                self.tokens.append(Token("_", TokenType.VAR_CAPTURE))
+                self.tokens.append(Token("_", TokenType.VAR_CAPTURE, line_num))
                 pos += 1
 
             elif char.isalnum():
                 start = pos
-                while pos < len(line) and (line[pos].isalnum() or line[pos] == '.'):
+                while pos < len(line) and line[pos].isalnum():
                     pos += 1
                 value = line[start:pos]
 
                 if (value.startswith("u") and value[1:].isdigit()) or value == "u":
-                    self.tokens.append(Token(value, TokenType.LEVEL))
+                    self.tokens.append(Token(value, TokenType.LEVEL, line_num))
                 else:
-                    self.tokens.append(Token(value, TokenType.STRING))
+                    self.tokens.append(Token(value, TokenType.STRING, line_num))
 
             else:
                 # Skip unknown characters
                 pos += 1
 
-        self.tokens.append(Token("", TokenType.NEWLINE))
+        self.tokens.append(Token("", TokenType.NEWLINE, line_num))
