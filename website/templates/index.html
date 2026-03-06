@@ -152,10 +152,12 @@
             <button id="say2">"Say Hunter is so cool."</button>
             <button id="say3">"Say please don't touch my wheels"</button>
             <button id="say4">"Say Hunter is the greatest."</button>
-            <br>
-            <label for="say_custom" class="text">Enter text for the robot to speak:</label>
-            <input type="text" id="say_custom" name="say_custom">
         </div>
+    </div>
+
+    <div class="control-group">
+      <label for="ask" class="text">What would you like to ask the robot?:</label>
+      <input type="text" id="ask" name="ask">
     </div>
 
     <script>
@@ -168,7 +170,7 @@
         const say2 = document.getElementById('say2');
         const say3 = document.getElementById('say3');
         const say4 = document.getElementById('say4');
-        const say_custom = document.getElementById('say_custom')
+        const ask = document.getElementById('ask')
         let isMouseInside = false;
         let dragStart = null;
         let stickPos = { x: 0, y: 0 };
@@ -300,6 +302,27 @@
                 .catch(error => console.error('Error:', error));
         }
 
+        const sendQuestion = (question) => {
+            const question_data = {
+                'question': question
+            }
+            const jsonData = JSON.stringify(question_data)
+
+            /*
+            Make sure that this url is pointing to the
+            flask server running on the robot
+            */
+            fetch('http://10.130.187.65:5002/ask', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: jsonData
+            }).then(response => response.json())
+                    .then(data => console.log('Success:', data))
+                    .catch((error) => console.error('Error:', error))
+        }
+
         setInterval(sendPing, 500)
 
         // Event Listeners for Mouse and Touch
@@ -338,13 +361,13 @@
         say4.addEventListener('click', function () {
            sendMessage('Hunter is the greatest.')
         })
-        say_custom.addEventListener('keydown', function (event) {
+        ask.addEventListener('keydown', function (event) {
           if (event.key === 'Enter') {
-            const inputValue = say_custom.value.toLowerCase();
+            const inputValue = ask.value.toLowerCase();
 
             console.log("The user entered:", inputValue);
-            sendMessage(inputValue)
-            say_custom.value = ''
+            sendQuestion(inputValue)
+            ask.value = ''
           }
         })
     </script>

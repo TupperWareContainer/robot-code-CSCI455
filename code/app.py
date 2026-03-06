@@ -108,6 +108,18 @@ def speak():
     return jsonify({"error": "Request must be JSON"}), 400
 
 
+@app.post('/ask')
+def ask():
+    if request.is_json:
+        data = request.get_json()
+        question = data.get('question')
+
+        # Get the question and resolve the response and add that to the message queue
+
+        return jsonify({"response": f"Received: {data.get('question', 'no question')}"}), 200
+    return jsonify({"error": "Request must be JSON"}), 400
+
+
 @app.get("/ping")
 def fping():
     global ping
