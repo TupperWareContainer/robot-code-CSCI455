@@ -1,16 +1,18 @@
 from head_controller import HeadController
 from waist_controller import WaistController
 from wheel_controller import WheelController
+from arm_controller import ArmController
 from voice import Voice
 from espeakng import ESpeakNG
 import maestro
 class Robot:
     master_controller : maestro.Controller
-    espeak : ESpeakNG
-    head : HeadController
-    wheels : WheelController
-    waist : WaistController
-    voice : Voice
+    espeak  : ESpeakNG
+    head    : HeadController
+    wheels  : WheelController
+    waist   : WaistController
+    arm     : ArmController
+    voice   : Voice
 
     def __init__(self):
         # Add the logic for tty1 vs tty0 here
@@ -43,3 +45,6 @@ class Robot:
 
     def turn_wheels(self, speed):
         self.wheels.drive(speed, 1)
+
+    def raise_arm(self, angle):
+        self.arm.Raise(angle, 6)
