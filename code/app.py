@@ -3,6 +3,8 @@ from queue import Queue
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from robot import Robot
+from al_dialog_tokenizer import Tokenizer
+from al_dialog_parser import Parser
 import threading
 import atexit
 import time
@@ -20,6 +22,7 @@ ping = 0
 
 isPing = False
 
+program = None
 
 @app.post('/pan_head')
 def pan_head():
@@ -116,6 +119,7 @@ def ask():
 
         # Get the question and resolve the response and add that to the message queue
 
+
         return jsonify({"response": f"Received: {data.get('question', 'no question')}"}), 200
     return jsonify({"error": "Request must be JSON"}), 400
 
@@ -135,7 +139,13 @@ def safety_check():
             tempstop()
         time.sleep(1)
 
-
+def parse_program():
+    global program
+    path = "./testDialogFileForPractice.txt"
+    tokenizer = Tokenizer(path)
+    tokens = tokenizer.tokenize()
+    parser = Parser(tokens, path)
+    program = parser.parse()
 
 
 @app.get('/')
@@ -152,6 +162,7 @@ def speak_messages():
 
 
 def main():
+    parse_program()
     safetythread = threading.Thread(target=safety_check)
     thread = threading.Thread(target=speak_messages)
     safetythread.start()
