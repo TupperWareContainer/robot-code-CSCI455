@@ -20,3 +20,11 @@ def ShakeHead(robotInstance : Robot):
     robotInstance.pan_head(6000)
     time.sleep(1.5)
     return
+
+def RaiseArm(robotInstance : Robot):
+    print("Raising Arm")
+    robotInstance.raise_arm(4000)
+    time.sleep(1.5)
+    robotInstance.raise_arm(8000)
+    time.sleep(1.5)
+    robotInstance.raise_arm(6000)

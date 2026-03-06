@@ -68,6 +68,9 @@ class RobotController:
             case RobotAction.HEAD_NO:
                 robot_actions.ShakeHead(self.__robotInstance)
                 pass
+            case RobotAction.ARM_RAISE:
+                robot_actions.
+            
             case RobotAction.NONE:
                 pass
             case _:
