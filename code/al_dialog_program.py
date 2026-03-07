@@ -4,6 +4,7 @@ class Program:
     def __init__(self):
         self.definitions = {}
         self.rules = []
+        self.user_vars = {}
 
     def get_rules(self):
         return self.rules
