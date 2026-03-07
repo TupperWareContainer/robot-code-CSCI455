@@ -5,6 +5,7 @@ from flask_cors import CORS
 from robot import Robot
 from al_dialog_tokenizer import Tokenizer
 from al_dialog_parser import Parser
+from al_dialog_program import Program
 import threading
 import atexit
 import time
@@ -22,7 +23,7 @@ ping = 0
 
 isPing = False
 
-program = None
+program : Program
 
 @app.post('/pan_head')
 def pan_head():
@@ -114,10 +115,13 @@ def speak():
 @app.post('/ask')
 def ask():
     if request.is_json:
+        global program
         data = request.get_json()
         question = data.get('question')
 
         # Get the question and resolve the response and add that to the message queue
+
+
 
 
         return jsonify({"response": f"Received: {data.get('question', 'no question')}"}), 200
