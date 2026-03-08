@@ -3,7 +3,6 @@ import os
 from al_dialog_program import Program
 from al_dialog_rule import Rule
 from al_dialog_token_type import TokenType
-from al_dialog_optional_str import OptionalStr
 from al_dialog_token import Token
 
 MAX_DEPTH = 6
@@ -155,17 +154,8 @@ class Parser:
             TokenType.EOF,
             TokenType.RIGHT_BRACKET
         ):
-            if self._current().get_token_type() == TokenType.LEFT_CURLY:
-                self._parse_optional(items)
-            elif self._current().get_token_type() == TokenType.VAR_CAPTURE:
-                items.append(self._current())
-                self._advance()
-            elif self._current().get_token_type() == TokenType.VAR_RECALL:
-                items.append(self._current())
-                self._advance()
-            else:
-                items.append(self._current())
-                self._advance()
+            items.append(self._current())
+            self._advance()
 
         self._expect(TokenType.RIGHT_BRACKET)
 
@@ -177,18 +167,6 @@ class Parser:
                                                    TokenType.VAR_RECALL):
             items.append(self._current())
             self._advance()
-
-    def _parse_optional(self, items):
-        self._expect(TokenType.LEFT_CURLY)
-
-        optional_tokens = []
-
-        while self._current().get_token_type() != TokenType.RIGHT_CURLY:
-            optional_tokens.append(self._current())
-            self._advance()
-
-        self._expect(TokenType.RIGHT_CURLY)
-        items.append(OptionalStr(optional_tokens))
 
     def _skip_line(self):
         while self._current().get_token_type() not in (TokenType.NEWLINE, TokenType.EOF):
