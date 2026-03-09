@@ -1,5 +1,6 @@
 from al_dialog_token import Token
 from al_dialog_token_type import TokenType
+import string
 
 
 class Tokenizer:
@@ -29,6 +30,8 @@ class Tokenizer:
             return
 
         line = line.strip().lower()
+        translator = str.maketrans('', '', string.punctuation)
+        line = line.translate(translator)
         pos = 0
 
         while pos < len(line):
