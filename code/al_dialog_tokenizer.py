@@ -46,11 +46,20 @@ class Tokenizer:
 
             elif char == '{':
                 pos += 1
-                start = pos
-                while pos < len(line) and line[pos] != '}':
+                if char == '"':
                     pos += 1
-                value = line[start:pos]
-                self.tokens.append(Token(value, TokenType.OPTIONAL, line_num))
+                    start = pos
+                    while pos < len(line) and line[pos] != '"':
+                        pos += 1
+                    value = line[start:pos]
+                    self.tokens.append(Token(value, TokenType.OPTIONAL, line_num))
+                    pos += 1  # skip closing quote
+                else:
+                    start = pos
+                    while pos < len(line) and line[pos] != '}':
+                        pos += 1
+                    value = line[start:pos]
+                    self.tokens.append(Token(value, TokenType.OPTIONAL, line_num))
                 pos += 1  # skip closing curly
 
             elif char == ')':
