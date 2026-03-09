@@ -92,7 +92,7 @@ class Parser:
             return -1
 
     def _parse_definition(self, program):
-        name = self._current().value
+        name = self._current().get_value()
         self._advance()
         self._expect(TokenType.COLON)
 
@@ -100,7 +100,7 @@ class Parser:
         program.add_definition(name, choices)
 
     def _parse_rule(self):
-        level = self._current().value
+        level = self._current().get_value()
         self._advance()
 
         if not level.startswith("u"):
