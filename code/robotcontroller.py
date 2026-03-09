@@ -109,7 +109,9 @@ class RobotController:
                 self.AddAction(RobotAction.UNKNOWN)
                 pass
         
-    
+    def SpeakPhrase(self, phrase : str):
+        self.__robotInstance.speak(phrase)
+
 
     def GetState(self) -> RobotState:
         pass
