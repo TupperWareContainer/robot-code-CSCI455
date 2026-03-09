@@ -10,6 +10,7 @@ from al_dialog_token_type import TokenType
 import threading
 import atexit
 import time
+import string
 message_queue = Queue()
 server_name = "10.130.187.65"
 
@@ -119,6 +120,8 @@ def ask():
         global program
         data = request.get_json()
         question : str = data.get('question')
+        translator = str.maketrans('', '', string.punctuation)
+        question = question.translate(translator)
         question_words = question.split()
 
         # Get the question and resolve the response and add that to the message queue
