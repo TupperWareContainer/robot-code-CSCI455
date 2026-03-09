@@ -5,6 +5,7 @@ from al_dialog_parser import Parser
 from al_dialog_program import Program
 from al_dialog_token_type import TokenType
 from al_dialog_choice import Choice
+from al_dialog_token import Token
 
 program : Program
 
@@ -19,7 +20,7 @@ def parse_program():
 def main():
     parse_program()
     global program
-    question: str = "hi there."
+    question: str = "how old am i"
     translator = str.maketrans('', '', string.punctuation)
     question = question.translate(translator)
     question_words = question.split()
@@ -40,6 +41,17 @@ def get_response(question_words):
     if rule is not None:
         output = rule.get_output()
 
+        if isinstance(output, Token):
+            if output.get_token_type() == TokenType.DEFINITION:
+                value = output.get_value()
+
+                definition = definitions.get(value, [])
+                choices = definition.get_choices()[0]
+                output = choices.get_random()
+
+
+
+
         for token in output:
             token_type = token.get_token_type()
             value = token.get_value()
@@ -54,6 +66,7 @@ def get_response(question_words):
                 response.append(value)
 
     return " ".join(response)
+
 
 def find_rule(definitions, rules, question_words):
 
@@ -156,7 +169,8 @@ def match_token(token, word, definitions):
 
     if token_type == TokenType.DEFINITION:
         choices = definitions.get(value, [])
-        return word in choices, None
+
+        return word in choices.get_choices(), None
 
     if token_type == TokenType.OPTIONAL:
         return True, None
