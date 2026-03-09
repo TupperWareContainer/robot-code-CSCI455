@@ -33,6 +33,8 @@ def RaiseArm(robotInstance : Robot):
 
 def Dance90(robotInstance : Robot):
     print("Dancing 90")
+    robotInstance.turn_wheels(6000)
+    time.sleep(0.25)
     robotInstance.turn_wheels(7000)
     time.sleep(0.5)
     robotInstance.turn_wheels(6000)
