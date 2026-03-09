@@ -30,8 +30,6 @@ class Tokenizer:
             return
 
         line = line.strip().lower()
-        translator = str.maketrans('', '', string.punctuation)
-        line = line.translate(translator)
         pos = 0
 
         while pos < len(line):
