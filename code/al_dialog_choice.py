@@ -10,12 +10,15 @@ class Choice:
     def add_choice(self, choice):
         self.choices.append(choice)
 
-    def contains_choice(self, user_input : str):
-        for choice_token in self.choices:
-            choice = choice_token.get_value()
+    def contains_choice(self, start_index, question_words : list):
+        for choice in self.choices:
+            value = choice.get_value().split()
 
-            if user_input in choice:
-                return True
+            i = start_index
+            while i < len(value) and i < len(question_words):
+                if value[i] == question_words[i]:
+                    return True
+                i += 1
         return False
 
     def get_random(self):

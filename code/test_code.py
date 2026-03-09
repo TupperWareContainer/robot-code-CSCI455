@@ -20,7 +20,7 @@ def parse_program():
 def main():
     parse_program()
     global program
-    question: str = "how old am i"
+    question: str = "nope"
     translator = str.maketrans('', '', string.punctuation)
     question = question.translate(translator)
     question_words = question.split()
@@ -48,9 +48,6 @@ def get_response(question_words):
                 definition = definitions.get(value, [])
                 choices = definition.get_choices()[0]
                 output = choices.get_random()
-
-
-
 
         for token in output:
             token_type = token.get_token_type()
@@ -115,15 +112,17 @@ def search_rule(rule, definitions, question_words):
 
 def match_pattern(pattern, definitions, question_words):
 
-    if len(question_words) != len(pattern):
-        return False, []
-
     user_vars = []
+    i = 0
 
-    for i, element in enumerate(pattern):
-        word = question_words[i]
+    for element in pattern:
 
-        matched, captured = match_element(element, word, definitions)
+        matched, captured, consumed = match_element(
+            element,
+            question_words,
+            i,
+            definitions
+        )
 
         if not matched:
             return False, []
@@ -131,40 +130,55 @@ def match_pattern(pattern, definitions, question_words):
         if captured is not None:
             user_vars.append(captured)
 
+        i += consumed
+
+    # Ensure full sentence matched
+    if i != len(question_words):
+        return False, []
+
     return True, user_vars
 
-def match_element(element, word, definitions):
+def match_element(element, question_words, start_index, definitions):
 
     # Choice object
     if isinstance(element, Choice):
 
         for token in element.get_choices():
-            matched, captured = match_token(token, word, definitions)
+            matched, captured, consumed = match_token(
+                token,
+                question_words,
+                start_index,
+                definitions
+            )
 
             if matched:
-                return True, captured
-        return False, None
+                return True, captured, consumed
+
+        return False, None, 0
 
     # Normal token
-    return match_token(element, word, definitions)
+    return match_token(element, question_words, start_index, definitions)
 
-def match_token(token, word, definitions):
-
+def match_token(token, question_words, start_index, definitions):
     token_type = token.get_token_type()
     value = token.get_value()
 
     if token_type == TokenType.VAR_CAPTURE:
-        return True, word
+        return True, question_words[start_index], 1
 
     if token_type == TokenType.DEFINITION:
-        choices = definitions.get(value, []).get_choices()[0]
+        choices : Choice = definitions.get(value, []).get_choices()[0]
 
-        return choices.contains_choice(word), None
+        if choices.contains_choice(start_index, question_words):
+            # The full word has been matched!
+            consumed = len(question_words) - start_index
+            return True, None, consumed
+        return False, None, 0
 
     if token_type == TokenType.OPTIONAL:
-        return True, None
+        return True, None, 0
 
-    return word == value, None
+    return question_words[start_index] == value, None, 1
 
 if __name__ == '__main__':
     main()
