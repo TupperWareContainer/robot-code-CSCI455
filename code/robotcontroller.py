@@ -84,6 +84,8 @@ class RobotController:
     def AddAction(self, action : RobotAction):
         self.__actionQueue.append(action)
 
+    def AddActionViaStr(self, action : str):
+        pass
     
 
     def GetState(self) -> RobotState:
