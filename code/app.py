@@ -3,9 +3,14 @@ from queue import Queue
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from robot import Robot
+from al_dialog_tokenizer import Tokenizer
+from al_dialog_parser import Parser
+from al_dialog_program import Program
+from al_dialog_token_type import TokenType
 import threading
 import atexit
 import time
+import string
 message_queue = Queue()
 server_name = "10.130.187.65"
 
@@ -20,6 +25,7 @@ ping = 0
 
 isPing = False
 
+program : Program
 
 @app.post('/pan_head')
 def pan_head():
@@ -111,13 +117,64 @@ def speak():
 @app.post('/ask')
 def ask():
     if request.is_json:
+        global program
         data = request.get_json()
-        question = data.get('question')
+        question : str = data.get('question')
+        translator = str.maketrans('', '', string.punctuation)
+        question = question.translate(translator)
+        question_words = question.split()
 
         # Get the question and resolve the response and add that to the message queue
+        response = get_response(question_words)
+        print(response)
+
 
         return jsonify({"response": f"Received: {data.get('question', 'no question')}"}), 200
     return jsonify({"error": "Request must be JSON"}), 400
+
+def get_response(question_words):
+    rules = program.get_rules()
+    response : list = []
+
+    user_vars, rule = find_rule(rules, question_words)
+
+    if rule is not None:
+        output = rule.get_output()
+
+        for token in output:
+            token_type = token.get_token_type()
+            value = token.get_value()
+
+            if token_type == TokenType.VAR_RECALL:
+                if user_vars:
+                    program.add_user_var(value, user_vars[0])
+                    user_vars.pop(0)
+                else:
+                    response.append("I don't know")
+            else:
+                response.append(value)
+
+    return " ".join(response)
+
+def find_rule(rules, question_words):
+    user_vars = []
+    rule = None
+
+    for rule in rules:
+        pattern = rule.get_pattern()
+
+        for i in range(len(pattern)):
+            token = pattern[i]
+            token_type = token.get_token_type()
+
+            if token_type == TokenType.VAR_CAPTURE:
+                user_vars.append(question_words[i])
+            elif token_type == TokenType.OPTIONAL:
+                continue
+            elif question_words[i] != pattern[i]:
+                break
+
+    return user_vars, rule
 
 
 @app.get("/ping")
@@ -135,7 +192,13 @@ def safety_check():
             tempstop()
         time.sleep(1)
 
-
+def parse_program():
+    global program
+    path = "./testDialogFileForPractice.txt"
+    tokenizer = Tokenizer(path)
+    tokens = tokenizer.tokenize()
+    parser = Parser(tokens, path)
+    program = parser.parse()
 
 
 @app.get('/')
@@ -152,6 +215,7 @@ def speak_messages():
 
 
 def main():
+    parse_program()
     safetythread = threading.Thread(target=safety_check)
     thread = threading.Thread(target=speak_messages)
     safetythread.start()

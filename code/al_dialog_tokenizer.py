@@ -1,5 +1,6 @@
 from al_dialog_token import Token
 from al_dialog_token_type import TokenType
+import string
 
 
 class Tokenizer:
@@ -42,10 +43,22 @@ class Tokenizer:
                 pos += 1
 
             elif char == '{':
-                self.tokens.append(Token("{", TokenType.RIGHT_CURLY, line_num))
-
-            elif char == '}':
-                self.tokens.append(Token("}", TokenType.LEFT_CURLY, line_num))
+                pos += 1
+                if char == '"':
+                    pos += 1
+                    start = pos
+                    while pos < len(line) and line[pos] != '"':
+                        pos += 1
+                    value = line[start:pos]
+                    self.tokens.append(Token(value, TokenType.OPTIONAL, line_num))
+                    pos += 1  # skip closing quote
+                else:
+                    start = pos
+                    while pos < len(line) and line[pos] != '}':
+                        pos += 1
+                    value = line[start:pos]
+                    self.tokens.append(Token(value, TokenType.OPTIONAL, line_num))
+                pos += 1  # skip closing curly
 
             elif char == ')':
                 self.tokens.append(Token(")", TokenType.RIGHT_PAREN, line_num))
