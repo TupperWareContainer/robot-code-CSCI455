@@ -16,10 +16,10 @@ class Choice:
 
             i = start_index
             while i < len(value) and i < len(question_words):
-                if value[i] == question_words[i]:
-                    return True
+                if value[i] != question_words[i]:
+                    return False
                 i += 1
-        return False
+        return True
 
     def get_random(self):
         return random.choice(self.choices)
