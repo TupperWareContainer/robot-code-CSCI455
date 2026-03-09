@@ -70,7 +70,11 @@ class RobotController:
                 pass
             case RobotAction.ARM_RAISE:
                 robot_actions.RaiseArm(self.__robotInstance)
-            
+                pass
+            case RobotAction.DANCE_90:
+                robot_actions.Dance90(self.__robotInstance)
+                pass
+
             case RobotAction.NONE:
                 pass
             case _:
