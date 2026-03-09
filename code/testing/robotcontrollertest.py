@@ -28,9 +28,20 @@ print("Added action ARM_RAISE")
 
 inp = input()
 
+
+cont.AddAction(RobotAction.DANCE_90)
+print("Added action DANCE_90")
+
+inp = input()
+
 cont.Update()
 print("Action Performed")
 
+inp = input()
+
+
+cont.Update()
+print("Action Performed")
 inp = input()
 
 
@@ -52,5 +63,7 @@ cont.Update()
 print("Action Performed")
 
 inp = input()
+
+
 
 
