@@ -115,20 +115,15 @@ def search_rule(rule, definitions, question_words):
 
 def match_pattern(pattern, definitions, question_words):
 
-    if len(question_words) < len(pattern):
+    if len(question_words) != len(pattern):
         return False, []
 
     user_vars = []
 
     for i, element in enumerate(pattern):
-
         word = question_words[i]
 
-        matched, captured = match_element(
-            element,
-            word,
-            definitions
-        )
+        matched, captured = match_element(element, word, definitions)
 
         if not matched:
             return False, []
@@ -144,16 +139,10 @@ def match_element(element, word, definitions):
     if isinstance(element, Choice):
 
         for token in element.get_choices():
-
-            matched, captured = match_token(
-                token,
-                word,
-                definitions
-            )
+            matched, captured = match_token(token, word, definitions)
 
             if matched:
                 return True, captured
-
         return False, None
 
     # Normal token
@@ -168,9 +157,9 @@ def match_token(token, word, definitions):
         return True, word
 
     if token_type == TokenType.DEFINITION:
-        choices = definitions.get(value, [])
+        choices = definitions.get(value, []).get_choices()[0]
 
-        return word in choices.get_choices(), None
+        return choices.contains_choice(word), None
 
     if token_type == TokenType.OPTIONAL:
         return True, None
