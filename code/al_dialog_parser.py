@@ -4,6 +4,7 @@ from al_dialog_program import Program
 from al_dialog_rule import Rule
 from al_dialog_token_type import TokenType
 from al_dialog_token import Token
+from al_dialog_choice import Choice
 
 MAX_DEPTH = 6
 
@@ -147,6 +148,7 @@ class Parser:
             return items
 
         self._expect(TokenType.LEFT_BRACKET)
+        choices = Choice()
 
         while self._current().get_token_type() not in (
             TokenType.NEWLINE,
@@ -154,10 +156,11 @@ class Parser:
             TokenType.EOF,
             TokenType.RIGHT_BRACKET
         ):
-            items.append(self._current())
+            choices.add_choice(self._current())
             self._advance()
 
         self._expect(TokenType.RIGHT_BRACKET)
+        items.append(choices)
 
         return items
 
