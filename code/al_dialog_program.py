@@ -18,5 +18,5 @@ class Program:
     def add_user_var(self, name, value):
         self.user_vars[name] = value
 
-    def get_user_var(self, name):
-        return self.user_vars.get(name)
+    def get_user_var(self, name, default_val):
+        return self.user_vars.get(name, default_val)

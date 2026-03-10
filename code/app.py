@@ -7,6 +7,9 @@ from al_dialog_tokenizer import Tokenizer
 from al_dialog_parser import Parser
 from al_dialog_program import Program
 from al_dialog_token_type import TokenType
+from al_dialog_rule import Rule
+from al_dialog_token import Token
+from al_dialog_choice import Choice
 import threading
 import atexit
 import time
@@ -26,6 +29,7 @@ ping = 0
 isPing = False
 
 program : Program
+rules : Rule
 
 @app.post('/pan_head')
 def pan_head():
@@ -122,60 +126,168 @@ def ask():
         question : str = data.get('question')
         translator = str.maketrans('', '', string.punctuation)
         question = question.translate(translator)
-        question_words = question.split()
+        question_words = question.lower().split()
 
         # Get the question and resolve the response and add that to the message queue
         response = get_response(question_words)
         print(response)
 
-
         return jsonify({"response": f"Received: {data.get('question', 'no question')}"}), 200
     return jsonify({"error": "Request must be JSON"}), 400
 
 def get_response(question_words):
-    rules = program.get_rules()
+    global program
+    global rules
+
+    definitions = program.get_definitions()
     response : list = []
 
-    user_vars, rule = find_rule(rules, question_words)
+    user_vars, rule = find_rule(definitions, rules, question_words)
+
+    # If the rule has children go down one level!
+    if rule.get_children():
+        rules = rule.get_children()
 
     if rule is not None:
         output = rule.get_output()
 
+        if isinstance(output, Token):
+            if output.get_token_type() == TokenType.DEFINITION:
+                value = output.get_value()
+
+                definition = definitions.get(value, [])
+                choices = definition.get_choices()[0]
+                output = choices.get_random()
+
         for token in output:
+            if isinstance(token, Choice):
+                # If there is a choice we first need to pick a random one!
+                token = token.get_random()
+
             token_type = token.get_token_type()
             value = token.get_value()
 
             if token_type == TokenType.VAR_RECALL:
-                if user_vars:
-                    program.add_user_var(value, user_vars[0])
-                    user_vars.pop(0)
+                if not user_vars:
+                    response.append(program.get_user_var(value, "I don't know"))
                 else:
-                    response.append("I don't know")
+                    program.add_user_var(value, user_vars[0])
+                    response.append(user_vars[0])
+                    user_vars.pop(0)
             else:
                 response.append(value)
+        return " ".join(response)
+    else:
+        return "I don't know that"
 
-    return " ".join(response)
 
-def find_rule(rules, question_words):
+def find_rule(definitions, current_rules, question_words):
+    rules_sorted = sorted(current_rules, key=lambda r: r.get_level())
+
+    for rule in rules_sorted:
+        matched, vars_found, matched_rule = search_rule(
+            rule,
+            definitions,
+            question_words
+        )
+
+        if matched:
+            return vars_found, matched_rule
+
+    return [], None
+
+def search_rule(rule, definitions, question_words):
+    pattern = rule.get_pattern()
+
+    if not isinstance(pattern, list):
+        pattern = [pattern]
+
+    matched, vars_found = match_pattern(
+        pattern,
+        definitions,
+        question_words
+    )
+
+    if not matched:
+        return False, [], None
+
+    # search children
+    for child in rule.get_children():
+        child_match, child_vars, child_rule = search_rule(
+            child,
+            definitions,
+            question_words
+        )
+
+        if child_match:
+            return True, vars_found + child_vars, child_rule
+
+    return True, vars_found, rule
+
+def match_pattern(pattern, definitions, question_words):
     user_vars = []
-    rule = None
+    i = 0
 
-    for rule in rules:
-        pattern = rule.get_pattern()
+    for element in pattern:
 
-        for i in range(len(pattern)):
-            token = pattern[i]
-            token_type = token.get_token_type()
+        matched, captured, consumed = match_element(
+            element,
+            question_words,
+            i,
+            definitions
+        )
 
-            if token_type == TokenType.VAR_CAPTURE:
-                user_vars.append(question_words[i])
-            elif token_type == TokenType.OPTIONAL:
-                continue
-            elif question_words[i] != pattern[i]:
-                break
+        if not matched:
+            return False, []
 
-    return user_vars, rule
+        if captured is not None:
+            user_vars.append(captured)
 
+        i += consumed
+
+    # Ensure full sentence matched
+    if i != len(question_words):
+        return False, []
+
+    return True, user_vars
+
+def match_element(element, question_words, start_index, definitions):
+
+    # Choice object
+    if isinstance(element, Choice):
+
+        for token in element.get_choices():
+            matched, captured, consumed = match_token(token, question_words, start_index, definitions)
+
+            if matched:
+                return True, captured, consumed
+
+        return False, None, 0
+
+    # Normal token
+    return match_token(element, question_words, start_index, definitions)
+
+def match_token(token, question_words, start_index, definitions):
+    token_type = token.get_token_type()
+    value = token.get_value()
+
+    if token_type == TokenType.VAR_CAPTURE:
+        captured_value = question_words[start_index]
+        return True, captured_value, 1
+
+    if token_type == TokenType.DEFINITION:
+        choices : Choice = definitions.get(value, []).get_choices()[0]
+
+        if choices.contains_choice(start_index, question_words):
+            # The full word has been matched!
+            consumed = len(question_words) - start_index
+            return True, None, consumed
+        return False, None, 0
+
+    if token_type == TokenType.OPTIONAL:
+        return True, None, 0
+
+    return question_words[start_index] == value, None, 1
 
 @app.get("/ping")
 def fping():

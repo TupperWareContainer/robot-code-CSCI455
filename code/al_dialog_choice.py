@@ -14,12 +14,12 @@ class Choice:
         for choice in self.choices:
             value = choice.get_value().split()
 
-            i = start_index
-            while i < len(value) and i < len(question_words):
-                if value[i] != question_words[i]:
-                    return False
-                i += 1
-        return True
+            # Check if all words in this choice match the segment in question_words
+            if len(value) + start_index <= len(question_words) and all(
+                    value[i] == question_words[start_index + i] for i in range(len(value))
+            ):
+                return True
+        return False
 
     def get_random(self):
         return random.choice(self.choices)
