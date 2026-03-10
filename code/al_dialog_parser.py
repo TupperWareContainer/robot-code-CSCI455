@@ -6,7 +6,7 @@ from al_dialog_token_type import TokenType
 from al_dialog_token import Token
 from al_dialog_choice import Choice
 
-MAX_DEPTH = 6
+MAX_DEPTH = 5
 
 class Parser:
 
