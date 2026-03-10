@@ -162,7 +162,11 @@ def get_response(question_words):
 
                 definition = definitions.get(value, [])
                 choices = definition.get_choices()[0]
-                output = choices.get_random()
+                token = choices.get_random()
+                output = [token] # Rewrap the token in a list to prevent a crash!
+            else:
+                token = output
+                output = [token] # Rewrap the token in a list to prevent a crash!
 
         for token in output:
             if isinstance(token, Choice):
