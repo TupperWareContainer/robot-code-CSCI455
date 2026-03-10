@@ -131,13 +131,11 @@ class Parser:
             output = self._parse_expression()
 
         # Collect multiple action tokens
-        actions = []
+        rule = Rule(level, pattern, output)
         while self._current().get_token_type() == TokenType.ACTION:
-            actions.append(self._current())
+            rule.add_action(self._current())
             self._advance()
 
-        rule = Rule(level, pattern, output)
-        rule.set_actions(actions)
         return rule
 
     def _parse_expression(self):
