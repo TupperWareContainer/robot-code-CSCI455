@@ -1,6 +1,5 @@
 from al_dialog_token import Token
 from al_dialog_token_type import TokenType
-import string
 
 
 def clear_punctuation(value_input: str):
