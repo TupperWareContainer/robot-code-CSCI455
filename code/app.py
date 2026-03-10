@@ -13,7 +13,6 @@ from collections import deque
 import threading
 import atexit
 import time
-import string
 message_queue = Queue()
 server_name = "10.130.187.65"
 
