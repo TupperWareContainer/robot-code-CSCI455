@@ -141,13 +141,16 @@ def get_response(question_words):
     global program
     global rules
 
+    if not question_words:
+        return None, "I don't know that"
+
     definitions = program.get_definitions()
     response : list = []
 
     user_vars, rule = find_rule(definitions, rules, question_words)
 
     # If the rule has children go down one level!
-    if rule.get_children():
+    if rule is not None and rule.get_children():
         rules = rule.get_children()
 
     if rule is not None:
@@ -210,21 +213,10 @@ def search_rule(rule, definitions, question_words):
         question_words
     )
 
-    if not matched:
-        return False, [], None
+    if matched:
+        return True, vars_found, rule
 
-    # search children
-    for child in rule.get_children():
-        child_match, child_vars, child_rule = search_rule(
-            child,
-            definitions,
-            question_words
-        )
-
-        if child_match:
-            return True, vars_found + child_vars, child_rule
-
-    return True, vars_found, rule
+    return False, [], None
 
 def match_pattern(pattern, definitions, question_words):
     user_vars = []
