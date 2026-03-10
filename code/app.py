@@ -156,7 +156,7 @@ def get_response(question_words) -> tuple[list, str]:
         return process_output(rule, user_vars, definitions)
     else:
         # If there is no outer scope then we need to return early!
-        if len(rules) <= 1:
+        if len(rules) <= 2:
             return [], "I don't know that"
 
         # Peak at the next outer scope to try to find the rule there!
