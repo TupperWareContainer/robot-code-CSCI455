@@ -156,16 +156,18 @@ def get_response(question_words) -> tuple[list, str]:
 
         return process_output(rule, user_vars, definitions)
     else:
-        inner_rule = rules.popleft()
+        # If there is no outer scope then we need to return early!
+        if len(rules) <= 1:
+            return [], "I don't know that"
 
-        top_rules = rules[0]
-        user_vars, rule = find_rule(definitions, top_rules, question_words)
+        # Peak at the next outer scope to try to find the rule there!
+        next_rules = rules[1]
+        user_vars, rule = find_rule(definitions, next_rules, question_words)
 
         if rule is None:
-            # If the method does not exist in the outer scope add back the inner rule
-            rules.appendleft(inner_rule)
             return [], "I don't know that"
         else:
+            rules.popleft()
             return process_output(rule, user_vars, definitions)
 
 def process_output(rule, user_vars, definitions) -> tuple[list, str]:
