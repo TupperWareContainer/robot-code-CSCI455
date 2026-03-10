@@ -7,9 +7,9 @@ from al_dialog_tokenizer import Tokenizer
 from al_dialog_parser import Parser
 from al_dialog_program import Program
 from al_dialog_token_type import TokenType
-from al_dialog_rule import Rule
 from al_dialog_token import Token
 from al_dialog_choice import Choice
+from collections import deque
 import threading
 import atexit
 import time
@@ -29,7 +29,7 @@ ping = 0
 isPing = False
 
 program : Program
-rules : Rule
+rules : deque = deque()
 
 @app.post('/pan_head')
 def pan_head():
@@ -137,21 +137,42 @@ def ask():
         return jsonify({"response": f"Received: {data.get('question', 'no question')}"}), 200
     return jsonify({"error": "Request must be JSON"}), 400
 
-def get_response(question_words):
+def get_response(question_words) -> tuple[list, str]:
     global program
     global rules
 
     if not question_words:
-        return None, "I don't know that"
+        return [], "I don't know that"
 
     definitions = program.get_definitions()
-    response : list = []
 
-    user_vars, rule = find_rule(definitions, rules, question_words)
+    top_rules = rules[0]
+    user_vars, rule = find_rule(definitions, top_rules, question_words)
 
-    # If the rule has children go down one level!
-    if rule is not None and rule.get_children():
-        rules = rule.get_children()
+    if rule is not None:
+        # If the rule has children go down one level!
+        if rule.get_children():
+            rules.appendleft(rule.get_children())
+
+        return process_output(rule, user_vars, definitions)
+    else:
+        inner_rule = rules.popleft()
+
+        top_rules = rules[0]
+        user_vars, rule = find_rule(definitions, top_rules, question_words)
+
+        if rule is None:
+            # If the method does not exist in the outer scope add back the inner rule
+            rules.appendleft(inner_rule)
+            return [], "I don't know that"
+        else:
+            return process_output(rule, user_vars, definitions)
+
+def process_output(rule, user_vars, definitions) -> tuple[list, str]:
+    response: list = []
+
+    if rule is None:
+        return [], "I don't know that"
 
     if rule is not None:
         output = rule.get_output()
@@ -163,10 +184,12 @@ def get_response(question_words):
                 definition = definitions.get(value, [])
                 choices = definition.get_choices()[0]
                 token = choices.get_random()
-                output = [token] # Rewrap the token in a list to prevent a crash!
+                # Rewrap the token in a list to prevent a crash!
+                output = [token]
             else:
                 token = output
-                output = [token] # Rewrap the token in a list to prevent a crash!
+                # Rewrap the token in a list to prevent a crash!
+                output = [token]
 
         for token in output:
             if isinstance(token, Choice):
@@ -186,8 +209,8 @@ def get_response(question_words):
             else:
                 response.append(value)
         return rule.get_actions(), " ".join(response)
-    else:
-        return None, "I don't know that"
+
+    return [], "I don't know that"
 
 
 def find_rule(definitions, current_rules, question_words):
@@ -309,6 +332,7 @@ def parse_program():
     tokens = tokenizer.tokenize()
     parser = Parser(tokens, path)
     program = parser.parse()
+    rules.appendleft(program.get_rules())
 
 
 @app.get('/')
