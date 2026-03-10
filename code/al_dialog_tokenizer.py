@@ -4,7 +4,7 @@ import string
 
 
 def clear_punctuation(value_input: str):
-    translator = str.maketrans('', '', string.punctuation)
+    translator = str.maketrans('', '', ".,?!'")
     value_input = value_input.translate(translator)
     return value_input
 
