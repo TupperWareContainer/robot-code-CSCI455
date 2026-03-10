@@ -129,8 +129,10 @@ def ask():
         question_words = question.lower().split()
 
         # Get the question and resolve the response and add that to the message queue
-        response = get_response(question_words)
+        actions, response = get_response(question_words)
+        print(actions)
         print(response)
+        message_queue.put(response)
 
         return jsonify({"response": f"Received: {data.get('question', 'no question')}"}), 200
     return jsonify({"error": "Request must be JSON"}), 400
@@ -176,9 +178,9 @@ def get_response(question_words):
                     user_vars.pop(0)
             else:
                 response.append(value)
-        return " ".join(response)
+        return rule.get_actions(), " ".join(response)
     else:
-        return "I don't know that"
+        return None, "I don't know that"
 
 
 def find_rule(definitions, current_rules, question_words):

@@ -4,6 +4,9 @@ from al_dialog_tokenizer import Tokenizer
 from al_dialog_parser import Parser
 from al_dialog_program import Program
 from al_dialog_rule import Rule
+# from al_dialog_token import Token
+# from al_dialog_token_type import TokenType
+# from al_dialog_choice import Choice
 
 program : Program
 rules : Rule
@@ -22,16 +25,17 @@ def main():
     global rules
     rules = program.get_rules()
     question: str = "My name is ryan"
-    question2 : str = "What is my name"
-    question3 : str = "let us talk"
-    question4 : str = "are you happy"
+    # question2 : str = "What is my name"
+    # question3 : str = "let us talk"
+    # question4 : str = "are you happy"
 
     translator = str.maketrans('', '', string.punctuation)
     question = question.translate(translator)
-    question_words = question.lower().split()
-    question2_words = question2.lower().split()
-    question3_words = question3.lower().split()
-    question4_words = question4.lower().split()
+    # question_words = question.lower().split()
+
+    # actions, response = get_response(question_words)
+    # print(response)
+    # print(actions[0].get_value())
 
 
 # def get_response(question_words):
@@ -74,13 +78,13 @@ def main():
 #                     user_vars.pop(0)
 #             else:
 #                 response.append(value)
-#         return " ".join(response)
+#         return rule.get_actions(), " ".join(response)
 #     else:
-#         return "I don't know that"
+#         return None, "I don't know that"
 #
 #
-# def find_rule(definitions, rules, question_words):
-#     rules_sorted = sorted(rules, key=lambda r: r.get_level())
+# def find_rule(definitions, current_rules, question_words):
+#     rules_sorted = sorted(current_rules, key=lambda r: r.get_level())
 #
 #     for rule in rules_sorted:
 #         matched, vars_found, matched_rule = search_rule(
