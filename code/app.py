@@ -124,7 +124,7 @@ def ask():
         global program
         data = request.get_json()
         question : str = data.get('question')
-        translator = str.maketrans('', '', string.punctuation)
+        translator = str.maketrans('', '', ".,?!'")
         question = question.translate(translator)
         question_words = question.lower().split()
 
