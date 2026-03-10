@@ -363,7 +363,7 @@
         })
         ask.addEventListener('keydown', function (event) {
           if (event.key === 'Enter') {
-            const inputValue = ask.value.toLowerCase();
+            const inputValue = ask.value;
 
             console.log("The user entered:", inputValue);
             sendQuestion(inputValue)
