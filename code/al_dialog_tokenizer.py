@@ -97,7 +97,7 @@ class Tokenizer:
             elif char == '~':
                 pos += 1
                 start = pos
-                while pos < len(line) and (line[pos].isalnum() or line[pos] == '_'):
+                while pos < len(line) and (line[pos].isalnum() or line[pos] in ['_', '.', ',', '?', '!', "'"]):
                     pos += 1
                 value = line[start:pos]
                 self.tokens.append(Token(value, TokenType.DEFINITION, line_num))
@@ -105,7 +105,7 @@ class Tokenizer:
             elif char == '&':
                 pos += 1
                 start = pos
-                while pos < len(line) and (line[pos].isalnum() or line[pos] == '_'):
+                while pos < len(line) and (line[pos].isalnum() or line[pos] in ['_', '.', ',', '?', '!', "'"]):
                     pos += 1
                 value = line[start:pos]
                 self.tokens.append(Token(value, TokenType.VAR, line_num))
@@ -113,7 +113,7 @@ class Tokenizer:
             elif char == '$':
                 pos += 1
                 start = pos
-                while pos < len(line) and (line[pos].isalnum() or line[pos] == '_'):
+                while pos < len(line) and (line[pos].isalnum() or line[pos] in ['_', '.', ',', '?', '!', "'"]):
                     pos += 1
                 value = line[start:pos]
                 self.tokens.append(Token(value, TokenType.VAR_RECALL, line_num))
@@ -124,7 +124,7 @@ class Tokenizer:
 
             elif char.isalnum():
                 start = pos
-                while pos < len(line) and line[pos].isalnum():
+                while pos < len(line) and (line[pos].isalnum() or line[pos] in ['_', '.', ',', '?', '!', "'"]):
                     pos += 1
                 value = line[start:pos]
 
