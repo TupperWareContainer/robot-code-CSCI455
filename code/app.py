@@ -9,6 +9,7 @@ from al_dialog_program import Program
 from al_dialog_token_type import TokenType
 from al_dialog_token import Token
 from al_dialog_choice import Choice
+from robotcontroller import RobotController
 from collections import deque
 import threading
 import atexit
@@ -29,6 +30,7 @@ isPing = False
 
 program : Program
 rules : deque = deque()
+controller : RobotController
 
 @app.post('/pan_head')
 def pan_head():
@@ -133,8 +135,19 @@ def ask():
         print(response)
         message_queue.put(response)
 
+        if actions:
+            queue_actions(actions)
+
+
+
+
         return jsonify({"response": f"Received: {data.get('question', 'no question')}"}), 200
     return jsonify({"error": "Request must be JSON"}), 400
+
+def queue_actions(actions):
+    for action in actions:
+        action_value = action.get_value()
+        controller.AddActionViaStr(action_value)
 
 def get_response(question_words) -> tuple[list, str]:
     global program
