@@ -333,7 +333,9 @@ def match_token(token, question_words, start_index, definitions):
     if token_type == TokenType.OPTIONAL:
         return True, None, 0
 
-    return question_words[start_index] == value, None, 1
+    if start_index < len(question_words):
+        return question_words[start_index] == value, None, 1
+    return False, None, len(question_words) - start_index
 
 @app.get("/ping")
 def fping():
