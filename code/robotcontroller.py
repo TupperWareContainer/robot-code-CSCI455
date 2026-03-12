@@ -85,6 +85,8 @@ class RobotController:
             case _:
                 pass 
 
+        self.__isPerformingAction = False
+
 
     def AddAction(self, action : RobotAction):
         self.__actionQueue.append(action)
