@@ -154,7 +154,9 @@ def queue_actions(actions):
 
 def stop():
     # controller.Stop()
-    pass
+
+    rules.clear()
+    rules.appendleft(program.get_rules())
 
 def get_response(question_words) -> tuple[list, str]:
     global program
