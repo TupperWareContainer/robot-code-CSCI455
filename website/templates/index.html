@@ -186,7 +186,7 @@
             Make sure that this url is pointing to the
             flask server running on the robot
             */
-            fetch('http://10.130.187.65:5002/' + endpoint, {
+            fetch('http://10.23.253.65:5002/' + endpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -249,7 +249,7 @@
             Make sure that this url is pointing to the
             flask server running on the robot
             */
-            fetch('http://10.130.187.65:5002/drive', {
+            fetch('http://10.23.253.65:5002/drive', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -283,7 +283,7 @@
             Make sure that this url is pointing to the
             flask server running on the robot
             */
-            fetch('http://10.130.187.65:5002/speak', {
+            fetch('http://10.23.253.65:5002/speak', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -295,7 +295,7 @@
         }
 
         const sendPing = () => {
-            fetch('http://10.130.187.65:5002/ping', {
+            fetch('http://10.23.253.65:5002/ping', {
                 method: 'GET'
             }).then(response => response.json())
                 .then(data => console.log(data))
@@ -312,7 +312,7 @@
             Make sure that this url is pointing to the
             flask server running on the robot
             */
-            fetch('http://10.130.187.65:5002/ask', {
+            fetch('http://10.23.253.65:5002/ask', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

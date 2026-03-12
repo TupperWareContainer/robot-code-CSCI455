@@ -15,7 +15,7 @@ import threading
 import atexit
 import time
 message_queue = Queue()
-server_name = "10.130.187.65"
+server_name = "10.23.253.65"
 
 app = Flask(__name__)
 CORS(app)
