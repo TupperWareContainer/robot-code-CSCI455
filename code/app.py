@@ -122,7 +122,6 @@ def speak():
 @app.post('/ask')
 def ask():
     if request.is_json:
-        global program
         data = request.get_json()
         question : str = data.get('question')
         translator = str.maketrans('', '', ".,?!'")
@@ -141,9 +140,6 @@ def ask():
         if actions:
             queue_actions(actions)
 
-
-
-
         return jsonify({"response": f"Received: {data.get('question', 'no question')}"}), 200
     return jsonify({"error": "Request must be JSON"}), 400
 
@@ -153,8 +149,11 @@ def queue_actions(actions):
         controller.AddActionViaStr(action_value)
 
 def stop():
-    controller.Reset()
+    global program
+    global rules
+    global controller
 
+    controller.Reset()
     rules.clear()
     rules.appendleft(program.get_rules())
 
@@ -350,6 +349,7 @@ def safety_check():
 
 def parse_program():
     global program
+    global rules
     path = "./testDialogFileForPractice.txt"
     tokenizer = Tokenizer(path)
     tokens = tokenizer.tokenize()
