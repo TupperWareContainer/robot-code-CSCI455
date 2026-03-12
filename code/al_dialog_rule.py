@@ -21,5 +21,5 @@ class Rule:
     def get_actions(self):
         return self.actions
 
-    def set_actions(self, actions):
-        self.actions = actions
+    def add_action(self, action):
+        self.actions.append(action)

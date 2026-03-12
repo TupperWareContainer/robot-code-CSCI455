@@ -1,6 +1,11 @@
 from al_dialog_token import Token
 from al_dialog_token_type import TokenType
-import string
+
+
+def clear_punctuation(value_input: str):
+    translator = str.maketrans('', '', ".,?!'")
+    value_input = value_input.translate(translator)
+    return value_input
 
 
 class Tokenizer:
@@ -50,6 +55,7 @@ class Tokenizer:
                     while pos < len(line) and line[pos] != '"':
                         pos += 1
                     value = line[start:pos]
+                    value = clear_punctuation(value)
                     self.tokens.append(Token(value, TokenType.OPTIONAL, line_num))
                     pos += 1  # skip closing quote
                 else:
@@ -57,6 +63,7 @@ class Tokenizer:
                     while pos < len(line) and line[pos] != '}':
                         pos += 1
                     value = line[start:pos]
+                    value = clear_punctuation(value)
                     self.tokens.append(Token(value, TokenType.OPTIONAL, line_num))
                 pos += 1  # skip closing curly
 
@@ -82,6 +89,7 @@ class Tokenizer:
                 while pos < len(line) and line[pos] != '>':
                     pos += 1
                 value = line[start:pos]
+                value = clear_punctuation(value)
                 self.tokens.append(Token(value, TokenType.ACTION, line_num))
                 pos += 1  # skip '>'
 
@@ -91,31 +99,35 @@ class Tokenizer:
                 while pos < len(line) and line[pos] != '"':
                     pos += 1
                 value = line[start:pos]
+                value = clear_punctuation(value)
                 self.tokens.append(Token(value, TokenType.STRING, line_num))
                 pos += 1  # skip closing quote
 
             elif char == '~':
                 pos += 1
                 start = pos
-                while pos < len(line) and (line[pos].isalnum() or line[pos] == '_'):
+                while pos < len(line) and (line[pos].isalnum() or line[pos] in ['_', '.', ',', '?', '!', "'"]):
                     pos += 1
                 value = line[start:pos]
+                value = clear_punctuation(value)
                 self.tokens.append(Token(value, TokenType.DEFINITION, line_num))
 
             elif char == '&':
                 pos += 1
                 start = pos
-                while pos < len(line) and (line[pos].isalnum() or line[pos] == '_'):
+                while pos < len(line) and (line[pos].isalnum() or line[pos] in ['_', '.', ',', '?', '!', "'"]):
                     pos += 1
                 value = line[start:pos]
+                value = clear_punctuation(value)
                 self.tokens.append(Token(value, TokenType.VAR, line_num))
 
             elif char == '$':
                 pos += 1
                 start = pos
-                while pos < len(line) and (line[pos].isalnum() or line[pos] == '_'):
+                while pos < len(line) and (line[pos].isalnum() or line[pos] in ['_', '.', ',', '?', '!', "'"]):
                     pos += 1
                 value = line[start:pos]
+                value = clear_punctuation(value)
                 self.tokens.append(Token(value, TokenType.VAR_RECALL, line_num))
 
             elif char == '_':
@@ -124,9 +136,10 @@ class Tokenizer:
 
             elif char.isalnum():
                 start = pos
-                while pos < len(line) and line[pos].isalnum():
+                while pos < len(line) and (line[pos].isalnum() or line[pos] in ['_', '.', ',', '?', '!', "'"]):
                     pos += 1
                 value = line[start:pos]
+                value = clear_punctuation(value)
 
                 if (value.startswith("u") and value[1:].isdigit()) or value == "u":
                     self.tokens.append(Token(value, TokenType.LEVEL, line_num))
