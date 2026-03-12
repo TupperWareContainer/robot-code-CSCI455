@@ -30,7 +30,7 @@ isPing = False
 
 program : Program
 rules : deque = deque()
-controller : RobotController
+controller : RobotController = RobotController()
 
 @app.post('/pan_head')
 def pan_head():
@@ -147,7 +147,7 @@ def queue_actions(actions):
     global controller
 
     for action in actions:
-        action_value = action.get_value()
+        action_value : str = action.get_value()
         controller.AddActionViaStr(action_value)
 
 def stop():
