@@ -74,7 +74,7 @@ class RobotController:
         while(True):
             if(not self.__safeTimeSet or not self.__isPerformingAction):
                 continue
-            elif(time.time() - self.__lastSafetyTime >= self.__cSafetyTime):
+            elif(time.time() - self.__lastSafetyTime >= self.__maxSafetyTime):
                 self.__robotInstance.StopAllChannels()
                 self.__robotInstance.ResetServoPositions()
 
