@@ -72,9 +72,9 @@ class RobotController:
             return
         self.__isSafetyTimerActive = True
         while(True):
-            if(not self.__safeTimeSet):
+            if(not self.__safeTimeSet or not self.__isPerformingAction):
                 continue
-            elif(time.time() - self.__lastSafetyTime >= self.__cSafetyTime):
+            elif(time.time() - self.__lastSafetyTime >= self.__maxSafetyTime):
                 self.__robotInstance.StopAllChannels()
                 self.__robotInstance.ResetServoPositions()
 
@@ -158,6 +158,7 @@ class RobotController:
                 pass
             case "arm_raise":
                 self.AddAction(RobotAction.ARM_RAISE)
+                pass
             case "dance90":
                 self.AddAction(RobotAction.DANCE_90)
                 pass
@@ -183,6 +184,7 @@ class RobotController:
     def Reset(self):
         self.__actionQueue.clear()
         self.__isPerformingAction = False
+        self.__isSafetyTimerActive = False
         self.__state = RobotState.IDLE
         self.__robotInstance.StopAllChannels()
         self.__robotInstance.ResetServoPositions()
