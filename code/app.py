@@ -153,7 +153,7 @@ def queue_actions(actions):
         controller.AddActionViaStr(action_value)
 
 def stop():
-    # controller.Stop()
+    controller.Reset()
 
     rules.clear()
     rules.appendleft(program.get_rules())
