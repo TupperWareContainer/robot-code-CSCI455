@@ -85,6 +85,8 @@ class RobotController:
             case _:
                 pass 
 
+        self.__isPerformingAction = False
+
 
     def AddAction(self, action : RobotAction):
         self.__actionQueue.append(action)
@@ -114,7 +116,7 @@ class RobotController:
 
 
     def GetState(self) -> RobotState:
-        pass
+        return self.__state
 
     def GetCurrentAction(self) -> RobotAction: 
         if (len(self.__actionQueue) <= 0):
