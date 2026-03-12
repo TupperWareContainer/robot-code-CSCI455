@@ -40,7 +40,7 @@ class Robot:
     def ResetServoPositions(self):
         for channel in self.__MOTORCHANNELS:
             if(channel != 0 and channel != 1):
-                self.master_controller.setTarget(6000,self.master_controller.getPosition(channel))
+                self.master_controller.setTarget(channel, 6000)
 
     def pan_head(self, angle):
         self.head.pan(angle, 3)
