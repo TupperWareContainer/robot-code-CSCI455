@@ -128,14 +128,14 @@ def ask():
         question = question.translate(translator)
         question_words = question.lower().split()
 
+        if question in ["stop", "cancel", "reset", "quit"]:
+            stop()
+
         # Get the question and resolve the response and add that to the message queue
         actions, response = get_response(question_words)
         print(actions)
         print(response)
         message_queue.put(response)
-
-        if question in ["stop", "cancel", "reset", "quit"]:
-            stop()
 
         if actions:
             queue_actions(actions)
