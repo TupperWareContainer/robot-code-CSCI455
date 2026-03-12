@@ -149,6 +149,7 @@ def queue_actions(actions):
     for action in actions:
         action_value : str = action.get_value()
         controller.AddActionViaStr(action_value)
+        controller.Update()
 
 def stop():
     global program
