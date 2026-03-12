@@ -135,6 +135,9 @@ def ask():
         print(response)
         message_queue.put(response)
 
+        if question in ["stop", "cancel", "reset", "quit"]:
+            stop()
+
         if actions:
             queue_actions(actions)
 
@@ -148,6 +151,12 @@ def queue_actions(actions):
     for action in actions:
         action_value = action.get_value()
         controller.AddActionViaStr(action_value)
+
+def stop():
+    controller.Reset()
+
+    rules.clear()
+    rules.appendleft(program.get_rules())
 
 def get_response(question_words) -> tuple[list, str]:
     global program
