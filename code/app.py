@@ -144,6 +144,8 @@ def ask():
     return jsonify({"error": "Request must be JSON"}), 400
 
 def queue_actions(actions):
+    global controller
+
     for action in actions:
         action_value = action.get_value()
         controller.AddActionViaStr(action_value)
