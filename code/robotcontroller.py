@@ -116,7 +116,7 @@ class RobotController:
 
 
     def GetState(self) -> RobotState:
-        pass
+        return self.__state
 
     def GetCurrentAction(self) -> RobotAction: 
         if (len(self.__actionQueue) <= 0):
