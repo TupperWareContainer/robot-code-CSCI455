@@ -294,7 +294,7 @@
                     .catch((error) => console.error('Error:', error))
         }
 
-        const sendPing = () => {
+        const sendPing = async () => {
             fetch('http://10.23.253.65:5002/ping', {
                 method: 'GET'
             }).then(response => response.json())
