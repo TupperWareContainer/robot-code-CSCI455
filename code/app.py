@@ -12,21 +12,28 @@ from al_dialog_choice import Choice
 from robotcontroller import RobotController
 from collections import deque
 import threading
+from threading import Timer
 import atexit
 import time
+
+class RepeatingTimer(Timer):
+    def run(self):
+        while not self.finished.wait(self.interval):
+            self.function(*self.args, **self.kwargs)
+
+
+
 message_queue = Queue()
 server_name = "10.23.253.65"
-
 app = Flask(__name__)
 CORS(app)
 
 robot = Robot()
 
-timeout = 2
+timeout = 3
 
-ping = 0
+ping = False
 
-isPing = False
 
 program : Program
 rules : deque = deque()
@@ -340,18 +347,18 @@ def match_token(token, question_words, start_index, definitions):
 @app.get("/ping")
 def fping():
     global ping
-    ping = time.time()
+    ping = True
     return jsonify({"response": f"Received"}), 200
         
 def safety_check():
     global ping
-    while(True):
-        cTime = time.time()
-        if( (cTime - ping) > timeout):
-            print("Connection Lost, deactivating drivetrain")
-            tempstop()
-        time.sleep(1)
+    if(ping):
+        ping = False
+    elif(not ping):
+        print("Connection timeout, stopping drivetrain")
+        tempstop()
 
+    pass
 def parse_program():
     global program
     global rules
@@ -377,8 +384,9 @@ def speak_messages():
 
 
 def main():
+    ping = False
     parse_program()
-    safetythread = threading.Thread(target=safety_check)
+    safetythread = RepeatingTimer(timeout, safety_check)
     thread = threading.Thread(target=speak_messages)
     safetythread.start()
     thread.start()
