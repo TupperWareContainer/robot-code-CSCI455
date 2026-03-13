@@ -3,10 +3,10 @@ import os
 from al_dialog_program import Program
 from al_dialog_rule import Rule
 from al_dialog_token_type import TokenType
-from al_dialog_optional_str import OptionalStr
 from al_dialog_token import Token
+from al_dialog_choice import Choice
 
-MAX_DEPTH = 6
+MAX_DEPTH = 5
 
 class Parser:
 
@@ -93,7 +93,7 @@ class Parser:
             return -1
 
     def _parse_definition(self, program):
-        name = self._current().value
+        name = self._current().get_value()
         self._advance()
         self._expect(TokenType.COLON)
 
@@ -101,7 +101,7 @@ class Parser:
         program.add_definition(name, choices)
 
     def _parse_rule(self):
-        level = self._current().value
+        level = self._current().get_value()
         self._advance()
 
         if not level.startswith("u"):
@@ -131,13 +131,11 @@ class Parser:
             output = self._parse_expression()
 
         # Collect multiple action tokens
-        actions = []
+        rule = Rule(level, pattern, output)
         while self._current().get_token_type() == TokenType.ACTION:
-            actions.append(self._current())
+            rule.add_action(self._current())
             self._advance()
 
-        rule = Rule(level, pattern, output)
-        rule.set_actions(actions)
         return rule
 
     def _parse_expression(self):
@@ -148,6 +146,7 @@ class Parser:
             return items
 
         self._expect(TokenType.LEFT_BRACKET)
+        choices = Choice()
 
         while self._current().get_token_type() not in (
             TokenType.NEWLINE,
@@ -155,19 +154,11 @@ class Parser:
             TokenType.EOF,
             TokenType.RIGHT_BRACKET
         ):
-            if self._current().get_token_type() == TokenType.LEFT_CURLY:
-                self._parse_optional(items)
-            elif self._current().get_token_type() == TokenType.VAR_CAPTURE:
-                items.append(self._current())
-                self._advance()
-            elif self._current().get_token_type() == TokenType.VAR_RECALL:
-                items.append(self._current())
-                self._advance()
-            else:
-                items.append(self._current())
-                self._advance()
+            choices.add_choice(self._current())
+            self._advance()
 
         self._expect(TokenType.RIGHT_BRACKET)
+        items.append(choices)
 
         return items
 
@@ -177,18 +168,6 @@ class Parser:
                                                    TokenType.VAR_RECALL):
             items.append(self._current())
             self._advance()
-
-    def _parse_optional(self, items):
-        self._expect(TokenType.LEFT_CURLY)
-
-        optional_tokens = []
-
-        while self._current().get_token_type() != TokenType.RIGHT_CURLY:
-            optional_tokens.append(self._current())
-            self._advance()
-
-        self._expect(TokenType.RIGHT_CURLY)
-        items.append(OptionalStr(optional_tokens))
 
     def _skip_line(self):
         while self._current().get_token_type() not in (TokenType.NEWLINE, TokenType.EOF):
