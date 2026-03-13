@@ -1,0 +1,10 @@
+Non-fatal Error: Expected TokenType.COLON, got TokenType.STRING with value 'error', file name: testDialogFileForPractice.txt, skipping line 117
+Non-fatal Error: Expected TokenType.RIGHT_BRACKET, got TokenType.NEWLINE with value '', file name: testDialogFileForPractice.txt, skipping line 120
+Non-fatal Error: Expected TokenType.COLON, got TokenType.LEFT_BRACKET with value '[', file name: testDialogFileForPractice.txt, skipping line 123
+Non-fatal Error: Rule depth 6 exceeds max depth 5. Rule 'u6' ignored. In file testDialogFileForPractice.txt, skipping line 137
+Non-fatal Error: Rule depth 7 exceeds max depth 5. Rule 'u7' ignored. In file testDialogFileForPractice.txt, skipping line 138
+Connection Lost, deactivating drivetrain
+ * Serving Flask app 'app'
+ * Debug mode: on
+Connection Lost, deactivating drivetrain
+Connection Lost, deactivating drivetrain
