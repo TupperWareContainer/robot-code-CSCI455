@@ -12,7 +12,7 @@ Command Based Interface for controlling a Robot instance
 '''
 
 LIDAR_PORT = '/dev/ttyUSB0'
-SAFE_DISTANCE= 31.5
+SAFE_DISTANCE= 800
 
 class RobotAction(Enum):
     UNKNOWN = -1
@@ -84,41 +84,28 @@ class RobotController:
                 self.__safeTimeSet = False
             time.sleep(1)
 
-    def RearBlocked(self):
-        print("The rear is blocked")
+    def IsFrontBlocked(self) -> bool:
+        front_angles = list(range(330, 361)) + list(range(0, 31))
+        is_front_blocked = any(self.__lidarController.GetDistanceMM(angle) < SAFE_DISTANCE for angle in front_angles)
 
-        pass
+        if is_front_blocked:
+            print("The front is blocked")
+        return is_front_blocked
 
-    def FrontBlocked(self):
-        print("The front is blocked")
+    def IsRearBlocked(self) -> bool:
+        rear_angles = range(150, 211)
+        is_rear_blocked = any(self.__lidarController.GetDistanceMM(angle) < SAFE_DISTANCE for angle in rear_angles)
 
-        pass
+        if is_rear_blocked:
+            print("The rear is blocked")
+        return is_rear_blocked
 
-    def CanMove(self):
+    def CanMove(self) -> bool:
         try:
-            front_distance = self.__lidarController.GetDistanceMM(0)
-            rear_distance = self.__lidarController.GetDistanceMM(180)
-
-
-            if front_distance > SAFE_DISTANCE and rear_distance > SAFE_DISTANCE:
-                return True
-            else:
-                return False
-
-
-
+            return not self.IsFrontBlocked() and not self.IsRearBlocked()
         except Exception as e:
             self.__lidarController.StopScan()
-
-
-
-
-
-
         return False
-
-
-
 
     def __StateMachine(self):
         match self.__state:

@@ -1,6 +1,10 @@
 # README.md
 
 # PROJECT 3
+## Robot Safety Limits
+- Front blocked if any reading from 330-360 degrees or 0-30 degrees is under 800 mm
+- Rear blocked if any reading from 150-210 degrees is under 800 mm
+
 ## TODO:
     1. make robot safety aware using lidar (object detection)
         - Forward Saftey Stop 
