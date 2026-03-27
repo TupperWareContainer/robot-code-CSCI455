@@ -76,10 +76,17 @@ def rotate_waist():
 # Currently this is the only method that is attached to the joystick!
 @app.post('/drive')
 def drive():
+    global controller
+
     if request.is_json:
         data = request.get_json()
         x = data.get('x')
         y = data.get('y')
+
+        # TODO: Uncomment this when the can_move() method is implemented
+        #if (not controller.can_move()):
+        #    tempstop()
+        #    return jsonify({"response": "Obstacle"}), 200
         
         steering, throttle = calc_servo_speeds(x, y)
         print(steering)
@@ -382,14 +389,15 @@ def speak_messages():
             message = message_queue.get()
             robot.speak(message)
 
-
 def main():
     ping = False
     parse_program()
     safetythread = RepeatingTimer(timeout, safety_check)
     thread = threading.Thread(target=speak_messages)
+    movement_safety_thread = threading.Thread(target=cancel_movement)
     safetythread.start()
     thread.start()
+    movement_safety_thread.start()
 
     robot.drive_wheels(6000)
     app.config["SERVER_NAME"] = server_name
