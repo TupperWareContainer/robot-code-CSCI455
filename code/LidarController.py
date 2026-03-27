@@ -1,4 +1,5 @@
 from adafruit_rplidar import RPLidar
+from math import floor
 from threading import Thread
 
 
@@ -32,7 +33,11 @@ class LidarController:
         else:
             return -1
 
-
+    def GetDistanceMM(self, angle : int):
+        if(angle < 360):
+            return self.__scan_data[angle]
+        else:
+            return -1
         
 
     

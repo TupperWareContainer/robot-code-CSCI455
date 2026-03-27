@@ -1,6 +1,7 @@
 import threading
 import time
 import robot_actions
+from LidarController import LidarController
 from robot import Robot
 from enum import Enum
 from collections import deque  
@@ -10,7 +11,8 @@ Command Based Interface for controlling a Robot instance
 
 '''
 
-
+LIDAR_PORT = '/dev/ttyUSB0'
+SAFE_DISTANCE= 31.5
 
 class RobotAction(Enum):
     UNKNOWN = -1
@@ -50,6 +52,7 @@ class RobotController:
         self.__lastSafetyTime = -1
         self.__maxSafetyTime = 0
         self.__safeTimeSet = False
+        self.__lidarController = LidarController(LIDAR_PORT, timeout=3, max_distance=800)
 
         self.__safety_thread = threading.Thread(target=self.__SafetyTimer)
 
@@ -81,7 +84,37 @@ class RobotController:
                 self.__safeTimeSet = False
             time.sleep(1)
 
+    def RearBlocked(self):
+        print("The rear is blocked")
+
+        pass
+
+    def FrontBlocked(self):
+        print("The front is blocked")
+
+        pass
+
     def CanMove(self):
+        try:
+            front_distance = self.__lidarController.GetDistanceMM(0)
+            rear_distance = self.__lidarController.GetDistanceMM(180)
+
+
+            if front_distance > SAFE_DISTANCE and rear_distance > SAFE_DISTANCE:
+                return True
+            else:
+                return False
+
+
+
+        except Exception as e:
+            self.__lidarController.StopScan()
+
+
+
+
+
+
         return False
 
 
