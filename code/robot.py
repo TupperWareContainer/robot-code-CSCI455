@@ -2,6 +2,7 @@ from head_controller import HeadController
 from waist_controller import WaistController
 from wheel_controller import WheelController
 from arm_controller import ArmController
+from LidarController import LidarController
 from voice import Voice
 from espeakng import ESpeakNG
 import maestro
@@ -13,6 +14,7 @@ class Robot:
     waist   : WaistController
     arm     : ArmController
     voice   : Voice
+    lidar   : LidarController
 
     __MOTORCHANNELS = [3,4,5,0,1,6]
 
@@ -20,8 +22,9 @@ class Robot:
         # Add the logic for tty1 vs tty0 here
         self.master_controller = maestro.Controller()
         self.espeak = ESpeakNG()
-
-        self.head = HeadController(self.master_controller)
+        
+        self.lidar = LidarController("/dev/ttyUSB0",)
+        self.head = HeadController(self.master_controller,3,1000)
         self.wheels = WheelController(self.master_controller)
         self.waist = WaistController(self.master_controller)
         self.voice = Voice(self.espeak)
@@ -62,3 +65,7 @@ class Robot:
 
     def raise_arm(self, angle):
         self.arm.Raise(angle, 6)
+
+    def scan_angle(self, angle):
+        self.lidar.GetDistanceInches(angle)
+
