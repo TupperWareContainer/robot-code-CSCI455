@@ -85,7 +85,7 @@ class RobotController:
             time.sleep(1)
 
     def IsFrontBlocked(self) -> bool:
-        front_angles = list(range(330, 361)) + list(range(0, 31))
+        front_angles = list(range(330, 360)) + list(range(0, 31))
         is_front_blocked = any(self.__lidarController.GetDistanceMM(angle) < SAFE_DISTANCE for angle in front_angles)
 
         if is_front_blocked:
