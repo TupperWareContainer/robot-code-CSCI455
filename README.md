@@ -1,5 +1,10 @@
 # README.md
 
+# PROJECT 3
+## TODO:
+    1. make robot safety aware using lidar (object detection)
+        - Forward Saftey Stop 
+        - Backward Safety Stop
 
 # PROJECT 2
 
