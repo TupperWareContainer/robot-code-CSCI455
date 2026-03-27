@@ -81,8 +81,8 @@ class RobotController:
                 self.__safeTimeSet = False
             time.sleep(1)
 
-                
-
+    def CanMove(self):
+        return False
 
 
 
