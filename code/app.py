@@ -394,10 +394,8 @@ def main():
     parse_program()
     safetythread = RepeatingTimer(timeout, safety_check)
     thread = threading.Thread(target=speak_messages)
-    movement_safety_thread = threading.Thread(target=cancel_movement)
     safetythread.start()
     thread.start()
-    movement_safety_thread.start()
 
     robot.drive_wheels(6000)
     app.config["SERVER_NAME"] = server_name
