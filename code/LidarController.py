@@ -21,7 +21,7 @@ class LidarController:
         try:
             for scan in self.__lidar.iter_scans(max_buf_meas=1000):
                 for _, angle, distance in scan:
-                    idx = int(angle) % 360
+                    idx = min([359, floor(angle)])
                     self.__scan_data[idx] = distance
                 if self.__stopScan:
                     self.__lidar.stop()
