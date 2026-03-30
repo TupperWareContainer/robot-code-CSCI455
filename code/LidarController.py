@@ -13,6 +13,14 @@ class LidarController:
         self.__scan_data = [0.0] * 360
         self.__lidar = RPLidar(None, lidar_port, baudrate=256000, timeout=timeout)
         self.__max_distance = max_distance
+
+        try:
+            self.__lidar.stop()  # Stop any existing scan
+            self.__lidar.stop_motor()  # Stop the motor
+            self.__lidar.clear_input()  # Flush the serial buffer
+        except:
+            pass  # Ignore errors if it was already stopped
+
         self.__stopScan = False
         self.__scan_thread = Thread(target = self.StartScan)
         self.__scan_thread.start()
