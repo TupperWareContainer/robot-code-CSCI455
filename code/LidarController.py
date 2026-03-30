@@ -21,14 +21,14 @@ class LidarController:
         try:
             for scan in self.__lidar.iter_scans(max_buf_meas=1000):
                 for _, angle, distance in scan:
-                    idx = min(359, floor(angle))
+                    idx = min([359, floor(angle)])
                     self.__scan_data[idx] = distance
                 if self.__stopScan:
-                    break
+                    self.__lidar.stop()
+                    return;
         except Exception as e:
             print(f"Lidar Error: {e}")
             self.__lidar.clear_input()
-            # Small sleep here can help prevent CPU pinning on errors
 
     def StopScan(self):
         self.__stopScan = True
