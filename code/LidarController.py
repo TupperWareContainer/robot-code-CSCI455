@@ -7,10 +7,10 @@ from threading import Thread
 class LidarController:
     __lidar : RPLidar
     __max_distance : float
-    __scan_data = [0] * 360
     __scan_thread : Thread
     __stopScan : bool
     def __init__(self, lidar_port : str, timeout : float, max_distance : float):
+        self.__scan_data = [0.0] * 360
         self.__lidar = RPLidar(None, lidar_port, timeout)
         self.__max_distance = max_distance
         self.__stopScan = False
@@ -41,13 +41,9 @@ class LidarController:
             return -1
 
     def GetDistanceMM(self, angle : int):
-        num_points = len(self.__scan_data)
-        index = int((angle % 360) * (num_points / 360.0))
+        clean_angle = int(angle % 360)
 
-        if(index < 360):
-            return self.__scan_data[index]
-        else:
-            return -1
+        return self.__scan_data[clean_angle]
         
 
     
