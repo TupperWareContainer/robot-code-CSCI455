@@ -14,7 +14,6 @@ class Robot:
     waist   : WaistController
     arm     : ArmController
     voice   : Voice
-    lidar   : LidarController
 
     __MOTORCHANNELS = [3,4,5,0,1,6]
 
@@ -24,7 +23,7 @@ class Robot:
         self.espeak = ESpeakNG()
         
         #self.lidar = LidarController("/dev/ttyUSB0",)
-        self.head = HeadController(self.master_controller,3,1000)
+        self.head = HeadController(self.master_controller) # Removed 3 and 1000. I don't know why these are here
         self.wheels = WheelController(self.master_controller)
         self.waist = WaistController(self.master_controller)
         self.voice = Voice(self.espeak)
