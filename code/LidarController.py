@@ -28,7 +28,7 @@ class LidarController:
                     return;
         except Exception as e:
             print(f"Lidar Error: {e}")
-            self.__lidar.clean_input()
+            self.__lidar.clear_input()
 
     def StopScan(self):
         self.__stopScan = True
