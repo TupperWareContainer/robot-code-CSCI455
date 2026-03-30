@@ -1,4 +1,4 @@
-from adafruit_rplidar import RPLidar
+from adafruit_rplidar import RPLidar, RPLidarException
 from math import floor
 from threading import Thread
 
