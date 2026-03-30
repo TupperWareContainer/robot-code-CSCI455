@@ -11,7 +11,7 @@ class LidarController:
     __stopScan : bool
     def __init__(self, lidar_port : str, timeout : float, max_distance : float):
         self.__scan_data = [0.0] * 360
-        self.__lidar = RPLidar(None, lidar_port, baudrate=256000, timeout=timeout)
+        self.__lidar = RPLidar(None, lidar_port, baudrate=57600, timeout=timeout)
         self.__max_distance = max_distance
 
         try:
