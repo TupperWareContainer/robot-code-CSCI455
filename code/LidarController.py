@@ -14,7 +14,7 @@ class LidarController:
         self.__lidar = RPLidar(None, lidar_port, timeout)
         self.__max_distance = max_distance
         self.__stopScan = False
-        self.__scan_thread = Thread(target = self.StartScan())
+        self.__scan_thread = Thread(target = self.StartScan)
         self.__scan_thread.start()
 
     def StartScan(self):
