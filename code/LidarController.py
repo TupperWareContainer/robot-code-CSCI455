@@ -18,11 +18,18 @@ class LidarController:
         self.__scan_thread.start()
 
     def StartScan(self):
-        for scan in self.__lidar.iter_scans():
-            for _, angle, distance in scan:
-                self.__scan_data[min([359,floor(angle)])] = distance
-            if self.__stopScan:
-                return;
+        try:
+            for scan in self.__lidar.iter_scans(max_buf_meas=1000):
+                for _, angle, distance in scan:
+                    idx = int(angle) % 360
+                    self.__scan_data[idx] = distance
+                if self.__stopScan:
+                    self.__lidar.stop()
+                    return;
+        except Exception as e:
+            print(f"Lidar Error: {e}")
+            self.__lidar.clean_input()
+
     def StopScan(self):
         self.__stopScan = True
         self.__scan_thread.join()
