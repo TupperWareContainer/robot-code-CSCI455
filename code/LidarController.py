@@ -18,17 +18,26 @@ class LidarController:
         self.__scan_thread.start()
 
     def StartScan(self):
-        try:
-            for scan in self.__lidar.iter_scans(max_buf_meas=1000):
-                for _, angle, distance in scan:
-                    idx = min([359, floor(angle)])
-                    self.__scan_data[idx] = distance
-                if self.__stopScan:
-                    self.__lidar.stop()
-                    return;
-        except Exception as e:
-            print(f"Lidar Error: {e}")
-            self.__lidar.clear_input()
+        while not self.__stopScan:
+            try:
+                # iter_scans is a blocking generator
+                for scan in self.__lidar.iter_scans(max_buf_meas=1000):
+                    for _, angle, distance in scan:
+                        idx = min(359, int(floor(angle)))
+                        self.__scan_data[idx] = distance
+                    if self.__stopScan:
+                        break
+            except RPLidarException as e:
+                # This is where 'line length mismatch' is caught
+                print(f"Lidar Hardware Error: {e}. Reconnecting...")
+                self.__lidar.disconnect()  # Essential to drop the bad connection
+                self.__lidar.connect()  # Restart the serial sync
+            except Exception as e:
+                print(f"Unexpected Error: {e}")
+                break
+
+        self.__lidar.stop()
+        self.__lidar.disconnect()
 
     def StopScan(self):
         self.__stopScan = True
