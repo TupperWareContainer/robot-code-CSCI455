@@ -1,7 +1,7 @@
 from adafruit_rplidar import RPLidar, RPLidarException
 from math import floor
 from threading import Thread
-
+import time
 
 
 class LidarController:
@@ -33,6 +33,9 @@ class LidarController:
                     for _, angle, distance in scan:
                         idx = min(359, int(floor(angle)))
                         self.__scan_data[idx] = distance
+
+                    time.sleep(0.001)  # Yields control to other threads
+
                     if self.__stopScan:
                         break
             except RPLidarException as e:
