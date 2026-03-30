@@ -23,7 +23,7 @@ class Robot:
         self.master_controller = maestro.Controller()
         self.espeak = ESpeakNG()
         
-        self.lidar = LidarController("/dev/ttyUSB0",)
+        #self.lidar = LidarController("/dev/ttyUSB0",)
         self.head = HeadController(self.master_controller,3,1000)
         self.wheels = WheelController(self.master_controller)
         self.waist = WaistController(self.master_controller)
@@ -66,6 +66,6 @@ class Robot:
     def raise_arm(self, angle):
         self.arm.Raise(angle, 6)
 
-    def scan_angle(self, angle):
-        self.lidar.GetDistanceInches(angle)
+    #def scan_angle(self, angle):
+        #self.lidar.GetDistanceInches(angle)
 
