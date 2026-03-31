@@ -104,9 +104,13 @@ class RobotController:
         print(f"The rear is {'blocked' if is_rear_blocked else 'not blocked'}")
         return is_rear_blocked
 
-    def CanMove(self) -> bool:
+    def CanMove(self, direction: str) -> bool:
         try:
-            return not self.IsFrontBlocked() and not self.IsRearBlocked()
+            if direction == "forward":
+                return not self.IsFrontBlocked()
+            elif direction == "backward":
+                return not self.IsRearBlocked()
+            return False
         except Exception as e:
             print(f"Error checking movement: {e}")
         return False

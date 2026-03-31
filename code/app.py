@@ -82,12 +82,15 @@ def drive():
         data = request.get_json()
         x = data.get('x')
         y = data.get('y')
+        steering, throttle = calc_servo_speeds(x, y)
 
-        if not controller.CanMove():
+        # 6000 is center/neutral, above = forward, below = backward
+        direction = "forward" if throttle > 6000 else "backward"
+
+        if not controller.CanMove(direction):
             tempstop()
             return jsonify({"response": "Obstacle"}), 200
-        
-        steering, throttle = calc_servo_speeds(x, y)
+
         print(steering)
         print(throttle)
 
