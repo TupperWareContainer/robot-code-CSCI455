@@ -3,7 +3,6 @@ from math import floor
 from threading import Thread
 import time
 
-
 class LidarController:
     __lidar : RPLidar
     __max_distance : float
@@ -13,19 +12,23 @@ class LidarController:
         self.__scan_data = [0.0] * 360
         self.__lidar = RPLidar(None, lidar_port, baudrate=115200, timeout=timeout)
         self.__max_distance = max_distance
-
-        try:
-            self.__lidar.stop()  # Stop any existing scan
-            self.__lidar.stop_motor()  # Stop the motor
-            self.__lidar.clear_input()  # Flush the serial buffer
-        except:
-            pass  # Ignore errors if it was already stopped
-
         self.__stopScan = False
         self.__scan_thread = Thread(target = self.StartScan)
         self.__scan_thread.start()
 
     def StartScan(self):
+        try:
+            print("Cleaninhg up Lidar state")
+            self.__lidar.stop()
+            self.__lidar.disconnect()
+            self.__lidar.connect()
+            self.__lidar.clear_input()
+        except Exception as e:
+            print(f"Unexpected Error: {e}")
+        finally:
+            self.__lidar.stop()
+            self.__lidar.disconnect()
+
         while not self.__stopScan:
             try:
                 # iter_scans is a blocking generator
@@ -34,7 +37,7 @@ class LidarController:
                         idx = min(359, int(floor(angle)))
                         self.__scan_data[idx] = distance
 
-                    time.sleep(0.001)  # Yields control to other threads
+                    time.sleep(0.1)  # Yields control to other threads
 
                     if self.__stopScan:
                         break
