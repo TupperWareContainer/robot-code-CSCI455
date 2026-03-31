@@ -88,6 +88,9 @@ class RobotController:
         front_angles = [0] # list(range(0, 31)) # 0 to 31
         is_front_blocked = any(self.__lidarController.GetDistanceMM(angle) < SAFE_DISTANCE for angle in front_angles)
 
+        if not is_front_blocked:
+            print("The front is not blocked")
+
         if is_front_blocked:
             print("The front is blocked")
         return is_front_blocked
@@ -96,13 +99,16 @@ class RobotController:
         rear_angles = [180] # list(range(150, 211)) # 150 to 211
         is_rear_blocked = any(self.__lidarController.GetDistanceMM(angle) < SAFE_DISTANCE for angle in rear_angles)
 
+        if not is_rear_blocked:
+            print("The rear is not blocked")
+
         if is_rear_blocked:
             print("The rear is blocked")
         return is_rear_blocked
 
     def CanMove(self) -> bool:
         try:
-            return not self.IsRearBlocked()
+            return not self.IsFrontBlocked and not self.IsRearBlocked()
         except Exception as e:
             self.__lidarController.StopScan()
         return False
