@@ -1,4 +1,4 @@
-from adafruit_rplidar import RPLidar, RPLidarException
+from rplidar import RPLidar, RPLidarException
 from math import floor
 from threading import Thread
 import time
@@ -9,7 +9,7 @@ class LidarController:
     __scan_thread : Thread
     __stopScan : bool
     def __init__(self, lidar_port : str, timeout : float, max_distance : float):
-        self.__lidar = RPLidar(None, lidar_port, timeout=timeout) # Removed the baudrate to hopefully fix the body error: baudrate=115200
+        self.__lidar = RPLidar(None, lidar_port, baudrate=115200, timeout=timeout) # Removed the baudrate to hopefully fix the body error: baudrate=115200
         self.__max_distance = max_distance
         self.__stopScan = False
         self.__scan_thread = Thread(target = self.StartScan)
@@ -29,7 +29,7 @@ class LidarController:
         while not self.__stopScan:
             try:
                 # iter_scans is a blocking generator
-                for scan in self.__lidar.iter_scans(max_buf_meas=1500):
+                for scan in self.__lidar.iter_scans(max_buf_meas=1500, scan_type="express"):
                     for _, angle, distance in scan:
                         idx = min([359, int(floor(angle))])
                         self.__scan_data[idx] = distance
