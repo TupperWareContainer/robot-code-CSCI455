@@ -25,9 +25,9 @@ class LidarController:
             self.__lidar.clear_input()
         except Exception as e:
             print(f"Unexpected Error: {e}")
-        finally:
-            self.__lidar.stop()
-            self.__lidar.disconnect()
+        #finally:
+        #    self.__lidar.stop()
+        #    self.__lidar.disconnect()
 
         while not self.__stopScan:
             try:
