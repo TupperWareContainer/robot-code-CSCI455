@@ -63,6 +63,8 @@ class LidarController:
     def GetDistanceMM(self, angle : int):
         clean_angle = int(angle % 360)
 
+        print(clean_angle)
+
         return self.__scan_data[clean_angle]
         
 
