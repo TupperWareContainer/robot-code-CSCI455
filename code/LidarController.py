@@ -8,8 +8,8 @@ class LidarController:
     __max_distance : float
     __scan_thread : Thread
     __stopScan : bool
+    __scan_data = [0.0] * 360
     def __init__(self, lidar_port : str, timeout : float, max_distance : float):
-        self.__scan_data = [0.0] * 360
         self.__lidar = RPLidar(None, lidar_port, baudrate=115200, timeout=timeout)
         self.__max_distance = max_distance
         self.__stopScan = False
@@ -18,16 +18,13 @@ class LidarController:
 
     def StartScan(self):
         try:
-            print("Cleaninhg up Lidar state")
+            print("Cleaning up Lidar state")
             self.__lidar.stop()
             self.__lidar.disconnect()
             self.__lidar.connect()
             self.__lidar.clear_input()
         except Exception as e:
             print(f"Unexpected Error: {e}")
-        #finally:
-        #    self.__lidar.stop()
-        #    self.__lidar.disconnect()
 
         while not self.__stopScan:
             try:
