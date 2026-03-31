@@ -83,9 +83,9 @@ def drive():
         x = data.get('x')
         y = data.get('y')
 
-        if not controller.CanMove():
-            tempstop()
-            return jsonify({"response": "Obstacle"}), 200
+        #if not controller.CanMove():
+        #    tempstop()
+        #    return jsonify({"response": "Obstacle"}), 200
         
         steering, throttle = calc_servo_speeds(x, y)
         print(steering)
