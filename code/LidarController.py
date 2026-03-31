@@ -33,6 +33,7 @@ class LidarController:
                     for _, angle, distance in scan:
                         idx = min([359, int(floor(angle))])
                         self.__scan_data[idx] = distance
+                        print(distance)
 
                     time.sleep(0.1)  # Yields control to other threads
 
