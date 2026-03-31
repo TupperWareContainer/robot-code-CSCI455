@@ -9,7 +9,7 @@ class LidarController:
     __scan_thread : Thread
     __stopScan : bool
     def __init__(self, lidar_port : str, timeout : float, max_distance : float):
-        self.__lidar = RPLidar(None, lidar_port, baudrate=115200, timeout=timeout)
+        self.__lidar = RPLidar(None, lidar_port, timeout=timeout) # Removed the baudrate to hopefully fix the body error: baudrate=115200
         self.__max_distance = max_distance
         self.__stopScan = False
         self.__scan_thread = Thread(target = self.StartScan)
@@ -36,9 +36,6 @@ class LidarController:
                         print(distance)
 
                     time.sleep(0.1)  # Yields control to other threads
-
-                    if self.__stopScan:
-                        break
             except RPLidarException as e:
                 # This is where 'line length mismatch' is caught
                 print(f"Lidar Hardware Error: {e}. Reconnecting...")
