@@ -85,32 +85,30 @@ class RobotController:
             time.sleep(1)
 
     def IsFrontBlocked(self) -> bool:
-        front_angles = list(range(0, 31)) # 0 to 30
-        is_front_blocked = any(self.__lidarController.GetDistanceMM(angle) < SAFE_DISTANCE for angle in front_angles)
+        front_angles = list(range(330, 360)) + list(range(0, 31))  # 330-359 and 0-30
+        is_front_blocked = any(
+            0 < self.__lidarController.GetDistanceMM(angle) < SAFE_DISTANCE
+            for angle in front_angles
+        )
 
-        if not is_front_blocked:
-            print("The front is not blocked")
-
-        if is_front_blocked:
-            print("The front is blocked")
+        print(f"The front is {'blocked' if is_front_blocked else 'not blocked'}")
         return is_front_blocked
 
     def IsRearBlocked(self) -> bool:
-        rear_angles = list(range(150, 211)) # 150 to 210
-        is_rear_blocked = any(self.__lidarController.GetDistanceMM(angle) < SAFE_DISTANCE for angle in rear_angles)
+        rear_angles = list(range(150, 211))  # 150 to 210
+        is_rear_blocked = any(
+            0 < self.__lidarController.GetDistanceMM(angle) < SAFE_DISTANCE
+            for angle in rear_angles
+        )
 
-        if not is_rear_blocked:
-            print("The rear is not blocked")
-
-        if is_rear_blocked:
-            print("The rear is blocked")
+        print(f"The rear is {'blocked' if is_rear_blocked else 'not blocked'}")
         return is_rear_blocked
 
     def CanMove(self) -> bool:
         try:
-            return not self.IsFrontBlocked and not self.IsRearBlocked()
+            return not self.IsFrontBlocked() and not self.IsRearBlocked()
         except Exception as e:
-            self.__lidarController.StopScan()
+            print(f"Error checking movement: {e}")
         return False
 
     def __StateMachine(self):
