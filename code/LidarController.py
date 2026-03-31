@@ -22,7 +22,7 @@ class LidarController:
             self.__lidar.stop()
             self.__lidar.disconnect()
             self.__lidar.connect()
-            self.__lidar.clear_input()
+            self.__lidar.clean_input()
         except Exception as e:
             print(f"Unexpected Error: {e}")
 
