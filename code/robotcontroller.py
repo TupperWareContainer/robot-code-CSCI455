@@ -102,7 +102,7 @@ class RobotController:
 
     def CanMove(self) -> bool:
         try:
-            return not self.IsFrontBlocked() and not self.IsRearBlocked()
+            return not self.IsRearBlocked()
         except Exception as e:
             self.__lidarController.StopScan()
         return False
