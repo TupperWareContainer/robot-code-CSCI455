@@ -1,5 +1,5 @@
 import inspect
-from rplidar import RPLidar, RPLidarException
+from adafruit_rplidar import RPLidar, RPLidarException
 from math import floor
 from threading import Thread
 import time
@@ -24,7 +24,7 @@ class LidarController:
             self.__lidar.stop()
             self.__lidar.disconnect()
             self.__lidar.connect()
-            self.__lidar.clean_input()
+            self.__lidar.clear_input()
         except Exception as e:
             print(f"Unexpected Error: {e}")
 
@@ -32,7 +32,7 @@ class LidarController:
             try:
                 # iter_scans is a blocking generator
                 for scan in self.__lidar.iter_scans():
-                    for (new_scan, quality, angle, distance) in scan:
+                    for (_, angle, distance) in scan:
                         idx = min([359, int(floor(angle))])
                         self.__scan_data[idx] = distance
 
