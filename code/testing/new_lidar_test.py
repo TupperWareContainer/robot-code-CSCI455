@@ -4,7 +4,7 @@ from rplidar import RPLidar
 
 LIDAR_PORT = '/dev/ttyUSB0'
 
-lidar = RPLidar(None, LIDAR_PORT, timeout = 3)
+lidar = RPLidar(LIDAR_PORT, timeout = 3)
 
 max_distance = 0
 
