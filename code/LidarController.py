@@ -1,3 +1,4 @@
+import inspect
 from rplidar import RPLidar, RPLidarException
 from math import floor
 from threading import Thread
@@ -15,6 +16,7 @@ class LidarController:
         self.__scan_thread = Thread(target = self.StartScan)
         self.__scan_thread.start()
         self.__scan_data = [0.0] * 360
+        print(inspect.signature(RPLidar.iter_scans))
 
     def StartScan(self):
         try:
