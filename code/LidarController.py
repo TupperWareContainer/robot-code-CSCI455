@@ -1,4 +1,3 @@
-from serial import SerialException
 from rplidar import RPLidar, RPLidarException
 from math import floor
 from threading import Thread
