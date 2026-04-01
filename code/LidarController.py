@@ -12,9 +12,9 @@ class LidarController:
         self.__lidar = RPLidar(lidar_port, baudrate=115200, timeout=timeout)
         self.__max_distance = max_distance
         self.__stopScan = False
+        self.__scan_data = [0.0] * 360
         self.__scan_thread = Thread(target = self.StartScan)
         self.__scan_thread.start()
-        self.__scan_data = [0.0] * 360
 
     def StartScan(self):
         try:
@@ -33,7 +33,7 @@ class LidarController:
                 for scan in self.__lidar.iter_scans():
                     for point in scan:
                         quality, angle, distance = point
-                        idx = min([359, int(floor(angle))])
+                        idx = min(int(angle), 359)
                         self.__scan_data[idx] = distance
 
                     time.sleep(0.1)  # Yields control to other threads
@@ -53,12 +53,6 @@ class LidarController:
     def StopScan(self):
         self.__stopScan = True
         self.__scan_thread.join()
-
-    def GetDistanceInches(self, angle : int):
-        if(angle < 360):
-            return self.__scan_data[angle] * 0.03937
-        else:
-            return -1
 
     def GetDistanceMM(self, angle : int):
         clean_angle = int(angle % 360)
