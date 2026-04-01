@@ -45,7 +45,7 @@ class LidarController:
             except Exception as e:
                 self.__lidar.stop()
                 self.__lidar.disconnect()
-                self.__lidar = RPLidar(self.__port)
+                self.__lidar.connect()
 
         self.__lidar.stop()
         self.__lidar.disconnect()
