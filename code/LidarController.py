@@ -27,6 +27,7 @@ class LidarController:
             print(f"Unexpected Error: {e}")
 
         while not self.__stopScan:
+            print("Scanning")
             try:
                 # iter_scans is a blocking generator
                 for scan in self.__lidar.iter_scans():
