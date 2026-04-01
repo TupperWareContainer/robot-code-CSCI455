@@ -205,6 +205,7 @@
             isMouseInside = false;
         }
 
+        let sendInterval = null
         const handleStart = (e) => {
             if (!isMouseInside) return;
             const point = e.touches ? e.touches[0] : e;
@@ -213,6 +214,8 @@
                 x: point.clientX,
                 y: point.clientY
             };
+
+            sendInterval = setInterval(sendPositionData, 100);
         };
 
         const handleMove = (e) => {
@@ -264,12 +267,14 @@
             stickPos.x = 0;
             stickPos.y = 0;
 
+            clearInterval(sendInterval);
+
             // Snap back to center
             stick.style.transform = `translate(0px, 0px)`;
 
             await new Promise(r => setTimeout(r, 50));
 
-            sendPositionData()
+            await sendPositionData()
         };
 
         const sendMessage = (message) => {
