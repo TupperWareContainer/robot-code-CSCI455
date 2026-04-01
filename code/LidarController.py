@@ -1,3 +1,4 @@
+from serial import SerialException
 from rplidar import RPLidar, RPLidarException
 from math import floor
 from threading import Thread
@@ -41,6 +42,10 @@ class LidarController:
                 print(f"Lidar Hardware Error: {e}. Reconnecting...")
                 self.__lidar.disconnect()  # Essential to drop the bad connection
                 self.__lidar.connect()  # Restart the serial sync
+            except SerialException:
+                self.__lidar.stop()
+                self.__lidar.disconnect()
+                self.__lidar = RPLidar(self.__port)
 
         self.__lidar.stop()
         self.__lidar.disconnect()
