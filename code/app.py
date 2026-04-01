@@ -87,7 +87,7 @@ def drive():
         # 6000 is center/neutral, above = forward, below = backward
         direction = "forward" if throttle > 6000 else "backward"
 
-        if controller.CanMove(direction):
+        if not controller.CanMove(direction):
             tempstop()
             return jsonify({"response": "Obstacle"}), 200
 

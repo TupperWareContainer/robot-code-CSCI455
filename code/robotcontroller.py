@@ -92,7 +92,9 @@ class RobotController:
             for angle in front_angles
         )
 
-        print(f"The front is {'blocked' if is_front_blocked else 'not blocked'}")
+        if is_front_blocked:
+            print("Front is BLOCKED")
+
         return is_front_blocked
 
     def IsRearBlocked(self) -> bool:
@@ -102,7 +104,9 @@ class RobotController:
             for angle in rear_angles
         )
 
-        print(f"The rear is {'blocked' if is_rear_blocked else 'not blocked'}")
+        if is_rear_blocked:
+            print("Rear is BLOCKED")
+
         return is_rear_blocked
 
     def CanMove(self, direction: str) -> bool:
