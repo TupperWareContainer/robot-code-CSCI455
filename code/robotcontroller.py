@@ -112,6 +112,9 @@ class RobotController:
 
     def CanMove(self, direction: str) -> bool:
         try:
+            print("Distance 180:", self.__lidarController.GetDistanceMM(180))
+            print("Distance 0:", self.__lidarController.GetDistanceMM(0))
+
             if direction == "forward":
                 return not self.IsFrontBlocked()
             elif direction == "backward":
