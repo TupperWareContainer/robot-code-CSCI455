@@ -29,10 +29,8 @@ class LidarController:
         while not self.__stopScan:
             try:
                 # iter_scans is a blocking generator
-                for scan in self.__lidar.iter_scans(max_buf_meas=1500, scan_type="normal"):
-                    for measure in scan:
-                        angle = measure[0]
-                        distance = measure[1]
+                for scan in self.__lidar.iter_scans(max_buf_meas=1500):
+                    for _, angle, distance in scan:
                         idx = min([359, int(floor(angle))])
                         self.__scan_data[idx] = distance
 
