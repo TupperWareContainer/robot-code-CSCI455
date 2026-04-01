@@ -40,9 +40,6 @@ class LidarController:
                 print(f"Lidar Hardware Error: {e}. Reconnecting...")
                 self.__lidar.disconnect()  # Essential to drop the bad connection
                 self.__lidar.connect()  # Restart the serial sync
-            except Exception as e:
-                print(f"Unexpected Error: {e}")
-                break
 
         self.__lidar.stop()
         self.__lidar.disconnect()
