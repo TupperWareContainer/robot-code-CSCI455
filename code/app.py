@@ -73,6 +73,9 @@ def rotate_waist():
 
     return jsonify({"response": f"Received: {data.get('rot', 'no message')}"}), 200
 
+THROTTLE_NEUTRAL = 6000
+THROTTLE_DEADZONE = 50  # optional, accounts for stick drift
+
 # Currently this is the only method that is attached to the joystick!
 @app.post('/drive')
 def drive():
@@ -85,7 +88,16 @@ def drive():
         steering, throttle = calc_servo_speeds(x, y)
 
         # 6000 is center/neutral, above = forward, below = backward
-        direction = "forward" if throttle > 6000 else "backward"
+        if throttle > THROTTLE_NEUTRAL + THROTTLE_DEADZONE:
+            direction = "forward"
+        elif throttle < THROTTLE_NEUTRAL - THROTTLE_DEADZONE:
+            direction = "backward"
+        else:
+            direction = None  # neutral, no movement intended
+
+        if direction and not controller.CanMove(direction):
+            tempstop()
+            return jsonify({"response": "Obstacle"}), 200
 
         if not controller.CanMove(direction):
             tempstop()
