@@ -73,9 +73,6 @@ def rotate_waist():
 
     return jsonify({"response": f"Received: {data.get('rot', 'no message')}"}), 200
 
-THROTTLE_NEUTRAL = 6000
-THROTTLE_DEADZONE = 50  # optional, accounts for stick drift
-
 # Currently this is the only method that is attached to the joystick!
 @app.post('/drive')
 def drive():
@@ -86,11 +83,20 @@ def drive():
         x = data.get('x')
         y = data.get('y')
         steering, throttle = calc_servo_speeds(x, y)
+        neutral = 6000
+
+        print(steering)
+        print(throttle)
+
+        # Here we are turning which shouldn't be affected by blocking!
+        if abs(y) > abs(x):
+           robot.turn_wheels(int(steering))
+           return jsonify({"response": f"Received: {data.get('x', 'no message'), data.get('y', 'no message')}"}), 200
 
         # 6000 is center/neutral, above = forward, below = backward
-        if throttle > THROTTLE_NEUTRAL + THROTTLE_DEADZONE:
+        if throttle > neutral:
             direction = "forward"
-        elif throttle < THROTTLE_NEUTRAL - THROTTLE_DEADZONE:
+        elif throttle < neutral:
             direction = "backward"
         else:
             direction = None  # neutral, no movement intended
@@ -99,18 +105,9 @@ def drive():
             tempstop()
             return jsonify({"response": "Obstacle"}), 200
 
-        if not controller.CanMove(direction):
-            tempstop()
-            return jsonify({"response": "Obstacle"}), 200
-
-        print(steering)
-        print(throttle)
-
-        if(abs(x) > abs(y)):
+        if abs(x) > abs(y):
             robot.drive_wheels(int(throttle))
-        elif(abs(y) > abs(x)):
-           robot.turn_wheels(int(steering))
-        elif(steering == throttle == 6000):
+        elif steering == throttle == 6000:
             robot.turn_wheels(int(steering))
             robot.drive_wheels(int(throttle))
         return jsonify({"response": f"Received: {data.get('x', 'no message'), data.get('y', 'no message')}"}), 200

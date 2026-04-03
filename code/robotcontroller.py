@@ -12,8 +12,9 @@ Command Based Interface for controlling a Robot instance
 '''
 
 LIDAR_PORT = '/dev/ttyUSB0'
-SAFE_DISTANCE= 800
-BODY_SIZE = 160
+SAFE_DISTANCE = 800
+BACK_BODY_SIZE = 160
+FRONT_BODY_SIZE = 20
 
 class RobotAction(Enum):
     UNKNOWN = -1
@@ -89,7 +90,7 @@ class RobotController:
         front_angles = list(range(330, 360)) + list(range(0, 31))  # 330-359 and 0-30
         is_front_blocked = any(
             (d := self.__lidarController.GetDistanceMM(angle)) != 0 and
-            BODY_SIZE < d < SAFE_DISTANCE
+            FRONT_BODY_SIZE < d < SAFE_DISTANCE
             for angle in front_angles
         )
 
@@ -102,7 +103,7 @@ class RobotController:
         rear_angles = list(range(150, 211))  # 150 to 210
         is_rear_blocked = any(
             (d := self.__lidarController.GetDistanceMM(angle)) != 0 and
-            BODY_SIZE < d < SAFE_DISTANCE
+            BACK_BODY_SIZE < d < SAFE_DISTANCE
             for angle in rear_angles
         )
 
