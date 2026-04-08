@@ -36,8 +36,6 @@ rules : deque = deque()
 
 @app.post('/pan_head')
 def pan_head():
-
-
     if request.is_json:
         data = request.get_json()
         rot = data.get('rot')
@@ -49,8 +47,6 @@ def pan_head():
 
 @app.post('/tilt_head')
 def tilt_head():
-    global main_robot
-
     if request.is_json:
         data = request.get_json()
         rot = data.get('rot')
@@ -63,8 +59,6 @@ def tilt_head():
 
 @app.post('/rotate_waist')
 def rotate_waist():
-    global main_robot
-
     data = request.get_json()
     rot = data.get('rot')
     main_robot.rotate_waist(int(rot))
@@ -74,21 +68,15 @@ def rotate_waist():
 # Currently this is the only method that is attached to the joystick!
 @app.post('/drive')
 def drive():
-    global main_robot
-
     if request.is_json:
         data = request.get_json()
         x = data.get('x')
         y = data.get('y')
         print("X: " + str(x) + "Y: " + str(y))
 
-
         angle = math.atan2(y,x)
 
-
-
         steering, throttle = calc_servo_speeds(x, y)
-        neutral = 6000
 
         print("Steering:", steering)
         print("Throttle:", throttle)
@@ -177,15 +165,12 @@ def ask():
     return jsonify({"error": "Request must be JSON"}), 400
 
 def queue_actions(actions):
-    global main_robot
-
     for action in actions:
         action_value : str = action.get_value()
         main_robot.get_controller().AddActionViaStr(action_value)
         main_robot.get_controller().Update()
 
 def stop():
-    global main_robot
     global program
     global rules
 
@@ -401,7 +386,6 @@ def index():
     return 'Hello World!'
 
 def speak_messages():
-    global main_robot
     global message_queue
 
     while True:
@@ -410,7 +394,6 @@ def speak_messages():
             main_robot.speak(message)
 
 def main():
-    global main_robot
     ping = False
     parse_program()
     safetythread = RepeatingTimer(timeout, safety_check)
