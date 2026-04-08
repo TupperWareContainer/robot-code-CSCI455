@@ -2,7 +2,7 @@ import threading
 import time
 import robot_actions
 from LidarController import LidarController
-from al_robot import Robot
+from robot import Robot
 from enum import Enum
 from collections import deque  
 '''

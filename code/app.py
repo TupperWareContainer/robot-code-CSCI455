@@ -2,7 +2,7 @@ import math
 from queue import Queue
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from al_robot import Robot
+from robot import Robot
 from al_dialog_tokenizer import Tokenizer
 from al_dialog_parser import Parser
 from al_dialog_program import Program

@@ -1,4 +1,4 @@
-from al_robot import Robot
+from robot import Robot
 
 r = Robot()
 speed = 8000

@@ -1,5 +1,5 @@
 import time
-from al_robot import Robot
+from robot import Robot
 
 ## TODO: Dance90
 
