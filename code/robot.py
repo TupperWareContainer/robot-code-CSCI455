@@ -15,7 +15,7 @@ class Robot:
     waist   : WaistController
     arm     : ArmController
     voice   : Voice
-    controller : RobotController
+    robot_controller : RobotController
     __MOTORCHANNELS = [3,4,5,0,1,6]
 
     def __init__(self):
@@ -28,8 +28,7 @@ class Robot:
         self.waist = WaistController(self.master_controller)
         self.voice = Voice(self.espeak)
         self.arm = ArmController(self.master_controller)
-        self.robotcontroller = RobotController()
-        self.lidar = self.robotcontroller.get_lidar_controller()
+        self.robot_controller = RobotController()
         pass
     def close(self):
         self.master_controller.close()
@@ -67,15 +66,12 @@ class Robot:
     def raise_arm(self, angle):
         self.arm.Raise(angle, 6)
 
-    def start_scan(self):
-        self.lidar.StartScan()
-
     def is_front_blocked(self):
-        return self.robotcontroller.IsFrontBlocked()
+        return self.robot_controller.IsFrontBlocked()
 
     def is_rear_blocked(self):
-        return self.robotcontroller.IsRearBlocked()
+        return self.robot_controller.IsRearBlocked()
 
     def get_controller(self):
-        return self.robotcontroller
+        return self.robot_controller
 

@@ -61,10 +61,6 @@ class RobotController:
 
         self.__safety_thread.start()
 
-    def get_lidar_controller(self) -> LidarController:
-        return self.__lidar_controller
-
-
     def Update(self):
         if (len(self.__actionQueue) > 0) or self.__isPerformingAction: 
             self.__state = RobotState.ACTION_EXEC
