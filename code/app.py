@@ -36,10 +36,11 @@ ping = False
 
 program : Program
 rules : deque = deque()
-#controller : RobotController = RobotController()
 
 @app.post('/pan_head')
 def pan_head():
+    global main_robot
+
     if request.is_json:
         data = request.get_json()
         rot = data.get('rot')
@@ -417,6 +418,7 @@ def index():
     return 'Hello World!'
 
 def speak_messages():
+    global main_robot
     global message_queue
 
     while True:
@@ -425,6 +427,7 @@ def speak_messages():
             main_robot.speak(message)
 
 def main():
+    global main_robot
     ping = False
     parse_program()
     safetythread = RepeatingTimer(timeout, safety_check)
