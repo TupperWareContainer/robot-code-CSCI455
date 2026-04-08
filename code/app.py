@@ -24,7 +24,7 @@ class RepeatingTimer(Timer):
 
 
 message_queue = Queue()
-server_name = "10.98.202.65"
+server_name = "10.158.167.65"
 app = Flask(__name__)
 CORS(app)
 
@@ -92,14 +92,14 @@ def drive():
         steering, throttle = calc_servo_speeds(x, y)
         neutral = 6000
 
-        print(steering)
-        print(throttle)
+        print("Steering:", steering)
+        print("Throttle:", throttle)
 
         # Here we are turning which shouldn't be affected by blocking!
         if abs(abs(angle) - math.pi/2.0) >= .2:
-           robot.turn_wheels(int(steering))
-           print("turning wheels")
-           return jsonify({"response": f"Received: {data.get('x', 'no message'), data.get('y', 'no message')}"}), 200
+            robot.turn_wheels(int(steering))
+            print("turning wheels")
+            return jsonify({"response": f"Received: {data.get('x', 'no message'), data.get('y', 'no message')}"}), 200
         else: 
         # 6000 is center/neutral, above = forward, below = backward
             if angle < 0:
@@ -109,12 +109,28 @@ def drive():
             else:
                 direction = None  # neutral, no movement intended
 
-            if direction and not controller.CanMove(direction):
+            if direction == "forward" and not controller.IsFrontBlocked():
+                print("Driving wheels " + str(direction))
+                robot.drive_wheels(int(throttle))
+                return jsonify({"response": f"Received: {data.get('x', 'no message'), data.get('y', 'no message')}"}), 200
+            elif direction == "backward" and not controller.IsRearBlocked():
+                print("Driving wheels" + str(direction))
+                robot.drive_wheels(int(throttle))
+                return jsonify({"response": f"Received: {data.get('x', 'no message'), data.get('y', 'no message')}"}), 200
+            else:
+                print("Obstacle!!!")
                 tempstop()
                 return jsonify({"response": "Obstacle"}), 200
 
-        
-            robot.drive_wheels(int(throttle))
+
+            #if direction and controller.CanMove(direction):
+            #    print("Obstacle!!!!")
+            #    tempstop()
+            #    return jsonify({"response": "Obstacle"}), 200
+            #else:
+            #    print("Driving wheels " + str(direction))
+            #    robot.drive_wheels(int(throttle))
+
         if steering == throttle == 6000:
             robot.turn_wheels(int(steering))
             robot.drive_wheels(int(throttle))

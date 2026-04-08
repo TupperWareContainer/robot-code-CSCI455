@@ -13,7 +13,7 @@ Command Based Interface for controlling a Robot instance
 
 LIDAR_PORT = '/dev/ttyUSB0'
 SAFE_DISTANCE = 800
-BACK_BODY_SIZE = 160
+BACK_BODY_SIZE = 20
 FRONT_BODY_SIZE = 20
 
 class RobotAction(Enum):
@@ -87,14 +87,18 @@ class RobotController:
             time.sleep(1)
 
     def IsFrontBlocked(self) -> bool:
-        '''front_angles = list(range(330, 360)) + list(range(0, 31))  # 330-359 and 0-30
+        front_angles = list(range(330, 360)) + list(range(0, 31))  # 330-359 and 0-30
         is_front_blocked = any(
-            (d := self.__lidarController.GetDistanceMM(angle)) != 0 and
-            FRONT_BODY_SIZE < d < SAFE_DISTANCE
+            self.__lidarController.GetDistanceMM(angle) < SAFE_DISTANCE
             for angle in front_angles
-        )'''
-        dist = self.__lidarController.GetDistanceMM(360)
-        is_front_blocked = dist != 0 and dist < SAFE_DISTANCE
+        )
+
+        for angle in front_angles:
+            print(angle, self.__lidarController.GetDistanceMM(angle))
+
+
+        #dist = self.__lidarController.GetDistanceMM(0)
+        #is_front_blocked = (dist != 0) and (dist < SAFE_DISTANCE)
 
         if is_front_blocked:
             print("Front is BLOCKED")
@@ -102,8 +106,18 @@ class RobotController:
         return is_front_blocked
 
     def IsRearBlocked(self) -> bool:
-        dist =  self.__lidarController.GetDistanceMM(180) 
-        is_rear_blocked = dist != 0 and dist < SAFE_DISTANCE
+        rear_angles = list(range(175, 185)) # 150 to 210
+        is_rear_blocked = any(
+            BACK_BODY_SIZE < self.__lidarController.GetDistanceMM(angle) < SAFE_DISTANCE
+            for angle in rear_angles
+        )
+
+        for angle in rear_angles:
+            print(self.__lidarController.GetDistanceMM(angle))
+
+        #dist =  self.__lidarController.GetDistanceMM(180) 
+        #is_rear_blocked = (dist != 0) and (dist < SAFE_DISTANCE)
+        
         if is_rear_blocked:
             print("Rear is BLOCKED")
 
