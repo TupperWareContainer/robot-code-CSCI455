@@ -54,8 +54,8 @@ class RobotController:
         self.__lastSafetyTime = -1
         self.__maxSafetyTime = 0
         self.__safeTimeSet = False
-        self.__lidarController = LidarController(LIDAR_PORT, timeout=3, max_distance=12000)
 
+        self.__lidarController = LidarController(LIDAR_PORT, timeout=3, max_distance=0)
         self.__safety_thread = threading.Thread(target=self.__SafetyTimer)
 
         self.__safety_thread.start()
@@ -87,12 +87,14 @@ class RobotController:
             time.sleep(1)
 
     def IsFrontBlocked(self) -> bool:
-        front_angles = list(range(330, 360)) + list(range(0, 31))  # 330-359 and 0-30
+        '''front_angles = list(range(330, 360)) + list(range(0, 31))  # 330-359 and 0-30
         is_front_blocked = any(
             (d := self.__lidarController.GetDistanceMM(angle)) != 0 and
             FRONT_BODY_SIZE < d < SAFE_DISTANCE
             for angle in front_angles
-        )
+        )'''
+        dist = self.__lidarController.GetDistanceMM(360)
+        is_front_blocked = dist != 0 and dist < SAFE_DISTANCE
 
         if is_front_blocked:
             print("Front is BLOCKED")
@@ -100,13 +102,8 @@ class RobotController:
         return is_front_blocked
 
     def IsRearBlocked(self) -> bool:
-        rear_angles = list(range(150, 211))  # 150 to 210
-        is_rear_blocked = any(
-            (d := self.__lidarController.GetDistanceMM(angle)) != 0 and
-            BACK_BODY_SIZE < d < SAFE_DISTANCE
-            for angle in rear_angles
-        )
-
+        dist =  self.__lidarController.GetDistanceMM(180) 
+        is_rear_blocked = dist != 0 and dist < SAFE_DISTANCE
         if is_rear_blocked:
             print("Rear is BLOCKED")
 

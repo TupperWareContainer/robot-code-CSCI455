@@ -14,7 +14,6 @@ class Robot:
     waist   : WaistController
     arm     : ArmController
     voice   : Voice
-
     __MOTORCHANNELS = [3,4,5,0,1,6]
 
     def __init__(self):
@@ -22,7 +21,6 @@ class Robot:
         self.master_controller = maestro.Controller()
         self.espeak = ESpeakNG()
         
-        #self.lidar = LidarController("/dev/ttyUSB0",)
         self.head = HeadController(self.master_controller) # Removed 3 and 1000. I don't know why these are here
         self.wheels = WheelController(self.master_controller)
         self.waist = WaistController(self.master_controller)
@@ -65,6 +63,6 @@ class Robot:
     def raise_arm(self, angle):
         self.arm.Raise(angle, 6)
 
-    #def scan_angle(self, angle):
-        #self.lidar.GetDistanceInches(angle)
+    def scan_angle(self, angle):
+        self.lidar.GetDistanceInches(angle)
 

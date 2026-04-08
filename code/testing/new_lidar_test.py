@@ -15,7 +15,7 @@ def process_data(data):
     os.system('cls' if os.name == 'nt' else 'clear')
 
     
-    for i in range (0,180, 25):
+    for i in range (0,200, 20):
         print(str(i) + ": " + str(data[i]) + "\n")
 
 
