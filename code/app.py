@@ -82,6 +82,13 @@ def drive():
         data = request.get_json()
         x = data.get('x')
         y = data.get('y')
+        print("X: " + str(x) + "Y: " + str(y))
+
+
+        angle = math.atan2(y,x)
+
+
+
         steering, throttle = calc_servo_speeds(x, y)
         neutral = 6000
 
@@ -89,25 +96,26 @@ def drive():
         print(throttle)
 
         # Here we are turning which shouldn't be affected by blocking!
-        if abs(y) > abs(x):
+        if abs(abs(angle) - math.pi/2.0) >= .2:
            robot.turn_wheels(int(steering))
+           print("turning wheels")
            return jsonify({"response": f"Received: {data.get('x', 'no message'), data.get('y', 'no message')}"}), 200
-
+        else: 
         # 6000 is center/neutral, above = forward, below = backward
-        if throttle > neutral:
-            direction = "forward"
-        elif throttle < neutral:
-            direction = "backward"
-        else:
-            direction = None  # neutral, no movement intended
+            if angle < 0:
+                direction = "forward"
+            elif angle > 0:
+                direction = "backward"
+            else:
+                direction = None  # neutral, no movement intended
 
-        if direction and not controller.CanMove(direction):
-            tempstop()
-            return jsonify({"response": "Obstacle"}), 200
+            if direction and not controller.CanMove(direction):
+                tempstop()
+                return jsonify({"response": "Obstacle"}), 200
 
-        if abs(x) > abs(y):
+        
             robot.drive_wheels(int(throttle))
-        elif steering == throttle == 6000:
+        if steering == throttle == 6000:
             robot.turn_wheels(int(steering))
             robot.drive_wheels(int(throttle))
         return jsonify({"response": f"Received: {data.get('x', 'no message'), data.get('y', 'no message')}"}), 200

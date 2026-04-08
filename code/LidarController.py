@@ -57,7 +57,7 @@ class LidarController:
     def GetDistanceMM(self, angle : int):
         clean_angle = int(angle % 360)
         distance_mm = self.__scan_data[clean_angle]
-
+        print("Angle: " + str(angle)  + " distance: " + str(distance_mm))
         if distance_mm <= 0 or distance_mm > self.__max_distance:
             return -1
         return distance_mm
