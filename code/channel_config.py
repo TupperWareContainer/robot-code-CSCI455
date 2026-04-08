@@ -5,7 +5,7 @@ powers each channel individually to find which channel belongs to which subsyste
 """
 import time
 
-from robot import Robot
+from al_robot import Robot
 
 channel_map : list[(str,str)] = list()
 
