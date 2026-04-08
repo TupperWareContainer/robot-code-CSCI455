@@ -1,11 +1,12 @@
+from robotcontroller import RobotController
 from head_controller import HeadController
 from waist_controller import WaistController
 from wheel_controller import WheelController
 from arm_controller import ArmController
-from LidarController import LidarController
 from voice import Voice
 from espeakng import ESpeakNG
 import maestro
+
 class Robot:
     master_controller : maestro.Controller
     espeak  : ESpeakNG
@@ -14,6 +15,7 @@ class Robot:
     waist   : WaistController
     arm     : ArmController
     voice   : Voice
+    controller : RobotController
     __MOTORCHANNELS = [3,4,5,0,1,6]
 
     def __init__(self):
@@ -26,6 +28,8 @@ class Robot:
         self.waist = WaistController(self.master_controller)
         self.voice = Voice(self.espeak)
         self.arm = ArmController(self.master_controller)
+        self.robotcontroller = RobotController()
+        self.lidar = self.robotcontroller.get_lidar_controller()
         pass
     def close(self):
         self.master_controller.close()
@@ -63,6 +67,15 @@ class Robot:
     def raise_arm(self, angle):
         self.arm.Raise(angle, 6)
 
-    def scan_angle(self, angle):
-        self.lidar.GetDistanceInches(angle)
+    def start_scan(self):
+        self.lidar.StartScan()
+
+    def is_front_blocked(self):
+        return self.robotcontroller.IsFrontBlocked()
+
+    def is_rear_blocked(self):
+        return self.robotcontroller.IsRearBlocked()
+
+    def get_controller(self):
+        return self.robotcontroller
 

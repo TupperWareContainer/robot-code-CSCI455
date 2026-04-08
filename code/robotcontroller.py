@@ -55,10 +55,14 @@ class RobotController:
         self.__maxSafetyTime = 0
         self.__safeTimeSet = False
 
-        self.__lidarController = LidarController(LIDAR_PORT, timeout=3, max_distance=0)
+        self.__lidar_controller = LidarController(LIDAR_PORT, timeout=3, max_distance=0)
+
         self.__safety_thread = threading.Thread(target=self.__SafetyTimer)
 
         self.__safety_thread.start()
+
+    def get_lidar_controller(self) -> LidarController:
+        return self.__lidar_controller
 
 
     def Update(self):

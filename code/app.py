@@ -9,7 +9,6 @@ from al_dialog_program import Program
 from al_dialog_token_type import TokenType
 from al_dialog_token import Token
 from al_dialog_choice import Choice
-from robotcontroller import RobotController
 from collections import deque
 import threading
 from threading import Timer
@@ -37,7 +36,7 @@ ping = False
 
 program : Program
 rules : deque = deque()
-controller : RobotController = RobotController()
+#controller : RobotController = RobotController()
 
 @app.post('/pan_head')
 def pan_head():
@@ -52,6 +51,8 @@ def pan_head():
 
 @app.post('/tilt_head')
 def tilt_head():
+    global robot
+
     if request.is_json:
         data = request.get_json()
         rot = data.get('rot')
@@ -64,8 +65,7 @@ def tilt_head():
 
 @app.post('/rotate_waist')
 def rotate_waist():
-    robot = Robot()
-
+    global robot
 
     data = request.get_json()
     rot = data.get('rot')
@@ -76,7 +76,7 @@ def rotate_waist():
 # Currently this is the only method that is attached to the joystick!
 @app.post('/drive')
 def drive():
-    global controller
+    global robot
 
     if request.is_json:
         data = request.get_json()
@@ -109,11 +109,11 @@ def drive():
             else:
                 direction = None  # neutral, no movement intended
 
-            if direction == "forward" and not controller.IsFrontBlocked():
+            if direction == "forward" and not robot.is_front_blocked():
                 print("Driving wheels " + str(direction))
                 robot.drive_wheels(int(throttle))
                 return jsonify({"response": f"Received: {data.get('x', 'no message'), data.get('y', 'no message')}"}), 200
-            elif direction == "backward" and not controller.IsRearBlocked():
+            elif direction == "backward" and not robot.is_rear_blocked():
                 print("Driving wheels" + str(direction))
                 robot.drive_wheels(int(throttle))
                 return jsonify({"response": f"Received: {data.get('x', 'no message'), data.get('y', 'no message')}"}), 200
@@ -193,19 +193,19 @@ def ask():
     return jsonify({"error": "Request must be JSON"}), 400
 
 def queue_actions(actions):
-    global controller
+    global robot
 
     for action in actions:
         action_value : str = action.get_value()
-        controller.AddActionViaStr(action_value)
-        controller.Update()
+        robot.get_controller().AddActionViaStr(action_value)
+        robot.get_controller().Update()
 
 def stop():
+    global robot
     global program
     global rules
-    global controller
 
-    controller.Reset()
+    robot.get_controller().Reset()
     rules.clear()
     rules.appendleft(program.get_rules())
 
