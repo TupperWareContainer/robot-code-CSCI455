@@ -15,6 +15,7 @@ class Robot:
     waist   : WaistController
     arm     : ArmController
     voice   : Voice
+    robot_controller : RobotController
     __MOTORCHANNELS = [3,4,5,0,1,6]
 
     def __init__(self):

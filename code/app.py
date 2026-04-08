@@ -20,8 +20,6 @@ class RepeatingTimer(Timer):
         while not self.finished.wait(self.interval):
             self.function(*self.args, **self.kwargs)
 
-
-
 message_queue = Queue()
 server_name = "10.158.167.65"
 app = Flask(__name__)
@@ -32,7 +30,6 @@ main_robot = Robot()
 timeout = 3
 
 ping = False
-
 
 program : Program
 rules : deque = deque()
@@ -122,20 +119,6 @@ def drive():
                 print("Obstacle!!!")
                 tempstop()
                 return jsonify({"response": "Obstacle"}), 200
-
-
-            #if direction and controller.CanMove(direction):
-            #    print("Obstacle!!!!")
-            #    tempstop()
-            #    return jsonify({"response": "Obstacle"}), 200
-            #else:
-            #    print("Driving wheels " + str(direction))
-            #    robot.drive_wheels(int(throttle))
-
-        if steering == throttle == 6000:
-            main_robot.turn_wheels(int(steering))
-            main_robot.drive_wheels(int(throttle))
-        return jsonify({"response": f"Received: {data.get('x', 'no message'), data.get('y', 'no message')}"}), 200
     return jsonify({"error": "Request must be JSON"}), 400
 
 def calc_servo_speeds(joystick_x, joystick_y):
