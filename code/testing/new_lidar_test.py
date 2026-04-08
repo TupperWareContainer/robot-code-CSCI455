@@ -19,7 +19,7 @@ def process_data(data):
         print(str(i) + ": " + str(data[i]) + "\n")
 
 
-scan_data =  [0]*360
+scan_data = [0]*360
 
 try:
     for scan in lidar.iter_scans():
