@@ -1,7 +1,7 @@
 import threading
 import time
 import robot_actions
-import LidarController
+from lidar_controller import LidarController
 from robot import Robot
 from enum import Enum
 from collections import deque  
