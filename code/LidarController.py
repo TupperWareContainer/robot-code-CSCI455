@@ -1,6 +1,7 @@
 from rplidar import RPLidar, RPLidarException
 from math import floor
 from threading import Thread
+import threading
 import time
 
 class LidarController:
@@ -10,7 +11,8 @@ class LidarController:
     __stopScan : bool
     __lidar_port : str 
     __timeout : float
-    __scan_data = [0.0] * 360
+    __scan_data = [0] * 360
+    __data_lock = threading.Lock()
 
     def __init__(self, lidar_port : str, timeout : float, max_distance : float):
         self.__lidar = RPLidar(lidar_port, timeout=timeout)
@@ -35,16 +37,19 @@ class LidarController:
                  # iter_scans is a blocking generator
                 for scan in self.__lidar.iter_scans():
                     for (_, angle, distance) in scan:
-                        idx = min([359, floor(angle)])
-                        LidarController.__scan_data[idx] = distance
+
+                        with LidarController.__data_lock:
+                            LidarController.__scan_data[min([359, floor(angle)])] = distance
+                        #print(floor(angle), LidarController.__scan_data[min([359, floor(angle)])])
 
                     time.sleep(0.1)  # Yields control to other threads
         except RPLidarException as e:
                 # This is where 'line length mismatch' is caught
             print(f"Lidar Hardware Error: {e}. Reconnecting...")
-            self.RebootLidar() 
+            #self.RebootLidar() 
         except Exception as e:
-            self.RebootLidar()
+            #self.RebootLidar()
+            print("Unexpected Exception...")
         finally:
             self.StartScan()
     def RebootLidar(self):
@@ -58,9 +63,11 @@ class LidarController:
         self.__scan_thread.join()
 
     def GetDistanceMM(self, angle : int):
-        clean_angle = int(angle % 360)
-        distance_mm = LidarController.__scan_data[clean_angle]
+        #clean_angle = int(angle % 360)
+
+        with LidarController.__data_lock:
+            distance_mm = LidarController.__scan_data[angle]
         print("Angle: " + str(angle)  + " distance: " + str(distance_mm))
-        if distance_mm <= 0:
-            return -1
+        #if distance_mm <= 0:
+        #    return -1
         return distance_mm
