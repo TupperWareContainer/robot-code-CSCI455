@@ -15,6 +15,9 @@ STOP_DISTANCE = 1000
 BACK_BODY_SIZE = 20
 FRONT_BODY_SIZE = 20
 
+IS_FRONT_BLOCKED = False
+IS_REAR_BLOCKED = False
+
 class RobotAction(Enum):
     UNKNOWN = -1
     NONE = 0 
@@ -52,12 +55,16 @@ class RobotController:
         self.__lastSafetyTime = -1
         self.__maxSafetyTime = 0
         self.__safeTimeSet = False
+        self._direction = None
 
         self._lidar_controller = LidarController(LIDAR_PORT, timeout=3, max_distance=0)
 
         self.__safety_thread = threading.Thread(target=self.__SafetyTimer)
-
         self.__safety_thread.start()
+
+        safteyScan = threading.Thread(target=self._safety_scan)
+        safteyScan.start()
+
 
     def Update(self):
         if (len(self.__actionQueue) > 0) or self.__isPerformingAction: 
@@ -87,8 +94,6 @@ class RobotController:
     def __IsBlocked(self, angles: list[int]) -> bool:
         readings = [self._lidar_controller.GetDistanceMM(angle) for angle in angles]
         non_zero = [d for d in readings if d != 0]
-
-        print(readings)
 
         # If all readings are 0, no lidar data — fail safe and block
         if len(non_zero) == 0:
@@ -126,7 +131,7 @@ class RobotController:
             print("Rear is BLOCKED")
 
         return is_rear_blocked
-
+    '''
     def CanMove(self, direction: str) -> bool:
         try:
             if direction == "forward":
@@ -137,6 +142,7 @@ class RobotController:
         except Exception as e:
             print(f"Error checking movement: {e}")
         return False
+    '''
 
     def __StateMachine(self):
         match self.__state:
@@ -242,3 +248,19 @@ class RobotController:
 
     def GetScope(self) -> list[str]:
         return self.__scope
+
+    def set_direction(self, direction):
+        self._direction = direction
+
+    def get_direction(self) -> str:
+        return self._direction
+
+    def _safety_scan(self):
+        while True:
+            if self._direction == "forward" and self.IsFrontBlocked():
+                self.__robotInstance.drive_wheels(6000)
+                self.__robotInstance.turn_wheels(6000)
+            elif self._direction == "backward" and self.IsRearBlocked():
+                self.__robotInstance.drive_wheels(6000)
+                self.__robotInstance.turn_wheels(6000)
+            time.sleep(0.05)  # 20hz

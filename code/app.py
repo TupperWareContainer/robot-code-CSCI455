@@ -20,7 +20,6 @@ class RepeatingTimer(Timer):
         while not self.finished.wait(self.interval):
             self.function(*self.args, **self.kwargs)
 
-DIRECTION = None
 message_queue = Queue()
 server_name = "10.158.167.65"
 app = Flask(__name__)
@@ -96,24 +95,15 @@ def drive():
         else: 
         # 6000 is center/neutral, above = forward, below = backward
             if angle < 0:
-                DIRECTION = "forward"
+                main_robot.set_direction("forward")
             elif angle > 0:
-                DIRECTION = "backward"
+                main_robot.set_direction("backward")
             else:
-                DIRECTION = None  # neutral, no movement intended
+                main_robot.set_direction(None)  # We're turning
 
-            if DIRECTION == "forward" and not main_robot.is_front_blocked():
-                print("Driving wheels " + str(DIRECTION))
-                main_robot.drive_wheels(int(throttle))
-                return jsonify({"response": f"Received: {data.get('x', 'no message'), data.get('y', 'no message')}"}), 200
-            elif DIRECTION == "backward" and not main_robot.is_rear_blocked():
-                print("Driving wheels" + str(DIRECTION))
-                main_robot.drive_wheels(int(throttle))
-                return jsonify({"response": f"Received: {data.get('x', 'no message'), data.get('y', 'no message')}"}), 200
-            else:
-                print("Obstacle!!!")
-                tempstop()
-                return jsonify({"response": "Obstacle"}), 200
+        print("Driving wheels" + str(DIRECTION))
+        main_robot.drive_wheels(int(throttle))
+        return jsonify({"response": f"Received: {data.get('x', 'no message'), data.get('y', 'no message')}"}), 200
     return jsonify({"error": "Request must be JSON"}), 400
 
 def calc_servo_speeds(joystick_x, joystick_y):
@@ -405,10 +395,8 @@ def main():
     parse_program()
     safetythread = RepeatingTimer(timeout, safety_check)
     thread = threading.Thread(target=speak_messages)
-    safteyScan = threading.Thread(target=safety_scan)
     safetythread.start()
     thread.start()
-    safteyScan.start()
 
     main_robot.drive_wheels(6000)
     app.config["SERVER_NAME"] = server_name
@@ -424,18 +412,6 @@ def exit_handler():
     main_robot.turn_wheels(6000)
     main_robot.close()
 atexit.register(exit_handler)
-
-def safety_scan():
-    global DIRECTION
-
-    while True:
-        if DIRECTION == "forward" and main_robot.is_front_blocked():
-            tempstop()
-        elif DIRECTION == "backward" and main_robot.is_rear_blocked():
-            tempstop()
-
-        time.sleep(0.05)  # 20hz
-
 
 
 if __name__ == '__main__':

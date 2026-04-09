@@ -80,3 +80,9 @@ class Robot:
 
     def reset_state(self):
         self.robot_controller.Reset()
+
+    def set_direction(self, direction):
+        self.robot_controller.set_direction(direction)
+
+    def get_direction(self):
+        return self.robot_controller.get_direction()
