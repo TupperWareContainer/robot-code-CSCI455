@@ -86,9 +86,3 @@ class Robot:
 
     def get_direction(self):
         return self.robot_controller.get_direction()
-
-    def get_is_front_blocked(self):
-        return self.robot_controller.get_is_front_blocked()
-
-    def get_is_rear_blocked(self):
-        return self.robot_controller.get_is_rear_blocked()

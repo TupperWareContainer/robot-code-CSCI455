@@ -256,7 +256,7 @@ class RobotController:
                         self.__robotInstance.drive_wheels(6000)
                         self.__robotInstance.turn_wheels(6000)
                         self._is_front_blocked = True
-                        print("The front is blocked")
+                        print("Front blocked")
                 else:
                     self._is_front_blocked = False
                     print("The rear is open")
@@ -266,8 +266,7 @@ class RobotController:
                         self.__robotInstance.drive_wheels(6000)
                         self.__robotInstance.turn_wheels(6000)
                         self._is_rear_blocked = True
-                        print("The rear is blocked")
+                        print("Rear Blocked")
                 else:
                     self._is_rear_blocked = False
-                    print("The front is open")
             time.sleep(0.1)  # 20hz

@@ -94,17 +94,17 @@ def drive():
         # 6000 is center/neutral, above = forward, below = backward
             if angle < 0:
                 main_robot.set_direction("forward")
-                print("forward")
             elif angle > 0:
                 main_robot.set_direction("backward")
-                print("backward")
 
-            if not main_robot.is_front_blocked():
+            if main_robot.get_direction() == "forward" and not main_robot.is_front_blocked():
                 print("Driving wheels" + str(main_robot.get_direction()))
                 main_robot.drive_wheels(int(throttle))
-            elif not main_robot.is_rear_blocked():
+            elif main_robot.get_direction() == "backward" and not main_robot.is_rear_blocked():
                 print("Driving wheels" + str(main_robot.get_direction()))
                 main_robot.drive_wheels(int(throttle))
+            else:
+                tempstop()
 
         return jsonify({"response": f"Received: {data.get('x', 'no message'), data.get('y', 'no message')}"}), 200
     return jsonify({"error": "Request must be JSON"}), 400
