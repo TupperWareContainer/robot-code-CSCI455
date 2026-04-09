@@ -6,17 +6,20 @@ class WheelController:
 
     __MOTOR_MIN = 1200 
     __MOTOR_MAX = 1800
+    NEUTRAL = 6000
     def __init__(self, controller : Controller):
         self.controller = controller
         pass
 
     def drive(self, speed, chan):
         # 1200 min 1800 max
-        self.controller.setSpeed(0, 23)
-        self.controller.setSpeed(1, 23)
+        # Scale the offset from neutral to 75%
+        offset = speed - WheelController.NEUTRAL
+        limited = WheelController.NEUTRAL + int(offset * 0.75)
+        limited = max(4000, min(8000, limited))
 
         self.controller.setRange(chan, 0, 0)
-        self.controller.setTarget(chan, speed)
+        self.controller.setTarget(chan, limited)
 
 
 	
