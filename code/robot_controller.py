@@ -252,19 +252,21 @@ class RobotController:
         while True:
             if self._direction == "forward":
                 if self.IsFrontBlocked():
-                    self.__robotInstance.drive_wheels(6000)
-                    self.__robotInstance.turn_wheels(6000)
-                    self._is_front_blocked = True
-                    print("The front is blocked")
+                    if not self._is_front_blocked:
+                        self.__robotInstance.drive_wheels(6000)
+                        self.__robotInstance.turn_wheels(6000)
+                        self._is_front_blocked = True
+                        print("The front is blocked")
                 else:
                     self._is_front_blocked = False
                     print("The rear is open")
             elif self._direction == "backward":
                 if self.IsRearBlocked():
-                    self.__robotInstance.drive_wheels(6000)
-                    self.__robotInstance.turn_wheels(6000)
-                    self._is_rear_blocked = True
-                    print("The rear is blocked")
+                    if not self._is_rear_blocked:
+                        self.__robotInstance.drive_wheels(6000)
+                        self.__robotInstance.turn_wheels(6000)
+                        self._is_rear_blocked = True
+                        print("The rear is blocked")
                 else:
                     self._is_rear_blocked = False
                     print("The front is open")
