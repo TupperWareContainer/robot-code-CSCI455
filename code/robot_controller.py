@@ -1,6 +1,6 @@
 import threading
 import time
-from robot_actions import *
+from robot_actions import PerformHeadNod, ShakeHead, RaiseArm, Dance90
 from lidar_controller import LidarController
 from robot import Robot
 from enum import Enum
