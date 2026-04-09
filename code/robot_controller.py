@@ -91,8 +91,8 @@ class RobotController:
             for angle in front_angles
         )
 
-        #for angle in front_angles:
-        #    print(angle, self.__lidar_controller.GetDistanceMM(angle))
+        for angle in front_angles:
+            print("Distance", self._lidar_controller.GetDistanceMM(angle))
 
 
         #dist = self.__lidarController.GetDistanceMM(0)
@@ -110,8 +110,8 @@ class RobotController:
             for angle in rear_angles
         )
 
-        #for angle in rear_angles:
-        #    print(self.__lidar_controller.GetDistanceMM(angle))
+        for angle in rear_angles:
+            print("Distance", self._lidar_controller.GetDistanceMM(angle))
 
         #dist =  self.__lidarController.GetDistanceMM(180) 
         #is_rear_blocked = (dist != 0) and (dist < SAFE_DISTANCE)
