@@ -102,22 +102,18 @@ def drive():
             else:
                 DIRECTION = None  # neutral, no movement intended
 
-            print("Driving wheels " + str(DIRECTION))
-            main_robot.drive_wheels(int(throttle))
-            return jsonify({"response": f"Received: {data.get('x', 'no message'), data.get('y', 'no message')}"}), 200
-
-            #if direction == "forward" and not main_robot.is_front_blocked():
-            #    print("Driving wheels " + str(direction))
-            #    main_robot.drive_wheels(int(throttle))
-            #    return jsonify({"response": f"Received: {data.get('x', 'no message'), data.get('y', 'no message')}"}), 200
-            #elif direction == "backward" and not main_robot.is_rear_blocked():
-            #    print("Driving wheels" + str(direction))
-            #    main_robot.drive_wheels(int(throttle))
-            #    return jsonify({"response": f"Received: {data.get('x', 'no message'), data.get('y', 'no message')}"}), 200
-            #else:
-            #    print("Obstacle!!!")
-            #    tempstop()
-            #    return jsonify({"response": "Obstacle"}), 200
+            if DIRECTION == "forward" and not main_robot.is_front_blocked():
+                print("Driving wheels " + str(DIRECTION))
+                main_robot.drive_wheels(int(throttle))
+                return jsonify({"response": f"Received: {data.get('x', 'no message'), data.get('y', 'no message')}"}), 200
+            elif DIRECTION == "backward" and not main_robot.is_rear_blocked():
+                print("Driving wheels" + str(DIRECTION))
+                main_robot.drive_wheels(int(throttle))
+                return jsonify({"response": f"Received: {data.get('x', 'no message'), data.get('y', 'no message')}"}), 200
+            else:
+                print("Obstacle!!!")
+                tempstop()
+                return jsonify({"response": "Obstacle"}), 200
     return jsonify({"error": "Request must be JSON"}), 400
 
 def calc_servo_speeds(joystick_x, joystick_y):
