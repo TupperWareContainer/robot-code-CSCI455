@@ -68,8 +68,6 @@ def rotate_waist():
 # Currently this is the only method that is attached to the joystick!
 @app.post('/drive')
 def drive():
-    global DIRECTION
-
     if request.is_json:
         data = request.get_json()
         x = data.get('x')
@@ -101,7 +99,7 @@ def drive():
             else:
                 main_robot.set_direction(None)  # We're turning
 
-        print("Driving wheels" + str(DIRECTION))
+        print("Driving wheels" + str(main_robot.get_direction()))
         main_robot.drive_wheels(int(throttle))
         return jsonify({"response": f"Received: {data.get('x', 'no message'), data.get('y', 'no message')}"}), 200
     return jsonify({"error": "Request must be JSON"}), 400
