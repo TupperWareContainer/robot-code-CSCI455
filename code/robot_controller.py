@@ -84,16 +84,27 @@ class RobotController:
                 self.__safeTimeSet = False
             time.sleep(1)
 
+    def __IsBlocked(self, angles: list[int]) -> bool:
+        readings = [self._lidar_controller.GetDistanceMM(angle) for angle in angles]
+        non_zero = [d for d in readings if d != 0]
+
+        # If all readings are 0, no lidar data — fail safe and block
+        if len(non_zero) == 0:
+            return True
+
+        return any(d < STOP_DISTANCE for d in non_zero)
+
     def IsFrontBlocked(self) -> bool:
         front_angles = list(range(330, 360)) + list(range(0, 31))  # 330-359 and 0-30
-        is_front_blocked = any(
-            distance < STOP_DISTANCE
-            for angle in front_angles
-            if (distance := self._lidar_controller.GetDistanceMM(angle)) != 0
-        )
+        is_front_blocked = self.__IsBlocked(front_angles)
+        #is_front_blocked = any(
+        #    distance < STOP_DISTANCE
+        #    for angle in front_angles
+        #    if (distance := self._lidar_controller.GetDistanceMM(angle)) != 0
+        #)
 
-        for angle in front_angles:
-            print("Distance", self._lidar_controller.GetDistanceMM(angle))
+        #for angle in front_angles:
+        #    print("Distance", self._lidar_controller.GetDistanceMM(angle))
 
         if is_front_blocked:
             print("Front is BLOCKED")
@@ -102,11 +113,12 @@ class RobotController:
 
     def IsRearBlocked(self) -> bool:
         rear_angles = list(range(175, 185)) # 150 to 210
-        is_rear_blocked = any(
-            distance < STOP_DISTANCE
-            for angle in rear_angles
-            if (distance := self._lidar_controller.GetDistanceMM(angle)) != 0
-        )
+        is_rear_blocked = self.__IsBlocked(rear_angles)
+        #is_rear_blocked = any(
+        #    distance < STOP_DISTANCE
+        #    for angle in rear_angles
+        #    if (distance := self._lidar_controller.GetDistanceMM(angle)) != 0
+        #)
         
         if is_rear_blocked:
             print("Rear is BLOCKED")
