@@ -262,7 +262,7 @@ class RobotController:
 
     def _safety_scan(self):
         while True:
-            if self._direction == "forward" and self.IsFrontBlocked():
+            if self._direction == "forward":
                 if self.IsFrontBlocked():
                     self.__robotInstance.drive_wheels(6000)
                     self.__robotInstance.turn_wheels(6000)
