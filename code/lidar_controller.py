@@ -31,10 +31,10 @@ class LidarController:
             self.__lidar.connect()
         except Exception as e:
             print(f"Unexpected Error: {e}")
-        try:
-            while not self.__stopScan:
-                 # print("Scanning")
-                 # iter_scans is a blocking generator
+
+        while not self.__stopScan:
+            try:
+                # iter_scans is a blocking generator
                 for scan in self.__lidar.iter_scans():
                     for (_, angle, distance) in scan:
 
@@ -44,13 +44,13 @@ class LidarController:
                         #print(floor(angle), LidarController.__scan_data[min([359, floor(angle)])])
 
                     time.sleep(0.1)  # Yields control to other threads
-        except RPLidarException as e:
+            except RPLidarException as e:
                 # This is where 'line length mismatch' is caught
-            print(f"Lidar Hardware Error: {e}. Reconnecting...")
-            #self.RebootLidar() 
-        except Exception as e:
-            #self.RebootLidar()
-            print("Unexpected Exception...")
+                print(f"Lidar Hardware Error: {e}. Reconnecting...")
+                #self.RebootLidar()
+            except Exception as e:
+                #self.RebootLidar()
+                print("Unexpected Exception...")
 
     def RebootLidar(self):
         self.__lidar.stop()
