@@ -1,6 +1,6 @@
 import threading
 import time
-import robot_actions
+from robot_actions import *
 from lidar_controller import LidarController
 from robot import Robot
 from enum import Enum
@@ -154,7 +154,7 @@ class RobotController:
 
                 self.__lastSafetyTime = time.time()
                 self.__safeTimeSet = True
-                robot_actions.PerformHeadNod(self.__robotInstance)
+                PerformHeadNod(self.__robotInstance)
                 pass
             case RobotAction.HEAD_NO:
                 self.__maxSafetyTime = 3
@@ -162,21 +162,21 @@ class RobotController:
                 self.__lastSafetyTime = time.time()
                 self.__safeTimeSet = True
 
-                robot_actions.ShakeHead(self.__robotInstance)
+                ShakeHead(self.__robotInstance)
                 pass
             case RobotAction.ARM_RAISE:
                 self.__maxSafetyTime = 4
 
                 self.__lastSafetyTime = time.time()
                 self.__safeTimeSet = True
-                robot_actions.RaiseArm(self.__robotInstance)
+                RaiseArm(self.__robotInstance)
                 pass
             case RobotAction.DANCE_90:
                 self.__maxSafetyTime = 6
 
                 self.__lastSafetyTime = time.time()
                 self.__safeTimeSet = True
-                robot_actions.Dance90(self.__robotInstance)
+                Dance90(self.__robotInstance)
                 pass
 
             case RobotAction.NONE:
