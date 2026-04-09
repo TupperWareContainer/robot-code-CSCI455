@@ -69,7 +69,7 @@ class LidarController:
         with self.__data_lock:
             distance_mm = self.__scan_data[angle]
             print(distance_mm)
-        #print("Angle: " + str(angle)  + " distance: " + str(distance_mm))
+            print("Angle: " + str(angle)  + " distance: " + str(distance_mm))
         #if distance_mm <= 0:
         #    return -1
         return distance_mm
