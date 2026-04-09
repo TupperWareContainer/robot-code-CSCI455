@@ -98,9 +98,6 @@ def drive():
             elif angle > 0:
                 main_robot.set_direction("backward")
                 print("backward")
-            else:
-                main_robot.set_direction(None)  # We're turning
-                print("None")
 
             if not main_robot.is_front_blocked():
                 print("Driving wheels" + str(main_robot.get_direction()))
