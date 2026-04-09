@@ -54,9 +54,12 @@ class LidarController:
                 self.RebootLidar()
 
     def RebootLidar(self):
-        self.__lidar.stop()
-        self.__lidar.disconnect()
-        self.__lidar.connect()
+        try:
+            self.__lidar.stop()
+            self.__lidar.disconnect()
+            self.__lidar.connect()
+        except Exception as e:
+            print(f"Could not reset lidar: {e}")
        
         #self.__lidar = RPLidar(self.__lidar_port, timeout=self.__timeout)
         
