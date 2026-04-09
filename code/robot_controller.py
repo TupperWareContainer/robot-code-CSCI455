@@ -2,7 +2,6 @@ import threading
 import time
 from robot_actions import PerformHeadNod, ShakeHead, RaiseArm, Dance90
 from lidar_controller import LidarController
-from robot import Robot
 from enum import Enum
 from collections import deque
 '''
@@ -32,7 +31,6 @@ class RobotState(Enum):
     ACTION_EXEC = 4
 
 class RobotController:
-    __robotInstance : Robot
     __scope : list[str]
     __actionQueue : deque[RobotAction]
     __state : RobotState
