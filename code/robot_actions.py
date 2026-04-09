@@ -1,9 +1,9 @@
 import time
-from robot import Robot
+
 
 ## TODO: Dance90
 
-def PerformHeadNod(robotInstance : Robot):
+def PerformHeadNod(robotInstance):
     print("Nodding Head")
     robotInstance.tilt_head(8000)
     time.sleep(1.5)
@@ -13,7 +13,7 @@ def PerformHeadNod(robotInstance : Robot):
     time.sleep(1.5)
     return
 
-def ShakeHead(robotInstance : Robot):
+def ShakeHead(robotInstance):
     print("Shaking Head")
     robotInstance.pan_head(4000)
     time.sleep(1.5)
@@ -23,7 +23,7 @@ def ShakeHead(robotInstance : Robot):
     time.sleep(1.5)
     return
 
-def RaiseArm(robotInstance : Robot):
+def RaiseArm(robotInstance):
     print("Raising Arm")
     robotInstance.raise_arm(8000)
     time.sleep(1.5)
@@ -31,7 +31,7 @@ def RaiseArm(robotInstance : Robot):
 
 
 
-def Dance90(robotInstance : Robot):
+def Dance90(robotInstance):
     print("Dancing 90")
     robotInstance.drive_wheels(6000)
     time.sleep(0.125)
