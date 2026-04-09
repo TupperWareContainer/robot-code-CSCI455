@@ -41,6 +41,8 @@ class LidarController:
                         with self._data_lock:
                             if distance != 0:
                                 self._scan_data[min([359, floor(angle)])] = distance
+                                print("Scanning", distance)
+
                                 #print(f"id(scan_data): {id(self._scan_data)} | wrote {distance} to {floor(angle)}")
                         #print(floor(angle), LidarController._scan_data[min([359, floor(angle)])])
 
