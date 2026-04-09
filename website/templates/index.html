@@ -241,6 +241,22 @@
 
         let isSending = false;
 
+        const sendPositionDataAlways = async () => {
+            const joystick_data = {x: stickPos.x, y: stickPos.y};
+
+            try {
+                const response = await fetch('http://10.158.167.65:5002/drive', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(joystick_data)
+                });
+                const data = await response.json();
+                console.log('Success:', data);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        };
+
         const sendPositionData = async () => {
             if (isSending) return;  // Drop the update if one is already in flight
             isSending = true;
@@ -274,7 +290,7 @@
 
             await new Promise(r => setTimeout(r, 50));
 
-            await sendPositionData()
+            await sendPositionDataAlways()
         };
 
         const sendMessage = (message) => {
