@@ -102,7 +102,7 @@ def drive():
             if not main_robot.is_front_blocked():
                 print("Driving wheels" + str(main_robot.get_direction()))
                 main_robot.drive_wheels(int(throttle))
-            elif not main_robot.is_front_blocked():
+            elif not main_robot.is_rear_blocked():
                 print("Driving wheels" + str(main_robot.get_direction()))
                 main_robot.drive_wheels(int(throttle))
 
