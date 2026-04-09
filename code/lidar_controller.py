@@ -41,7 +41,7 @@ class LidarController:
                         with self.__data_lock:
                             if distance != 0:
                                 self.__scan_data[min([359, floor(angle)])] = distance
-                                #print(f"id(scan_data): {id(self.__scan_data)} | wrote {distance} to {floor(angle)}")
+                                print(f"id(scan_data): {id(self.__scan_data)} | wrote {distance} to {floor(angle)}")
                         #print(floor(angle), LidarController.__scan_data[min([359, floor(angle)])])
 
                     time.sleep(0.1)  # Yields control to other threads
@@ -72,8 +72,7 @@ class LidarController:
 
         with self.__data_lock:
             distance_mm = self.__scan_data[angle]
-            print(distance_mm)
-            print(f"id(scan_data): {id(self.__scan_data)} | wrote {distance_mm} to {angle}")
+            print(f"id(scan_data): {id(self.__scan_data)} | read {distance_mm} for {angle}")
         #if distance_mm <= 0:
         #    return -1
         return distance_mm
