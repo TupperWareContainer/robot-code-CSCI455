@@ -11,7 +11,7 @@ Command Based Interface for controlling a Robot instance
 '''
 
 LIDAR_PORT = '/dev/ttyUSB0'
-STOP_DISTANCE = 900
+STOP_DISTANCE = 950
 BODY_SIZE = 550
 
 class RobotAction(Enum):
