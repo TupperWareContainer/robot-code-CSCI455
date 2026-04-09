@@ -81,6 +81,10 @@ def drive():
         print("Steering:", steering)
         print("Throttle:", throttle)
 
+        # Stop the wheels no matter what if our website decides it should stop!!!
+        if x == 0 and y == 0:
+            tempstop()
+
         # Here we are turning which shouldn't be affected by blocking!
         if abs(abs(angle) - math.pi/2.0) >= .2:
             main_robot.turn_wheels(int(steering))
