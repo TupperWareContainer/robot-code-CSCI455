@@ -403,7 +403,7 @@ def main():
 
     main_robot.drive_wheels(6000)
     app.config["SERVER_NAME"] = server_name
-    app.run(host=server_name, port=5002, debug=True)
+    app.run(host=server_name, port=5002, debug=True, use_reloader=False)
 
 def tempstop():
     main_robot.drive_wheels(6000)
