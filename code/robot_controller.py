@@ -94,6 +94,10 @@ class RobotController:
         readings = [self._lidar_controller.GetDistanceMM(angle) for angle in angles]
         non_zero = [d for d in readings if d != 0]
 
+        triggering = [d for d in non_zero if d < STOP_DISTANCE]
+        if triggering:
+            print(f"Blocked by readings: {triggering}")
+
         # If all readings are 0, no lidar data — fail safe and block
         if len(non_zero) == 0:
             print("Not initialized")
