@@ -72,6 +72,11 @@ class Robot:
     def is_rear_blocked(self):
         return self.robot_controller.IsRearBlocked()
 
-    def get_controller(self):
-        return self.robot_controller
+    def add_action_via_str(self, action_value):
+        self.robot_controller.AddActionViaStr(action_value)
 
+    def update_action_state(self):
+        self.robot_controller.Update()
+
+    def reset_state(self):
+        self.robot_controller.Reset()

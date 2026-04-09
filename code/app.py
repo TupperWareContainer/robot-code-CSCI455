@@ -167,14 +167,14 @@ def ask():
 def queue_actions(actions):
     for action in actions:
         action_value : str = action.get_value()
-        main_robot.get_controller().AddActionViaStr(action_value)
-        main_robot.get_controller().Update()
+        main_robot.add_action_via_str(action_value)
+        main_robot.update_action_state()
 
 def stop():
     global program
     global rules
 
-    main_robot.get_controller().Reset()
+    main_robot.reset_state()
     rules.clear()
     rules.appendleft(program.get_rules())
 
