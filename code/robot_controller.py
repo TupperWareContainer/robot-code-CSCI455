@@ -96,6 +96,7 @@ class RobotController:
 
         # If all readings are 0, no lidar data — fail safe and block
         if len(non_zero) == 0:
+            print("Not initialized")
             return True
 
         return any(d < STOP_DISTANCE for d in non_zero)
