@@ -104,14 +104,6 @@ class RobotController:
     def IsFrontBlocked(self) -> bool:
         front_angles = list(range(330, 360)) + list(range(0, 31))  # 330-359 and 0-30
         is_front_blocked = self.__IsBlocked(front_angles)
-        #is_front_blocked = any(
-        #    distance < STOP_DISTANCE
-        #    for angle in front_angles
-        #    if (distance := self._lidar_controller.GetDistanceMM(angle)) != 0
-        #)
-
-        #for angle in front_angles:
-        #    print("Distance", self._lidar_controller.GetDistanceMM(angle))
 
         if is_front_blocked:
             print("Front is BLOCKED")
@@ -119,14 +111,9 @@ class RobotController:
         return is_front_blocked
 
     def IsRearBlocked(self) -> bool:
-        rear_angles = list(range(175, 185)) # 150 to 210
+        rear_angles = list(range(150, 211)) # 150 to 210
         is_rear_blocked = self.__IsBlocked(rear_angles)
-        #is_rear_blocked = any(
-        #    distance < STOP_DISTANCE
-        #    for angle in rear_angles
-        #    if (distance := self._lidar_controller.GetDistanceMM(angle)) != 0
-        #)
-        
+
         if is_rear_blocked:
             print("Rear is BLOCKED")
 
