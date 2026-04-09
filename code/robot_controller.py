@@ -266,4 +266,4 @@ class RobotController:
                     print("The rear is blocked")
                 else:
                     self._is_rear_blocked = False
-            time.sleep(0.05)  # 20hz
+            time.sleep(0.1)  # 20hz
