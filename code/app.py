@@ -99,8 +99,13 @@ def drive():
             else:
                 main_robot.set_direction(None)  # We're turning
 
-        print("Driving wheels" + str(main_robot.get_direction()))
-        main_robot.drive_wheels(int(throttle))
+            if not main_robot.is_front_blocked():
+                print("Driving wheels" + str(main_robot.get_direction()))
+                main_robot.drive_wheels(int(throttle))
+            elif not main_robot.is_front_blocked():
+                print("Driving wheels" + str(main_robot.get_direction()))
+                main_robot.drive_wheels(int(throttle))
+
         return jsonify({"response": f"Received: {data.get('x', 'no message'), data.get('y', 'no message')}"}), 200
     return jsonify({"error": "Request must be JSON"}), 400
 

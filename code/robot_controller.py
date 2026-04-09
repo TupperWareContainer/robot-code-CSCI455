@@ -15,9 +15,6 @@ STOP_DISTANCE = 1000
 BACK_BODY_SIZE = 20
 FRONT_BODY_SIZE = 20
 
-IS_FRONT_BLOCKED = False
-IS_REAR_BLOCKED = False
-
 class RobotAction(Enum):
     UNKNOWN = -1
     NONE = 0 
@@ -56,6 +53,8 @@ class RobotController:
         self.__maxSafetyTime = 0
         self.__safeTimeSet = False
         self._direction = None
+        self._is_front_blocked = False
+        self._is_rear_blocked = False
 
         self._lidar_controller = LidarController(LIDAR_PORT, timeout=3, max_distance=0)
 
@@ -255,12 +254,26 @@ class RobotController:
     def get_direction(self) -> str:
         return self._direction
 
+    def get_is_front_blocked(self) -> bool:
+        return self._is_front_blocked
+
+    def get_is_rear_blocked(self) -> bool:
+        return self._is_rear_blocked
+
     def _safety_scan(self):
         while True:
             if self._direction == "forward" and self.IsFrontBlocked():
-                self.__robotInstance.drive_wheels(6000)
-                self.__robotInstance.turn_wheels(6000)
-            elif self._direction == "backward" and self.IsRearBlocked():
-                self.__robotInstance.drive_wheels(6000)
-                self.__robotInstance.turn_wheels(6000)
+                if self.IsFrontBlocked():
+                    self.__robotInstance.drive_wheels(6000)
+                    self.__robotInstance.turn_wheels(6000)
+                    self._is_front_blocked = True
+                else:
+                    self._is_front_blocked = False
+            elif self._direction == "backward":
+                if self.IsRearBlocked():
+                    self.__robotInstance.drive_wheels(6000)
+                    self.__robotInstance.turn_wheels(6000)
+                    self._is_rear_blocked = True
+                else:
+                    self._is_rear_blocked = False
             time.sleep(0.05)  # 20hz
