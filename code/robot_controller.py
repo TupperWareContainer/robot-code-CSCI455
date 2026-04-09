@@ -11,7 +11,7 @@ Command Based Interface for controlling a Robot instance
 '''
 
 LIDAR_PORT = '/dev/ttyUSB0'
-STOP_DISTANCE = 900
+STOP_DISTANCE = 1000
 BACK_BODY_SIZE = 20
 FRONT_BODY_SIZE = 20
 
