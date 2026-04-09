@@ -51,8 +51,7 @@ class LidarController:
         except Exception as e:
             #self.RebootLidar()
             print("Unexpected Exception...")
-        finally:
-            self.StartScan()
+
     def RebootLidar(self):
         self.__lidar.stop()
         self.__lidar.disconnect()
