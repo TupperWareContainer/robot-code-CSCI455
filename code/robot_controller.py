@@ -94,7 +94,7 @@ class RobotController:
         if len(non_zero) == 0:
             return True
 
-        return any(d < STOP_DISTANCE for d in non_zero)
+        return any(d > STOP_DISTANCE for d in non_zero)
 
     def IsFrontBlocked(self) -> bool:
         front_angles = list(range(330, 360)) + list(range(0, 31))  # 330-359 and 0-30
