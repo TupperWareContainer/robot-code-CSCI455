@@ -88,6 +88,8 @@ class RobotController:
         readings = [self._lidar_controller.GetDistanceMM(angle) for angle in angles]
         non_zero = [d for d in readings if d != 0]
 
+        print(readings)
+
         # If all readings are 0, no lidar data — fail safe and block
         if len(non_zero) == 0:
             return True
