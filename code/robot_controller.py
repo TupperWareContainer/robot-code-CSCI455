@@ -4,7 +4,7 @@ from robot_actions import PerformHeadNod, ShakeHead, RaiseArm, Dance90
 from lidar_controller import LidarController
 from robot import Robot
 from enum import Enum
-from collections import deque  
+from collections import deque
 '''
 RobotController.py
 Command Based Interface for controlling a Robot instance
@@ -44,10 +44,10 @@ class RobotController:
 
     __safety_thread : threading.Thread
 
-    def __init__(self):
+    def __init__(self, robot_instance):
         self.__actionQueue = deque[RobotAction]()
         self.__state = RobotState.BOOT
-        self.__robotInstance = Robot()
+        self.__robotInstance = robot_instance
         self.__scope = list[str]
         self.__isPerformingAction = False
         self.__isSafetyTimerActive = False

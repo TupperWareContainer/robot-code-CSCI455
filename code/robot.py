@@ -28,7 +28,7 @@ class Robot:
         self.waist = WaistController(self.master_controller)
         self.voice = Voice(self.espeak)
         self.arm = ArmController(self.master_controller)
-        self.robot_controller = RobotController()
+        self.robot_controller = RobotController(self)
         pass
     def close(self):
         self.master_controller.close()
