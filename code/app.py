@@ -27,7 +27,7 @@ CORS(app)
 
 main_robot = Robot()
 
-timeout = 3
+timeout = 5
 
 ping = False
 
@@ -176,6 +176,7 @@ def stop():
 
     main_robot.reset_state()
     rules.clear()
+    rules.appendleft(program.get_rules())
     rules.appendleft(program.get_rules())
 
 def get_response(question_words) -> tuple[list, str]:
