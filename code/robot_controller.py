@@ -105,7 +105,7 @@ class RobotController:
         if len(external) == 0:
             return False
 
-        triggering = [d for d in non_zero if d < STOP_DISTANCE]
+        triggering = [d for d in external if d < STOP_DISTANCE]
         if triggering:
             print(f"Blocked by readings: {triggering}")
 
@@ -239,12 +239,6 @@ class RobotController:
 
     def get_direction(self) -> str:
         return self._direction
-
-    def get_is_front_blocked(self) -> bool:
-        return self._is_front_blocked
-
-    def get_is_rear_blocked(self) -> bool:
-        return self._is_rear_blocked
 
     def _safety_scan(self):
         while True:
