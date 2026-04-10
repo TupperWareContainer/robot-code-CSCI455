@@ -44,7 +44,7 @@ class LidarController:
                                 idx = min([359, floor(angle)])
                                 self._scan_data[idx] = distance
 
-                    time.sleep(0.05)  # Yields control to other threads
+                    time.sleep(0.02)  # Yields control to other threads
             except RPLidarException as e:
                 # This is where 'line length mismatch' is caught
                 print(f"Lidar Hardware Error: {e}. Reconnecting...")
