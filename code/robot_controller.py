@@ -93,19 +93,23 @@ class RobotController:
         readings = [self._lidar_controller.GetDistanceMM(angle) for angle in angles]
         non_zero = [d for d in readings if d != 0]
 
-        # Filter out robot's own body readings
-        non_zero = [d for d in non_zero if d > BODY_SIZE]
-
-        triggering = [d for d in non_zero if d < STOP_DISTANCE]
-        if triggering:
-            print(f"Blocked by readings: {triggering}")
-
         # If all readings are 0, no lidar data — fail safe and block
         if len(non_zero) == 0:
             print("Not initialized")
             return True
 
-        return any(d < STOP_DISTANCE for d in non_zero)
+        # Filter out robot's own body readings
+        external = [d for d in non_zero if d > BODY_SIZE]
+
+        # If nothing external detected, path is clear
+        if len(external) == 0:
+            return False
+
+        triggering = [d for d in non_zero if d < STOP_DISTANCE]
+        if triggering:
+            print(f"Blocked by readings: {triggering}")
+
+        return any(d < STOP_DISTANCE for d in external)
 
     def IsFrontBlocked(self) -> bool:
         front_angles = list(range(330, 360)) + list(range(0, 31))  # 330-359 and 0-30
