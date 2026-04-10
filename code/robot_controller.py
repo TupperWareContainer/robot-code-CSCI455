@@ -109,9 +109,9 @@ class RobotController:
         if len(external) == 0:
             return False 
 
-        triggering = [(angle,distance) for (angle,distance) in external if distance < STOP_DISTANCE]
-        if triggering:
-            print(f"Blocked by readings: {triggering}")
+        #triggering = [(angle,distance) for (angle,distance) in external if distance < STOP_DISTANCE]
+        #if triggering:
+        #    print(f"Blocked by readings: {triggering}")
             
         return any(d < STOP_DISTANCE for (a,d) in external)
 
