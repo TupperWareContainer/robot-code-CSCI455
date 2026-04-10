@@ -28,7 +28,6 @@ class LidarController:
             self.__lidar.stop() 
             self.__lidar.disconnect()
             self.__lidar.connect()
-            self.__lidar.motor_speed = 300
         except Exception as e:
             print(f"Unexpected Error: {e}")
 
@@ -38,7 +37,6 @@ class LidarController:
                 # iter_scans is a blocking generator
                 for scan in self.__lidar.iter_scans():
                     for (_, angle, distance) in scan:
-                        #if distance != 0:
                         idx = min([359, floor(angle)])
                         self._scan_data[idx] = distance
 
