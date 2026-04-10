@@ -68,6 +68,8 @@ def rotate_waist():
 # Currently this is the only method that is attached to the joystick!
 @app.post('/drive')
 def drive():
+    direction = None
+
     if request.is_json:
         data = request.get_json()
         x = data.get('x')
@@ -93,14 +95,14 @@ def drive():
         else: 
         # 6000 is center/neutral, above = forward, below = backward
             if angle < 0:
-                main_robot.set_direction("forward")
+                direction = "forward"
             elif angle > 0:
-                main_robot.set_direction("backward")
+                direction = "backward"
 
-            if main_robot.get_direction() == "forward" and not main_robot.is_front_blocked():
+            if direction == "forward" and not main_robot.is_front_blocked():
                 print("Driving wheels" + str(main_robot.get_direction()))
                 main_robot.drive_wheels(int(throttle))
-            elif main_robot.get_direction() == "backward" and not main_robot.is_rear_blocked():
+            elif direction == "backward" and not main_robot.is_rear_blocked():
                 print("Driving wheels" + str(main_robot.get_direction()))
                 main_robot.drive_wheels(int(throttle))
             else:
