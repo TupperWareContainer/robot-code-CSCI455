@@ -60,8 +60,8 @@ class RobotController:
         self.__safety_thread = threading.Thread(target=self.__SafetyTimer)
         self.__safety_thread.start()
 
-        safteyScan = threading.Thread(target=self._safety_scan)
-        safteyScan.start()
+        #safteyScan = threading.Thread(target=self._safety_scan)
+        #safteyScan.start()
 
 
     def Update(self):
