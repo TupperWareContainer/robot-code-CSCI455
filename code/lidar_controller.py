@@ -19,8 +19,6 @@ class LidarController:
         self.__max_distance = max_distance
         self.__stopScan = False
         self._scan_data = [0] * 360
-        #self._scan_timestamps = [0.0] * 360
-        #self._data_lock = threading.Lock()
         self.__scan_thread = Thread(target = self.StartScan)
         self.__scan_thread.start()
 
@@ -40,13 +38,11 @@ class LidarController:
                 for scan in self.__lidar.iter_scans(max_buf_meas=1000):
                     for (_, angle, distance) in scan:
 
-                        #with self._data_lock:
                         if distance != 0:
                             idx = min([359, floor(angle)])
                             self._scan_data[idx] = distance
-                    
-                      # Yields control to other threads
                 self.__lidar.clear_input()
+
             except RPLidarException as e:
                 # This is where 'line length mismatch' is caught
                 print(f"Lidar Hardware Error: {e}. Reconnecting...")
@@ -69,6 +65,5 @@ class LidarController:
         self.__scan_thread.join()
 
     def GetDistanceMM(self, angle : int):
-        #with self._data_lock:
         distance_mm = self._scan_data[angle]
         return distance_mm
