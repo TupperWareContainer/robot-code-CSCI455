@@ -128,18 +128,6 @@ class RobotController:
             print("Rear is BLOCKED")
 
         return is_rear_blocked
-    '''
-    def CanMove(self, direction: str) -> bool:
-        try:
-            if direction == "forward":
-                return not self.IsFrontBlocked()
-            elif direction == "backward":
-                return not self.IsRearBlocked()
-            return False
-        except Exception as e:
-            print(f"Error checking movement: {e}")
-        return False
-    '''
 
     def __StateMachine(self):
         match self.__state:
@@ -279,4 +267,4 @@ class RobotController:
                         print("Rear Blocked")
                 else:
                     self._is_rear_blocked = False
-            time.sleep(0.1)  # 20hz
+            time.sleep(0.05)  # 20hz
