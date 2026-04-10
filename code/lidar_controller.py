@@ -37,7 +37,7 @@ class LidarController:
             print("scanning") 
             try:
                 # iter_scans is a blocking generator
-                for scan in self.__lidar.iter_scans():
+                for scan in self.__lidar.iter_scans(max_buf_meas=1000):
                     for (_, angle, distance) in scan:
 
                         #with self._data_lock:
