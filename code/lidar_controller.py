@@ -19,7 +19,7 @@ class LidarController:
         self.__max_distance = max_distance
         self.__stopScan = False
         self._scan_data = [0] * 360
-        self._scan_timestamps = [0.0] * 360
+        #self._scan_timestamps = [0.0] * 360
         self._data_lock = threading.Lock()
         self.__scan_thread = Thread(target = self.StartScan)
         self.__scan_thread.start()
@@ -43,7 +43,7 @@ class LidarController:
                         with self._data_lock:
                             if distance != 0:
                                 self._scan_data[idx] = distance
-                                self._scan_timestamps[idx] = time.time()
+                                #self._scan_timestamps[idx] = time.time()
 
                                 #print(f"id(scan_data): {id(self._scan_data)} | wrote {distance} to {floor(angle)}")
                         #print(floor(angle), LidarController._scan_data[min([359, floor(angle)])])
@@ -64,8 +64,6 @@ class LidarController:
             self.__lidar.connect()
         except Exception as e:
             print(f"Could not reset lidar: {e}")
-       
-        #self.__lidar = RPLidar(self.__lidar_port, timeout=self.__timeout)
         
     def StopScan(self):
         self.__stopScan = True
@@ -73,7 +71,7 @@ class LidarController:
 
     def GetDistanceMM(self, angle : int):
         with self._data_lock:
-            if time.time() - self._scan_timestamps[angle] > 2.0:  # stale after 500ms
-                return 0  # treat stale data as no reading
+            #if time.time() - self._scan_timestamps[angle] > 2.0:  # stale after 500ms
+            #    return 0  # treat stale data as no reading
             distance_mm = self._scan_data[angle]
             return distance_mm
