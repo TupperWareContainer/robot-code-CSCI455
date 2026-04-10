@@ -251,7 +251,7 @@ class RobotController:
                         print("Front blocked")
                 else:
                     self._is_front_blocked = False
-                    print("The rear is open")
+                    print("The front is open")
             elif self._direction == "backward":
                 if self.IsRearBlocked():
                     if not self._is_rear_blocked:
@@ -261,4 +261,5 @@ class RobotController:
                         print("Rear Blocked")
                 else:
                     self._is_rear_blocked = False
+                    print("The rear is open")
             time.sleep(0.05)  # 20hz
