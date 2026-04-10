@@ -37,10 +37,9 @@ class LidarController:
                 # iter_scans is a blocking generator
                 for scan in self.__lidar.iter_scans(max_buf_meas=1000):
                     for (_, angle, distance) in scan:
-
-                        if distance != 0:
-                            idx = min([359, floor(angle)])
-                            self._scan_data[idx] = distance
+                        #if distance != 0:
+                        idx = min([359, floor(angle)])
+                        self._scan_data[idx] = distance
                 self.__lidar.clear_input()
 
             except RPLidarException as e:
