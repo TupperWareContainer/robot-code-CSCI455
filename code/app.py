@@ -100,10 +100,10 @@ def drive():
                 direction = "backward"
 
             if direction == "forward" and not main_robot.is_front_blocked():
-                print("Driving wheels" + str(main_robot.get_direction()))
+                print("Driving wheels" + str(direction))
                 main_robot.drive_wheels(int(throttle))
             elif direction == "backward" and not main_robot.is_rear_blocked():
-                print("Driving wheels" + str(main_robot.get_direction()))
+                print("Driving wheels" + str(direction))
                 main_robot.drive_wheels(int(throttle))
             else:
                 tempstop()
