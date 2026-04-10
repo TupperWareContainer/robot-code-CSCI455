@@ -73,7 +73,7 @@ class LidarController:
 
     def GetDistanceMM(self, angle : int):
         with self._data_lock:
-            if time.time() - self._scan_timestamps[angle] > 0.5:  # stale after 500ms
+            if time.time() - self._scan_timestamps[angle] > 2.0:  # stale after 500ms
                 return 0  # treat stale data as no reading
             distance_mm = self._scan_data[angle]
             return distance_mm
