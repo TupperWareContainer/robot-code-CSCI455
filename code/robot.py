@@ -1,3 +1,4 @@
+from robot_controller import RobotController
 from head_controller import HeadController
 from waist_controller import WaistController
 from wheel_controller import WheelController
@@ -5,6 +6,7 @@ from arm_controller import ArmController
 from voice import Voice
 from espeakng import ESpeakNG
 import maestro
+
 class Robot:
     master_controller : maestro.Controller
     espeak  : ESpeakNG
@@ -13,19 +15,20 @@ class Robot:
     waist   : WaistController
     arm     : ArmController
     voice   : Voice
-
+    robot_controller : RobotController
     __MOTORCHANNELS = [3,4,5,0,1,6]
 
     def __init__(self):
         # Add the logic for tty1 vs tty0 here
         self.master_controller = maestro.Controller()
         self.espeak = ESpeakNG()
-
-        self.head = HeadController(self.master_controller)
+        
+        self.head = HeadController(self.master_controller) # Removed 3 and 1000. I don't know why these are here
         self.wheels = WheelController(self.master_controller)
         self.waist = WaistController(self.master_controller)
         self.voice = Voice(self.espeak)
         self.arm = ArmController(self.master_controller)
+        self.robot_controller = RobotController(self)
         pass
     def close(self):
         self.master_controller.close()
@@ -62,3 +65,18 @@ class Robot:
 
     def raise_arm(self, angle):
         self.arm.Raise(angle, 6)
+
+    def is_front_blocked(self):
+        return self.robot_controller.IsFrontBlocked()
+
+    def is_rear_blocked(self):
+        return self.robot_controller.IsRearBlocked()
+
+    def add_action_via_str(self, action_value):
+        self.robot_controller.AddActionViaStr(action_value)
+
+    def update_action_state(self):
+        self.robot_controller.Update()
+
+    def reset_state(self):
+        self.robot_controller.Reset()

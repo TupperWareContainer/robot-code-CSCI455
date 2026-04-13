@@ -9,7 +9,6 @@ from al_dialog_program import Program
 from al_dialog_token_type import TokenType
 from al_dialog_token import Token
 from al_dialog_choice import Choice
-from robotcontroller import RobotController
 from collections import deque
 import threading
 from threading import Timer
@@ -21,30 +20,26 @@ class RepeatingTimer(Timer):
         while not self.finished.wait(self.interval):
             self.function(*self.args, **self.kwargs)
 
-
-
 message_queue = Queue()
-server_name = "10.23.253.65"
+server_name = "10.158.167.65"
 app = Flask(__name__)
 CORS(app)
 
-robot = Robot()
+main_robot = Robot()
 
-timeout = 3
+timeout = 5
 
 ping = False
 
-
 program : Program
 rules : deque = deque()
-controller : RobotController = RobotController()
 
 @app.post('/pan_head')
 def pan_head():
     if request.is_json:
         data = request.get_json()
         rot = data.get('rot')
-        robot.pan_head(int(rot))
+        main_robot.pan_head(int(rot))
 
         return jsonify({"response": f"Received: {data.get('rot', 'no message')}"}), 200
     return jsonify({"error": "Request must be JSON"}), 400
@@ -55,7 +50,7 @@ def tilt_head():
     if request.is_json:
         data = request.get_json()
         rot = data.get('rot')
-        robot.tilt_head(int(rot))
+        main_robot.tilt_head(int(rot))
 
         return jsonify({"response": f"Received: {data.get('rot', 'no message')}"}), 200
     return jsonify({"error": "Request must be JSON"}), 400
@@ -64,34 +59,47 @@ def tilt_head():
 
 @app.post('/rotate_waist')
 def rotate_waist():
-    robot = Robot()
-
-
     data = request.get_json()
     rot = data.get('rot')
-    robot.rotate_waist(int(rot))
+    main_robot.rotate_waist(int(rot))
 
     return jsonify({"response": f"Received: {data.get('rot', 'no message')}"}), 200
 
 # Currently this is the only method that is attached to the joystick!
 @app.post('/drive')
 def drive():
+    direction = None
+
     if request.is_json:
         data = request.get_json()
         x = data.get('x')
         y = data.get('y')
-        
-        steering, throttle = calc_servo_speeds(x, y)
-        print(steering)
-        print(throttle)
 
-        if(abs(x) > abs(y)):
-            robot.drive_wheels(int(throttle))
-        elif(abs(y) > abs(x)):
-           robot.turn_wheels(int(steering))
-        elif(steering == throttle == 6000):
-            robot.turn_wheels(int(steering))
-            robot.drive_wheels(int(throttle))
+        angle = math.atan2(y,x)
+        steering, throttle = calc_servo_speeds(x, y)
+
+        # Stop the wheels no matter what if our website decides it should stop!!!
+        if x == 0 and y == 0:
+            tempstop()
+
+        # Here we are turning which shouldn't be affected by blocking!
+        if abs(abs(angle) - math.pi/2.0) >= .2:
+            main_robot.turn_wheels(int(steering))
+            return jsonify({"response": f"Received: {data.get('x', 'no message'), data.get('y', 'no message')}"}), 200
+        else: 
+        # 6000 is center/neutral, above = forward, below = backward
+            if angle < 0:
+                direction = "forward"
+            elif angle > 0:
+                direction = "backward"
+
+            if direction == "forward" and not main_robot.is_front_blocked():
+                main_robot.drive_wheels(int(throttle))
+            elif direction == "backward" and not main_robot.is_rear_blocked():
+                main_robot.drive_wheels(int(throttle))
+            else:
+                tempstop()
+
         return jsonify({"response": f"Received: {data.get('x', 'no message'), data.get('y', 'no message')}"}), 200
     return jsonify({"error": "Request must be JSON"}), 400
 
@@ -151,20 +159,18 @@ def ask():
     return jsonify({"error": "Request must be JSON"}), 400
 
 def queue_actions(actions):
-    global controller
-
     for action in actions:
         action_value : str = action.get_value()
-        controller.AddActionViaStr(action_value)
-        controller.Update()
+        main_robot.add_action_via_str(action_value)
+        main_robot.update_action_state()
 
 def stop():
     global program
     global rules
-    global controller
 
-    controller.Reset()
+    main_robot.reset_state()
     rules.clear()
+    rules.appendleft(program.get_rules())
     rules.appendleft(program.get_rules())
 
 def get_response(question_words) -> tuple[list, str]:
@@ -357,7 +363,6 @@ def safety_check():
     elif(not ping):
         print("Connection timeout, stopping drivetrain")
         tempstop()
-
     pass
 def parse_program():
     global program
@@ -380,8 +385,7 @@ def speak_messages():
     while True:
         if message_queue.qsize() > 0:
             message = message_queue.get()
-            robot.speak(message)
-
+            main_robot.speak(message)
 
 def main():
     ping = False
@@ -391,19 +395,19 @@ def main():
     safetythread.start()
     thread.start()
 
-    robot.drive_wheels(6000)
+    main_robot.drive_wheels(6000)
     app.config["SERVER_NAME"] = server_name
-    app.run(host=server_name, port=5002, debug=True)
+    app.run(host=server_name, port=5002, debug=True, use_reloader=False)
 
 def tempstop():
-    robot.drive_wheels(6000)
-    robot.turn_wheels(6000)
+    main_robot.drive_wheels(6000)
+    main_robot.turn_wheels(6000)
 
 
 def exit_handler():
-    robot.drive_wheels(6000)
-    robot.turn_wheels(6000)
-    robot.close()
+    main_robot.drive_wheels(6000)
+    main_robot.turn_wheels(6000)
+    main_robot.close()
 atexit.register(exit_handler)
 
 

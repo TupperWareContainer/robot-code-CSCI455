@@ -1,0 +1,37 @@
+import os
+from math import floor
+from adafruit_rplidar import RPLidar
+
+MM_TO_INCH = 0.03937
+
+LIDAR_PORT = '/dev/ttyUSB0'
+
+lidar = RPLidar(None, LIDAR_PORT, timeout = 3)
+
+max_distance = 0
+
+
+def process_data(data):
+    if len(data) == 0: 
+        return
+    os.system('cls' if os.name == 'nt' else 'clear')
+
+    
+    for i in range (0,180, 25):
+        print(str(i) + ": " + str(data[i]) + "\n")
+
+
+scan_data =  [0]*360
+
+try:
+    for scan in lidar.iter_scans():
+        for(_, angle, distance) in scan:
+            scan_data[min([359,floor(angle)])] = distance * MM_TO_INCH
+            
+        process_data(scan_data)
+
+except KeyboardInterrupt:
+    print("Stopping")
+
+lidar.stop()
+lidar.disconnect()

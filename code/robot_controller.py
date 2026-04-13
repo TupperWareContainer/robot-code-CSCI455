@@ -1,16 +1,18 @@
 import threading
 import time
-import robot_actions
-from robot import Robot
+from robot_actions import PerformHeadNod, ShakeHead, RaiseArm, Dance90
+from lidar_controller import LidarController
 from enum import Enum
-from collections import deque  
+from collections import deque
 '''
 RobotController.py
 Command Based Interface for controlling a Robot instance
 
 '''
 
-
+LIDAR_PORT = '/dev/ttyUSB0'
+STOP_DISTANCE = 1000
+BODY_SIZE = 250
 
 class RobotAction(Enum):
     UNKNOWN = -1
@@ -28,7 +30,6 @@ class RobotState(Enum):
     ACTION_EXEC = 4
 
 class RobotController:
-    __robotInstance : Robot
     __scope : list[str]
     __actionQueue : deque[RobotAction]
     __state : RobotState
@@ -40,19 +41,22 @@ class RobotController:
 
     __safety_thread : threading.Thread
 
-    def __init__(self):
+    def __init__(self, robot_instance):
         self.__actionQueue = deque[RobotAction]()
         self.__state = RobotState.BOOT
-        self.__robotInstance = Robot()
+        self.__robotInstance = robot_instance
         self.__scope = list[str]
         self.__isPerformingAction = False
         self.__isSafetyTimerActive = False
         self.__lastSafetyTime = -1
         self.__maxSafetyTime = 0
         self.__safeTimeSet = False
+        self._is_front_blocked = False
+        self._is_rear_blocked = False
+
+        self._lidar_controller = LidarController(LIDAR_PORT, timeout=3, max_distance=0)
 
         self.__safety_thread = threading.Thread(target=self.__SafetyTimer)
-
         self.__safety_thread.start()
 
 
@@ -81,11 +85,49 @@ class RobotController:
                 self.__safeTimeSet = False
             time.sleep(1)
 
+    def __IsBlocked(self, angles: list[int]) -> bool:
+        distances = []
+        for a in angles:
+            distances.append(self._lidar_controller.GetDistanceMM(a))
+
+        readings = [(angle, distance) for angle in angles for distance in distances]
+        non_zero = [distance for (a,distance) in readings if distance != 0]
                 
+        # If all readings are 0, no lidar data — fail safe and block
+        if len(non_zero) == 0:
+            print("Not initialized")
+            return True
 
+        # Filter out robot's own body readings
+        external = [(angle,distance) for (angle,distance) in readings if distance > BODY_SIZE]
 
+        # If nothing external detected, path is clear
+        if len(external) == 0:
+            return False 
 
+        #triggering = [(angle,distance) for (angle,distance) in external if distance < STOP_DISTANCE]
+        #if triggering:
+        #    print(f"Blocked by readings: {triggering}")
+            
+        return any(d < STOP_DISTANCE for (a,d) in external)
 
+    def IsFrontBlocked(self) -> bool:
+        front_angles = list(range(350, 360)) + list(range(0, 10))  # 330-359 and 0-30
+        is_front_blocked = self.__IsBlocked(front_angles)
+
+        if is_front_blocked:
+            print("Front is BLOCKED")
+
+        return is_front_blocked
+
+    def IsRearBlocked(self) -> bool:
+        rear_angles = list(range(170, 190)) # 150 to 210
+        is_rear_blocked = self.__IsBlocked(rear_angles)
+
+        if is_rear_blocked:
+            print("Rear is BLOCKED")
+
+        return is_rear_blocked
 
     def __StateMachine(self):
         match self.__state:
@@ -107,7 +149,7 @@ class RobotController:
 
                 self.__lastSafetyTime = time.time()
                 self.__safeTimeSet = True
-                robot_actions.PerformHeadNod(self.__robotInstance)
+                PerformHeadNod(self.__robotInstance)
                 pass
             case RobotAction.HEAD_NO:
                 self.__maxSafetyTime = 3
@@ -115,21 +157,21 @@ class RobotController:
                 self.__lastSafetyTime = time.time()
                 self.__safeTimeSet = True
 
-                robot_actions.ShakeHead(self.__robotInstance)
+                ShakeHead(self.__robotInstance)
                 pass
             case RobotAction.ARM_RAISE:
                 self.__maxSafetyTime = 4
 
                 self.__lastSafetyTime = time.time()
                 self.__safeTimeSet = True
-                robot_actions.RaiseArm(self.__robotInstance)
+                RaiseArm(self.__robotInstance)
                 pass
             case RobotAction.DANCE_90:
                 self.__maxSafetyTime = 6
 
                 self.__lastSafetyTime = time.time()
                 self.__safeTimeSet = True
-                robot_actions.Dance90(self.__robotInstance)
+                Dance90(self.__robotInstance)
                 pass
 
             case RobotAction.NONE:

@@ -186,7 +186,7 @@
             Make sure that this url is pointing to the
             flask server running on the robot
             */
-            fetch('http://10.23.253.65:5002/' + endpoint, {
+            fetch('http://10.158.167.65:5002/' + endpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -205,6 +205,7 @@
             isMouseInside = false;
         }
 
+        let sendInterval = null
         const handleStart = (e) => {
             if (!isMouseInside) return;
             const point = e.touches ? e.touches[0] : e;
@@ -213,6 +214,8 @@
                 x: point.clientX,
                 y: point.clientY
             };
+
+            sendInterval = setInterval(sendPositionData, 100);
         };
 
         const handleMove = (e) => {
@@ -236,41 +239,58 @@
             sendPositionData();
         };
 
-        const sendPositionData = () => {
-            const x = stickPos.x
-            const y = stickPos.y
-            const joystick_data = {
-                'x': x,
-                'y': y
-            }
-            const jsonData = JSON.stringify(joystick_data)
+        let isSending = false;
 
-            /*
-            Make sure that this url is pointing to the
-            flask server running on the robot
-            */
-            fetch('http://10.23.253.65:5002/drive', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: jsonData
-            }).then(response => response.json())
-                    .then(data => console.log('Success:', data))
-                    .catch((error) => console.error('Error:', error))
-        }
+        const sendPositionDataAlways = async () => {
+            const joystick_data = {x: stickPos.x, y: stickPos.y};
+
+            try {
+                const response = await fetch('http://10.158.167.65:5002/drive', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(joystick_data)
+                });
+                const data = await response.json();
+                console.log('Success:', data);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        };
+
+        const sendPositionData = async () => {
+            if (isSending) return;  // Drop the update if one is already in flight
+            isSending = true;
+
+            const joystick_data = {x: stickPos.x, y: stickPos.y};
+
+            try {
+                const response = await fetch('http://10.158.167.65:5002/drive', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(joystick_data)
+                });
+                const data = await response.json();
+                console.log('Success:', data);
+            } catch (error) {
+                console.error('Error:', error);
+            } finally {
+                isSending = false;
+            }
+        };
 
         const handleEnd = async () => {
             dragStart = null;
             stickPos.x = 0;
             stickPos.y = 0;
 
+            clearInterval(sendInterval);
+
             // Snap back to center
             stick.style.transform = `translate(0px, 0px)`;
 
             await new Promise(r => setTimeout(r, 50));
 
-            sendPositionData()
+            await sendPositionDataAlways()
         };
 
         const sendMessage = (message) => {
@@ -283,7 +303,7 @@
             Make sure that this url is pointing to the
             flask server running on the robot
             */
-            fetch('http://10.23.253.65:5002/speak', {
+            fetch('http://10.158.167.65:5002/speak', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -295,7 +315,7 @@
         }
 
         const sendPing = () => {
-            fetch('http://10.23.253.65:5002/ping', {
+            fetch('http://10.158.167.65:5002/ping', {
                 method: 'GET'
             }).then(response => response.json())
                 .then(data => console.log(data))
@@ -312,7 +332,7 @@
             Make sure that this url is pointing to the
             flask server running on the robot
             */
-            fetch('http://10.23.253.65:5002/ask', {
+            fetch('http://10.158.167.65:5002/ask', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -323,7 +343,7 @@
                     .catch((error) => console.error('Error:', error))
         }
 
-        setInterval(sendPing, 500)
+        setInterval(sendPing, 1000)
 
         // Event Listeners for Mouse and Touch
         window.addEventListener('mousedown', handleStart);
