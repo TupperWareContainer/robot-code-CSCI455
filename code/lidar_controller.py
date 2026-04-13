@@ -44,7 +44,7 @@ class LidarController:
                 print(f"Lidar Hardware Error: {e}. Reconnecting...")
                 self.RebootLidar()
             except Exception as e:
-                print("Unexpected Exception...")
+                print(f"Unexpected Exception: {e} ")
                 self.RebootLidar()
             finally:
                 self.__lidar.clear_input()
