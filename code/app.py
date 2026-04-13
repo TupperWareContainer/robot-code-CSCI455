@@ -371,8 +371,6 @@ def safety_check():
     elif(not ping):
         print("Connection timeout, stopping drivetrain")
         tempstop()
-    time.sleep(1)
-
     pass
 def parse_program():
     global program
