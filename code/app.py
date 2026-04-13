@@ -74,14 +74,9 @@ def drive():
         data = request.get_json()
         x = data.get('x')
         y = data.get('y')
-        print("X: " + str(x) + "Y: " + str(y))
 
         angle = math.atan2(y,x)
-
         steering, throttle = calc_servo_speeds(x, y)
-
-        print("Steering:", steering)
-        print("Throttle:", throttle)
 
         # Stop the wheels no matter what if our website decides it should stop!!!
         if x == 0 and y == 0:
@@ -90,7 +85,6 @@ def drive():
         # Here we are turning which shouldn't be affected by blocking!
         if abs(abs(angle) - math.pi/2.0) >= .2:
             main_robot.turn_wheels(int(steering))
-            print("turning wheels")
             return jsonify({"response": f"Received: {data.get('x', 'no message'), data.get('y', 'no message')}"}), 200
         else: 
         # 6000 is center/neutral, above = forward, below = backward
@@ -100,10 +94,8 @@ def drive():
                 direction = "backward"
 
             if direction == "forward" and not main_robot.is_front_blocked():
-                print("Driving wheels" + str(direction))
                 main_robot.drive_wheels(int(throttle))
             elif direction == "backward" and not main_robot.is_rear_blocked():
-                print("Driving wheels" + str(direction))
                 main_robot.drive_wheels(int(throttle))
             else:
                 tempstop()
