@@ -103,12 +103,7 @@ class RobotController:
 
         # If nothing external detected, path is clear
         if len(external) == 0:
-            return False 
-
-        #triggering = [(angle,distance) for (angle,distance) in external if distance < STOP_DISTANCE]
-        #if triggering:
-        #    print(f"Blocked by readings: {triggering}")
-            
+            return False
         return any(d < STOP_DISTANCE for (a,d) in external)
 
     def IsFrontBlocked(self) -> bool:
