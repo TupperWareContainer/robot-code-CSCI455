@@ -103,16 +103,11 @@ class RobotController:
 
         # If nothing external detected, path is clear
         if len(external) == 0:
-            return False 
-
-        #triggering = [(angle,distance) for (angle,distance) in external if distance < STOP_DISTANCE]
-        #if triggering:
-        #    print(f"Blocked by readings: {triggering}")
-            
+            return False
         return any(d < STOP_DISTANCE for (a,d) in external)
 
     def IsFrontBlocked(self) -> bool:
-        front_angles = list(range(350, 360)) + list(range(0, 10))  # 330-359 and 0-30
+        front_angles = list(range(350, 360)) + list(range(0, 10))  # Front angles: 350-359 and 0-9
         is_front_blocked = self.__IsBlocked(front_angles)
 
         if is_front_blocked:
@@ -121,7 +116,7 @@ class RobotController:
         return is_front_blocked
 
     def IsRearBlocked(self) -> bool:
-        rear_angles = list(range(170, 190)) # 150 to 210
+        rear_angles = list(range(170, 190)) # Rear angles: 170 to 189
         is_rear_blocked = self.__IsBlocked(rear_angles)
 
         if is_rear_blocked:
