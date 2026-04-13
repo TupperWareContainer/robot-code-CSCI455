@@ -30,11 +30,17 @@ class LidarController:
             self.__lidar.connect()
         except Exception as e:
             print(f"Unexpected Error: {e}")
+        started = False
 
         while not self.__stopScan:
             try:
                 # iter_scans is a blocking generator
                 for (new_scan, quality, angle, distance) in self.__lidar.iter_measurments():
+                    if new_scan:
+                        started = True
+                    if not started:
+                        continue
+
                     idx = min([359, floor(angle)])
                     self._scan_data[idx] = distance
             except RPLidarException as e:
