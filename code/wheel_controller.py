@@ -15,7 +15,7 @@ class WheelController:
         # 1200 min 1800 max
         # Scale the offset from neutral to 75%
         offset = speed - WheelController.NEUTRAL
-        limited = WheelController.NEUTRAL + int(offset * 0.25)
+        limited = WheelController.NEUTRAL + int(offset * 0.30)
         limited = max(2000, min(8000, limited))
 
         self.controller.setRange(chan, 0, 0)
