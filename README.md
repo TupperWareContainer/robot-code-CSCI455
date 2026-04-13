@@ -1,5 +1,24 @@
 # README.md
 
+# PROJECT 4
+
+## Notes
+
+Let X be the angle we want to be aligned with with the wall. 
+Let S1, S2 be sets of angle pairs that are equadistant from X (e.g. X = 180, S1 = {180 - 5, 180 - 10, 180 - 15}, S2 = {180 + 5, 180 + 10, 180 + 15)
+
+
+We can consider the robot to be "aligned" with the wall if the following statement evaluates as true.
+forall a in S1, forall b in S2 | distanceAt(a) = distanceAt(b). 
+
+
+As for actually following the wall, it could be abstracted into robot_controller.
+
+```python 
+def AlignWithWall():    # aligns the robot with the wall 
+```
+
+
 # PROJECT 3
 ## Robot Safety Limits
 - Front blocked if any reading from 330-360 degrees or 0-30 degrees is under 800 mm
