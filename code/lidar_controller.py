@@ -35,10 +35,9 @@ class LidarController:
             print("scanning") 
             try:
                 # iter_scans is a blocking generator
-                for scan in self.__lidar.iter_scans():
-                    for (_, angle, distance) in scan:
-                        idx = min([359, floor(angle)])
-                        self._scan_data[idx] = distance
+                for (new_scan, quality, angle, distance) in self.__lidar.iter_measurements():
+                    idx = min([359, floor(angle)])
+                    self._scan_data[idx] = distance
 
             except RPLidarException as e:
                 # This is where 'line length mismatch' is caught
