@@ -46,8 +46,6 @@ class LidarController:
             except Exception as e:
                 print(f"Unexpected Exception: {e} ")
                 self.RebootLidar()
-            finally:
-                self.__lidar.clear_input()
 
     def RebootLidar(self):
         try:
