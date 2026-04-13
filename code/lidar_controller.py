@@ -35,7 +35,7 @@ class LidarController:
             print("scanning") 
             try:
                 # iter_scans is a blocking generator
-                for (new_scan, quality, angle, distance) in self.__lidar.iter_measurements():
+                for (new_scan, quality, angle, distance) in self.__lidar.iter_measuments():
                     idx = min([359, floor(angle)])
                     self._scan_data[idx] = distance
 
