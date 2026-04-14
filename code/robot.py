@@ -29,7 +29,7 @@ class Robot:
         self.waist = WaistController(self.master_controller)
         self.voice = Voice(self.espeak)
         self.arm = ArmController(self.master_controller)
-        self.robot_controller = RobotController(self)
+        self.robot_controller = RobotController(self, wall_left_angle=90, wall_right_angle=270)
         self.speech_engine = AlDialogEngine(path=speech_engine_path)
         pass
     def close(self):
