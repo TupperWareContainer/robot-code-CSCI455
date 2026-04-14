@@ -44,7 +44,7 @@ class LidarController:
                         scan_count += 1
 
                         if scan_count % 3 == 0:
-                            self.__lidar.clear_input()  # safe — we're at a scan boundary
+                            self.__lidar.clear_input()  # Clears the input after every 3 spins
                             scan_count = 0
 
                     if not started:
