@@ -39,6 +39,7 @@ class LidarController:
                     if new_scan:
                         started = True
                     if not started:
+                        # Skip the first partial lidar spin. This ensures that we only keep full spins!
                         continue
 
                     idx = min([359, floor(angle)])
