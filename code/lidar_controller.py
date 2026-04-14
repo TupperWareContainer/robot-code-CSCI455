@@ -32,6 +32,7 @@ class LidarController:
         except Exception as e:
             print(f"Unexpected Error: {e}")
         started = False
+        scan_count = 0
 
         while not self.__stopScan:
             try:
@@ -39,6 +40,13 @@ class LidarController:
                 for (new_scan, quality, angle, distance) in self.__lidar.iter_measurments():
                     if new_scan:
                         started = True
+
+                        scan_count += 1
+
+                        if scan_count % 5 == 0:
+                            self.__lidar.clear_input()  # safe — we're at a scan boundary
+                            scan_count = 0
+
                     if not started:
                         # Skip the first partial lidar spin. This ensures that we only keep full spins!
                         continue
