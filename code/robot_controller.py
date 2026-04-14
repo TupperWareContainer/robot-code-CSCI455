@@ -35,6 +35,7 @@ class RobotState(Enum):
     IDLE = 2
     IN_SCOPE = 3
     ACTION_EXEC = 4
+    WALL_FOLLOW = 5
 
 class RobotController:
     __scope : list[str]
