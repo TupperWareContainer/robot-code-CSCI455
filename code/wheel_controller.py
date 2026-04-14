@@ -18,7 +18,7 @@ class WheelController:
         limited = WheelController.NEUTRAL + int(offset * 0.45)
         limited = max(2000, min(8000, limited))
 
-        self.controller.setSpeed(chan, 10)
+        #self.controller.setSpeed(chan, 10)
         self.controller.setRange(chan, 0, 0)
         self.controller.setTarget(chan, limited)
 
