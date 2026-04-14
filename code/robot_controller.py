@@ -14,6 +14,13 @@ LIDAR_PORT = '/dev/ttyUSB0'
 STOP_DISTANCE = 1000
 BODY_SIZE = 250
 
+# the number of alignemnt measurements to take per side (eg x = 10 means a array of size 20)
+NUM_ALIGNMENT_MEASUREMENTS_PER_SIDE = 5 
+
+ALIGNMENT_ANGLE_INCREMENT = 5
+
+
+
 class RobotAction(Enum):
     UNKNOWN = -1
     NONE = 0 
@@ -38,10 +45,14 @@ class RobotController:
     __isSafetyTimerActive : bool
 
     __cSafetyTime : float
+    
+    __wallLeftAngle : int
+
+    __wallRightAngle : int
 
     __safety_thread : threading.Thread
 
-    def __init__(self, robot_instance):
+    def __init__(self, robot_instance, wall_left_angle, wall_right_angle):
         self.__actionQueue = deque[RobotAction]()
         self.__state = RobotState.BOOT
         self.__robotInstance = robot_instance
@@ -53,12 +64,34 @@ class RobotController:
         self.__safeTimeSet = False
         self._is_front_blocked = False
         self._is_rear_blocked = False
+        self.__wallLeftAngle = wall_left_angle
+        self.__wallRightAngle = wall_right_angle
 
         self._lidar_controller = LidarController(LIDAR_PORT, timeout=3, max_distance=0)
 
         self.__safety_thread = threading.Thread(target=self.__SafetyTimer)
         self.__safety_thread.start()
+    
+    def AlignWithLeftWall(self) -> bool:
+        distance_pairs : list[(float, float)] = list[(float,float)]
+        
+        for i in range(0, NUM_ALIGNMENT_MEASUREMENTS_PER_SIDE):
+            a = self.__wallLeftAngle + (i + 1) * ALIGNMENT_ANGLE_INCREMENT
+            b = self.__wallLeftAngle + (i + 1) * -ALIGNMENT_ANGLE_INCREMENT
+            
+            if(a > 360):
+                a = a - 360 
+            if(b < 0 ):
+                b = 360 + b
 
+            distance_pairs.append((self._lidar_controller.GetDistanceMM(a), self._lidar_controller.GetDistanceMM(b)))
+
+             
+
+
+        pass
+    def AlignWithRightWall(self) -> bool:
+        pass
 
     def Update(self):
         if (len(self.__actionQueue) > 0) or self.__isPerformingAction: 
