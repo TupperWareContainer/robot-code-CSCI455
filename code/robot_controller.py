@@ -4,6 +4,7 @@ from robot_actions import PerformHeadNod, ShakeHead, RaiseArm, Dance90
 from lidar_controller import LidarController
 from enum import Enum
 from collections import deque
+import os
 '''
 RobotController.py
 Command Based Interface for controlling a Robot instance
@@ -73,7 +74,8 @@ class RobotController:
         self.__safety_thread.start()
     
     def AlignWithLeftWall(self) -> bool:
-        distance_pairs : list[(float, float)] = list[(float,float,float)] # distance, distance, delta angle (from left angle)
+        distance_pairs  = [] # distance, distance, delta angle (from left angle)
+
         for i in range(0, NUM_ALIGNMENT_MEASUREMENTS_PER_SIDE):
             angle = (i + 1) * ALIGNMENT_ANGLE_INCREMENT
             a = self.__wallLeftAngle + angle
@@ -83,14 +85,15 @@ class RobotController:
                 a = a - 360 
             if(b < 0 ):
                 b = 360 + b
-
-            distance_pairs.append((self._lidar_controller.GetDistanceMM(a), self._lidar_controller.GetDistanceMM(b), angle))
+            result = (self._lidar_controller.GetDistanceMM(a), self._lidar_controller.GetDistanceMM(b), angle) 
+            distance_pairs.append(result)
             
         
-        deltas : list[(float, float)] = list[(float,float)] # delta angle, delta distance
-
+        deltas  = [] # delta angle, delta distance
+        os.system("clear")
+        print("Distance Pairs (right, left, right angle, left angle) : delta distance")
         for distance_pair in distance_pairs:
-            delta_angle = distance_pair[3]
+            delta_angle = distance_pair[2]
             
             right = abs(distance_pair[0])
             left = abs(distance_pair[1])
@@ -99,8 +102,7 @@ class RobotController:
 
             deltas.append( (delta_angle, delta_distance) )
         
-            print("Distance Pairs (right, left, delta angle) : delta distance\n")
-            print("( " + str(right) + ", " + str(left) + ", " + delta_angle + ") : " + str(delta_distance) + "\n")
+            print("( " + str(right) + ", " + str(left) + ", " + str(self.__wallLeftAngle + delta_angle) +", " + str(self.__wallLeftAngle - delta_angle) +  ") : " + str(delta_distance) + "\n\n\n\n")
 
         return False 
         pass

@@ -15,7 +15,6 @@ class Robot:
     waist   : WaistController
     arm     : ArmController
     voice   : Voice
-    robot_controller : RobotController
     __MOTORCHANNELS = [3,4,5,0,1,6]
 
     def __init__(self):
@@ -28,7 +27,6 @@ class Robot:
         self.waist = WaistController(self.master_controller)
         self.voice = Voice(self.espeak)
         self.arm = ArmController(self.master_controller)
-        self.robot_controller = RobotController(self)
         pass
     def close(self):
         self.master_controller.close()
@@ -78,5 +76,3 @@ class Robot:
     def update_action_state(self):
         self.robot_controller.Update()
 
-    def reset_state(self):
-        self.robot_controller.Reset()
