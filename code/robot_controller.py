@@ -105,8 +105,8 @@ class RobotController:
         
             print("( " + str(right) + ", " + str(left) + ", " + str(self.__wallLeftAngle + delta_angle) +", " + str(self.__wallLeftAngle - delta_angle) +  ") : " + str(delta_distance) + "\n\n\n\n")
 
-        return False 
-        pass
+        return False
+
     def AlignWithRightWall(self) -> bool:
           
         pass
