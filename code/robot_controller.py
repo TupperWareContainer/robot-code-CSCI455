@@ -262,3 +262,8 @@ class RobotController:
 
     def GetScope(self) -> list[str]:
         return self.__scope
+
+    def WallFollowTick(self):
+        while True:
+            self.__state = RobotState.WALL_FOLLOW
+            pass

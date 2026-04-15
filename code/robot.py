@@ -95,3 +95,6 @@ class Robot:
 
     def get_response(self, question_words) -> tuple[list, str]:
         return self.speech_engine.get_response(question_words)
+
+    def wall_follow_tick(self):
+        self.robot_controller.WallFollowTick()
