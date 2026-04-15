@@ -73,24 +73,39 @@ class RobotController:
         self.__safety_thread.start()
     
     def AlignWithLeftWall(self) -> bool:
-        distance_pairs : list[(float, float)] = list[(float,float)]
-        
+        distance_pairs : list[(float, float)] = list[(float,float,float)] # distance, distance, delta angle (from left angle)
         for i in range(0, NUM_ALIGNMENT_MEASUREMENTS_PER_SIDE):
-            a = self.__wallLeftAngle + (i + 1) * ALIGNMENT_ANGLE_INCREMENT
-            b = self.__wallLeftAngle + (i + 1) * -ALIGNMENT_ANGLE_INCREMENT
+            angle = (i + 1) * ALIGNMENT_ANGLE_INCREMENT
+            a = self.__wallLeftAngle + angle
+            b = self.__wallLeftAngle - angle
             
             if(a > 360):
                 a = a - 360 
             if(b < 0 ):
                 b = 360 + b
 
-            distance_pairs.append((self._lidar_controller.GetDistanceMM(a), self._lidar_controller.GetDistanceMM(b)))
+            distance_pairs.append((self._lidar_controller.GetDistanceMM(a), self._lidar_controller.GetDistanceMM(b), angle))
+            
+        
+        deltas : list[(float, float)] = list[(float,float)] # delta angle, delta distance
 
-             
+        for distance_pair in distance_pairs:
+            delta_angle = distance_pair[3]
+            
+            right = abs(distance_pair[0])
+            left = abs(distance_pair[1])
+            
+            delta_distance = right - left  # keep sign of delta distance as we can use it to determine direction
 
+            deltas.append( (delta_angle, delta_distance) )
+        
+            print("Distance Pairs (right, left, delta angle) : delta distance\n")
+            print("( " + str(right) + ", " + str(left) + ", " + delta_angle + ") : " + str(delta_distance) + "\n")
 
+        return False 
         pass
     def AlignWithRightWall(self) -> bool:
+          
         pass
 
     def Update(self):
