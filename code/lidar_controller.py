@@ -28,9 +28,11 @@ class LidarController:
             self.__lidar.stop() 
             self.__lidar.disconnect()
             self.__lidar.connect()
+            self.__lidar.clear_input()
         except Exception as e:
             print(f"Unexpected Error: {e}")
         started = False
+        scan_count = 0
 
         while not self.__stopScan:
             try:
@@ -38,7 +40,15 @@ class LidarController:
                 for (new_scan, quality, angle, distance) in self.__lidar.iter_measurments():
                     if new_scan:
                         started = True
+
+                        scan_count += 1
+
+                        if scan_count % 3 == 0:
+                            self.__lidar.clear_input()  # Clears the input after every 3 spins
+                            scan_count = 0
+
                     if not started:
+                        # Skip the first partial lidar spin. This ensures that we only keep full spins!
                         continue
 
                     idx = min([359, floor(angle)])

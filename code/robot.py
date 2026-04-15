@@ -5,6 +5,7 @@ from wheel_controller import WheelController
 from arm_controller import ArmController
 from voice import Voice
 from espeakng import ESpeakNG
+from al_dialog_engine import AlDialogEngine
 import maestro
 
 class Robot:
@@ -17,7 +18,7 @@ class Robot:
     voice   : Voice
     __MOTORCHANNELS = [3,4,5,0,1,6]
 
-    def __init__(self):
+    def __init__(self, speech_engine_path):
         # Add the logic for tty1 vs tty0 here
         self.master_controller = maestro.Controller()
         self.espeak = ESpeakNG()
@@ -27,6 +28,7 @@ class Robot:
         self.waist = WaistController(self.master_controller)
         self.voice = Voice(self.espeak)
         self.arm = ArmController(self.master_controller)
+        self.speech_engine = AlDialogEngine(path=speech_engine_path)
         pass
     def close(self):
         self.master_controller.close()
@@ -76,3 +78,18 @@ class Robot:
     def update_action_state(self):
         self.robot_controller.Update()
 
+    def queue_actions(self, actions):
+        for action in actions:
+            action_value: str = action.get_value()
+            self.add_action_via_str(action_value)
+            self.update_action_state()
+
+    def reset_robot_dialog_and_state(self):
+        self.reset_state()
+        self.speech_engine.reset_dialog()
+
+    def get_response(self, question_words) -> tuple[list, str]:
+        return self.speech_engine.get_response(question_words)
+
+    def wall_follow_tick(self):
+        self.robot_controller.WallFollowTick()
