@@ -19,6 +19,8 @@ def AlignWithWall():    # aligns the robot with the wall
 ```
 
 
+When rotating left, if the distance delta is positive it needs to rotate CCW, otherwise if it is negative it needs to rotate CW
+
 # PROJECT 3
 ## Robot Safety Limits
 - Front blocked if any reading from 350-359 degrees or 0-9 degrees is under 1000 mm
