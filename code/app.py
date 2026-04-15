@@ -72,7 +72,7 @@ def drive():
 
         # Stop the wheels no matter what if our website decides it should stop!!!
         if x == 0 and y == 0:
-            tempstop()
+            robot_controller.stop_drive()
 
         # Here we are turning which shouldn't be affected by blocking!
         if abs(abs(angle) - math.pi/2.0) >= .2:
@@ -90,7 +90,7 @@ def drive():
             elif direction == "backward" and not robot_controller.IsRearBlocked():
                 robot_controller.drive(int(throttle))
             else:
-                tempstop()
+                robot_controller.stop_drive()
 
         return jsonify({"response": f"Received: {data.get('x', 'no message'), data.get('y', 'no message')}"}), 200
     return jsonify({"error": "Request must be JSON"}), 400
@@ -163,7 +163,7 @@ def safety_check():
         ping = False
     elif(not ping):
         print("Connection timeout, stopping drivetrain")
-        tempstop()
+        robot_controller.stop_drive()
     pass
 
 @app.get('/')
@@ -189,9 +189,6 @@ def main():
     app.config["SERVER_NAME"] = server_name
     app.run(host=server_name, port=5002, debug=True, use_reloader=False)
     robot_controller.WallFollowTick()
-
-def tempstop():
-    robot_controller.stop_drive()
 
 
 def exit_handler():
