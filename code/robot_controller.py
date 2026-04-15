@@ -296,4 +296,36 @@ class RobotController:
             else:
                 self.__robotInstance.drive_wheels(7000) # Drive forward slowly
 
+    def pan_head(self, rot : int):
+        self.__robotInstance.pan_head(rot)
 
+    def tilt_head(self, rot : int):
+        self.__robotInstance.tilt_head(rot)
+
+    def rotate_waist(self, rot : int):
+        self.__robotInstance.rotate_waist(rot)
+
+    def drive(self, speed):
+        self.__robotInstance.drive_wheels(speed)
+
+    def turn(self, speed):
+        self.__robotInstance.turn_wheels(speed)
+
+    def queue_actions(self, actions):
+        for action in actions:
+            action_value: str = action.get_value()
+            self.AddActionViaStr(action_value)
+            self.Update()
+
+    def reset_robot_dialog_and_state(self):
+        self.Reset()
+        self.__robotInstance.reset_dialog()
+
+    def get_dialog_response(self, question_words) -> tuple[list, str]:
+        return self.__robotInstance.get_response(question_words)
+
+    def close_robot(self):
+        self.__robotInstance.close()
+
+    def speak_message(self, message : str):
+        self.__robotInstance.speak(message)

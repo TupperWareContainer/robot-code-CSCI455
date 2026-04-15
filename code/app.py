@@ -2,6 +2,8 @@ import math
 from queue import Queue
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+
+from robot_controller import RobotController
 from robot import Robot
 import threading
 from threading import Timer
@@ -18,7 +20,7 @@ server_name = "10.158.167.65"
 app = Flask(__name__)
 CORS(app)
 
-main_robot = Robot("./testDialogFileForPractice.txt")
+robot_controller = RobotController(Robot("./testDialogFileForPractice.txt"), 270, 90)
 
 timeout = 5
 
@@ -29,7 +31,7 @@ def pan_head():
     if request.is_json:
         data = request.get_json()
         rot = data.get('rot')
-        main_robot.pan_head(int(rot))
+        robot_controller.pan_head(int(rot))
 
         return jsonify({"response": f"Received: {data.get('rot', 'no message')}"}), 200
     return jsonify({"error": "Request must be JSON"}), 400
@@ -40,7 +42,7 @@ def tilt_head():
     if request.is_json:
         data = request.get_json()
         rot = data.get('rot')
-        main_robot.tilt_head(int(rot))
+        robot_controller.tilt_head(int(rot))
 
         return jsonify({"response": f"Received: {data.get('rot', 'no message')}"}), 200
     return jsonify({"error": "Request must be JSON"}), 400
@@ -51,7 +53,7 @@ def tilt_head():
 def rotate_waist():
     data = request.get_json()
     rot = data.get('rot')
-    main_robot.rotate_waist(int(rot))
+    robot_controller.rotate_waist(int(rot))
 
     return jsonify({"response": f"Received: {data.get('rot', 'no message')}"}), 200
 
@@ -74,7 +76,7 @@ def drive():
 
         # Here we are turning which shouldn't be affected by blocking!
         if abs(abs(angle) - math.pi/2.0) >= .2:
-            main_robot.turn_wheels(int(steering))
+            robot_controller.turn(int(steering))
             return jsonify({"response": f"Received: {data.get('x', 'no message'), data.get('y', 'no message')}"}), 200
         else: 
         # 6000 is center/neutral, above = forward, below = backward
@@ -83,10 +85,10 @@ def drive():
             elif angle > 0:
                 direction = "backward"
 
-            if direction == "forward" and not main_robot.is_front_blocked():
-                main_robot.drive_wheels(int(throttle))
-            elif direction == "backward" and not main_robot.is_rear_blocked():
-                main_robot.drive_wheels(int(throttle))
+            if direction == "forward" and not robot_controller.IsFrontBlocked():
+                robot_controller.drive(int(throttle))
+            elif direction == "backward" and not robot_controller.IsRearBlocked():
+                robot_controller.drive(int(throttle))
             else:
                 tempstop()
 
@@ -134,16 +136,16 @@ def ask():
         question_words = question.lower().split()
 
         if question in ["stop", "cancel", "reset", "quit"]:
-            main_robot.reset_robot_dialog_and_state()
+            robot_controller.reset_robot_dialog_and_state()
 
         # Get the question and resolve the response and add that to the message queue
-        actions, response = main_robot.get_response(question_words)
+        actions, response = robot_controller.get_dialog_response(question_words)
         print(actions)
         print(response)
         message_queue.put(response)
 
         if actions:
-            main_robot.queue_actions(actions)
+            robot_controller.queue_actions(actions)
 
         return jsonify({"response": f"Received: {data.get('question', 'no question')}"}), 200
     return jsonify({"error": "Request must be JSON"}), 400
@@ -174,7 +176,7 @@ def speak_messages():
     while True:
         if message_queue.qsize() > 0:
             message = message_queue.get()
-            main_robot.speak(message)
+            robot_controller.speak_message(message)
 
 def main():
     ping = False
@@ -183,20 +185,18 @@ def main():
     safetythread.start()
     thread.start()
 
-    main_robot.drive_wheels(6000)
+    robot_controller.stop_drive()
     app.config["SERVER_NAME"] = server_name
     app.run(host=server_name, port=5002, debug=True, use_reloader=False)
-    main_robot.wall_follow_tick()
+    robot_controller.WallFollowTick()
 
 def tempstop():
-    main_robot.drive_wheels(6000)
-    main_robot.turn_wheels(6000)
+    robot_controller.stop_drive()
 
 
 def exit_handler():
-    main_robot.drive_wheels(6000)
-    main_robot.turn_wheels(6000)
-    main_robot.close()
+    robot_controller.stop_drive()
+    robot_controller.close_robot()
 atexit.register(exit_handler)
 
 
