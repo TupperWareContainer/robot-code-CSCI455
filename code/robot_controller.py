@@ -273,11 +273,12 @@ class RobotController:
         while True:
             self.__state = RobotState.WALL_FOLLOW
 
-            if self.IsFrontBlocked():
+            if self.IsFrontBlocked(): # Case 1
                 self.stop_drive()
                 self.AlignWithLeftWall()
-
+            elif not self.AlignWithRightWall(): # Case 4
+                self.__robotInstance.turn_wheels(7000) # Turn Right slowly
             else:
-                self.__robotInstance.drive_wheels(7000)
+                self.__robotInstance.drive_wheels(7000) # Drive forward slowly
 
 
