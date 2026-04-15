@@ -92,6 +92,8 @@ class RobotController:
 
         pass
     def AlignWithRightWall(self) -> bool:
+
+
         pass
 
     def Update(self):
@@ -263,7 +265,19 @@ class RobotController:
     def GetScope(self) -> list[str]:
         return self.__scope
 
+    def stop_drive(self):
+        self.__robotInstance.turn_wheels(6000)
+        self.__robotInstance.drive_wheels(6000)
+
     def WallFollowTick(self):
         while True:
             self.__state = RobotState.WALL_FOLLOW
-            pass
+
+            if self.IsFrontBlocked():
+                self.stop_drive()
+                self.AlignWithLeftWall()
+
+            else:
+                self.__robotInstance.drive_wheels(7000)
+
+
