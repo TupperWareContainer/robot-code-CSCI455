@@ -35,6 +35,7 @@ class RobotState(Enum):
     IDLE = 2
     IN_SCOPE = 3
     ACTION_EXEC = 4
+    WALL_FOLLOW = 5
 
 class RobotController:
     __scope : list[str]
@@ -151,16 +152,11 @@ class RobotController:
 
         # If nothing external detected, path is clear
         if len(external) == 0:
-            return False 
-
-        #triggering = [(angle,distance) for (angle,distance) in external if distance < STOP_DISTANCE]
-        #if triggering:
-        #    print(f"Blocked by readings: {triggering}")
-            
+            return False
         return any(d < STOP_DISTANCE for (a,d) in external)
 
     def IsFrontBlocked(self) -> bool:
-        front_angles = list(range(350, 360)) + list(range(0, 10))  # 330-359 and 0-30
+        front_angles = list(range(350, 360)) + list(range(0, 10))  # Front angles: 350-359 and 0-9
         is_front_blocked = self.__IsBlocked(front_angles)
 
         if is_front_blocked:
@@ -169,7 +165,7 @@ class RobotController:
         return is_front_blocked
 
     def IsRearBlocked(self) -> bool:
-        rear_angles = list(range(170, 190)) # 150 to 210
+        rear_angles = list(range(170, 190)) # Rear angles: 170 to 189
         is_rear_blocked = self.__IsBlocked(rear_angles)
 
         if is_rear_blocked:
@@ -281,3 +277,21 @@ class RobotController:
 
     def GetScope(self) -> list[str]:
         return self.__scope
+
+    def stop_drive(self):
+        self.__robotInstance.turn_wheels(6000)
+        self.__robotInstance.drive_wheels(6000)
+
+    def WallFollowTick(self):
+        while True:
+            self.__state = RobotState.WALL_FOLLOW
+
+            if self.IsFrontBlocked(): # Case 1
+                self.stop_drive()
+                self.AlignWithLeftWall()
+            elif not self.AlignWithRightWall(): # Case 4
+                self.__robotInstance.turn_wheels(7000) # Turn Right slowly
+            else:
+                self.__robotInstance.drive_wheels(7000) # Drive forward slowly
+
+
