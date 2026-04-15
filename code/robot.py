@@ -18,7 +18,7 @@ class Robot:
     voice   : Voice
     __MOTORCHANNELS = [3,4,5,0,1,6]
 
-    def __init__(self, speech_engine_path):
+    def __init__(self, speech_engine_path = "testDialogFileForPractice.txt"):
         # Add the logic for tty1 vs tty0 here
         self.master_controller = maestro.Controller()
         self.espeak = ESpeakNG()

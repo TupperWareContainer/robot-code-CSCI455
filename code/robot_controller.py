@@ -15,10 +15,10 @@ LIDAR_PORT = '/dev/ttyUSB0'
 STOP_DISTANCE = 1000
 BODY_SIZE = 250
 
-# the number of alignemnt measurements to take per side (eg x = 10 means a array of size 20)
-NUM_ALIGNMENT_MEASUREMENTS_PER_SIDE = 5 
+# the number of alignemnt measurements to take per side (eg 10 measurements per side means 20 total measurements)
+NUM_ALIGNMENT_MEASUREMENTS_PER_SIDE = 25 
 
-ALIGNMENT_ANGLE_INCREMENT = 5
+ALIGNMENT_ANGLE_INCREMENT = 1
 
 
 
@@ -68,15 +68,17 @@ class RobotController:
         self._is_rear_blocked = False
         self.__wallLeftAngle = wall_left_angle
         self.__wallRightAngle = wall_right_angle
-
+        
         self._lidar_controller = LidarController(LIDAR_PORT, timeout=3, max_distance=0)
 
         self.__safety_thread = threading.Thread(target=self.__SafetyTimer)
         self.__safety_thread.start()
     
-    def AlignWithLeftWall(self) -> bool:
-        distance_pairs  = [] # distance, distance, delta angle (from left angle)
+    def AlignWithLeftWall(self) -> bool: 
+        alignment_data  = [] # distance, distance, angle A, angle B, delta angle (from left angle), delta distance
 
+        os.system("clear")
+        print("distance A, distance B, angle A, angle B, delta angle (from left angle), delta distance")
         for i in range(0, NUM_ALIGNMENT_MEASUREMENTS_PER_SIDE):
             angle = (i + 1) * ALIGNMENT_ANGLE_INCREMENT
             a = self.__wallLeftAngle + angle
@@ -86,24 +88,28 @@ class RobotController:
                 a = a - 360 
             if(b < 0 ):
                 b = 360 + b
-            result = (self._lidar_controller.GetDistanceMM(a), self._lidar_controller.GetDistanceMM(b), angle) 
-            distance_pairs.append(result)
+
+            dA = self._lidar_controller.GetDistanceMM(a)
+            dB = self._lidar_controller.GetDistanceMM(b)
+            
+            if (dA == 0.0 or dB == 0.0) :
+                continue
+            delta_distance = abs(dA) - abs(dB) ## positive delta = needs to rotate CCW, negative delta = needs to rotate CW 
+            result = (dA, dB, a,b,angle, delta_distance)
+            print(str(result))
+            alignment_data.append(result)
             
         
         deltas  = [] # delta angle, delta distance
-        os.system("clear")
-        print("Distance Pairs (right, left, right angle, left angle) : delta distance")
-        for distance_pair in distance_pairs:
-            delta_angle = distance_pair[2]
-            
-            right = abs(distance_pair[0])
-            left = abs(distance_pair[1])
-            
-            delta_distance = right - left  # keep sign of delta distance as we can use it to determine direction
-
-            deltas.append( (delta_angle, delta_distance) )
         
-            print("( " + str(right) + ", " + str(left) + ", " + str(self.__wallLeftAngle + delta_angle) +", " + str(self.__wallLeftAngle - delta_angle) +  ") : " + str(delta_distance) + "\n\n\n\n")
+        total = 0.0
+        for data in alignment_data:
+            total += data[5]
+        num_data_points = len(alignment_data)
+        avg = total * 1.0 / (1 if (num_data_points == 0) else num_data_points)
+        
+        print("average delta: " + str(avg))
+        time.sleep(0.25) 
 
         return False 
         pass
