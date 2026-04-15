@@ -16,7 +16,6 @@ class Robot:
     waist   : WaistController
     arm     : ArmController
     voice   : Voice
-    robot_controller : RobotController
     __MOTORCHANNELS = [3,4,5,0,1,6]
 
     def __init__(self, speech_engine_path):
@@ -29,7 +28,6 @@ class Robot:
         self.waist = WaistController(self.master_controller)
         self.voice = Voice(self.espeak)
         self.arm = ArmController(self.master_controller)
-        self.robot_controller = RobotController(self, wall_left_angle=90, wall_right_angle=270)
         self.speech_engine = AlDialogEngine(path=speech_engine_path)
         pass
     def close(self):
@@ -79,9 +77,6 @@ class Robot:
 
     def update_action_state(self):
         self.robot_controller.Update()
-
-    def reset_state(self):
-        self.robot_controller.Reset()
 
     def queue_actions(self, actions):
         for action in actions:
