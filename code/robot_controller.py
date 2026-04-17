@@ -319,7 +319,7 @@ class RobotController:
                 else:
                     self.__robotInstance.drive_wheels(7000)  # Drive forward slowly
 
-                time.sleep(0.5)
+                time.sleep(2)
         except KeyboardInterrupt:
             print("Stopping...")
 
