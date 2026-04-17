@@ -66,30 +66,8 @@ class Robot:
     def raise_arm(self, angle):
         self.arm.Raise(angle, 6)
 
-    def is_front_blocked(self):
-        return self.robot_controller.IsFrontBlocked()
-
-    def is_rear_blocked(self):
-        return self.robot_controller.IsRearBlocked()
-
-    def add_action_via_str(self, action_value):
-        self.robot_controller.AddActionViaStr(action_value)
-
-    def update_action_state(self):
-        self.robot_controller.Update()
-
-    def queue_actions(self, actions):
-        for action in actions:
-            action_value: str = action.get_value()
-            self.add_action_via_str(action_value)
-            self.update_action_state()
-
-    def reset_robot_dialog_and_state(self):
-        self.reset_state()
+    def reset_dialog(self):
         self.speech_engine.reset_dialog()
 
     def get_response(self, question_words) -> tuple[list, str]:
         return self.speech_engine.get_response(question_words)
-
-    def wall_follow_tick(self):
-        self.robot_controller.WallFollowTick()
