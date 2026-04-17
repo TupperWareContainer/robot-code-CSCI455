@@ -307,11 +307,8 @@ class RobotController:
         self.__robotInstance.drive_wheels(6000)
 
     def WallFollowTick(self):
-        print("WallFollowTick")
-
         try:
             while True:
-                print("Running Wall Follow Tick...")
                 self.__state = RobotState.WALL_FOLLOW
 
                 if self.IsFrontBlocked():  # Case 1
