@@ -36,7 +36,7 @@ class LidarController:
         while not self.__stopScan:
             try:
                 # iter_scans is a blocking generator
-                for (new_scan, quality, angle, distance) in self.__lidar.iter_measures(scan_type='express'):
+                for (new_scan, quality, angle, distance) in self.__lidar.iter_measurments():
                     if new_scan:
                         started = True
 
