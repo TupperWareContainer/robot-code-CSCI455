@@ -318,6 +318,8 @@ class RobotController:
                     self.__robotInstance.turn_wheels(7000)  # Turn Right slowly
                 else:
                     self.__robotInstance.drive_wheels(7000)  # Drive forward slowly
+
+                time.sleep(0.5)
         except KeyboardInterrupt:
             print("Stopping...")
 
