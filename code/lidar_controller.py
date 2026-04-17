@@ -20,6 +20,7 @@ class LidarController:
         self.__stopScan = False
         self._scan_data = [0] * 360
         self.__scan_thread = Thread(target = self.StartScan)
+        self.__scan_thread.start()
 
     def StartScan(self):
         try:
