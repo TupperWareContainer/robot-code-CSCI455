@@ -43,7 +43,7 @@ class LidarController:
 
                         scan_count += 1
 
-                        if scan_count % 3 == 0:
+                        if scan_count % 5 == 0:
                             self.__lidar.clear_input()  # Clears the input after every 3 spins
                             scan_count = 0
                             self._scan_data = [0] * 360 # Clear the buffer of the old data
