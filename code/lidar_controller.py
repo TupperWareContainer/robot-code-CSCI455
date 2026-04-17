@@ -46,7 +46,6 @@ class LidarController:
                         if scan_count % 5 == 0:
                             self.__lidar.clear_input()  # Clears the input after every 3 spins
                             scan_count = 0
-                            self._scan_data = [0] * 360 # Clear the buffer of the old data
 
                     if not started:
                         # Skip the first partial lidar spin. This ensures that we only keep full spins!
