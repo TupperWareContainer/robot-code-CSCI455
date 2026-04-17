@@ -20,6 +20,8 @@ NUM_ALIGNMENT_MEASUREMENTS_PER_SIDE = 25
 
 ALIGNMENT_ANGLE_INCREMENT = 1
 
+MIN_ALIGNMENT_MEASUREMENTS = 4
+
 
 
 class RobotAction(Enum):
@@ -77,8 +79,6 @@ class RobotController:
     def AlignWithLeftWall(self) -> bool: 
         alignment_data  = [] # distance, distance, angle A, angle B, delta angle (from left angle), delta distance
 
-        os.system("clear")
-        print("distance A, distance B, angle A, angle B, delta angle (from left angle), delta distance")
         for i in range(0, NUM_ALIGNMENT_MEASUREMENTS_PER_SIDE):
             angle = (i + 1) * ALIGNMENT_ANGLE_INCREMENT
             a = self.__wallLeftAngle + angle
@@ -96,10 +96,10 @@ class RobotController:
                 continue
             delta_distance = abs(dA) - abs(dB) ## positive delta = needs to rotate CCW, negative delta = needs to rotate CW 
             result = (dA, dB, a,b,angle, delta_distance)
-            print(str(result))
             alignment_data.append(result)
             
-        
+        if(len(alignment_data) < MIN_ALIGNMENT_MEASUREMENTS):
+            return False
         deltas  = [] # delta angle, delta distance
         
         total = 0.0
@@ -107,9 +107,25 @@ class RobotController:
             total += data[5]
         num_data_points = len(alignment_data)
         avg = total * 1.0 / (1 if (num_data_points == 0) else num_data_points)
+       
+        if(abs(avg) < 10):
+            avg = 0
         
-        print("average delta: " + str(avg))
-        time.sleep(0.25) 
+        print(str(avg))
+        if(avg > 0):    # turn CCW
+            self.turn(8000)
+            print("turning CCW,")
+            pass
+        elif(avg < 0): # turn CW
+            self.turn(4000)
+            print("turning CW")
+            pass
+        else:           # aligned
+            self.turn(6000)
+            print("aligned")
+            pass
+        
+
 
         return False
 

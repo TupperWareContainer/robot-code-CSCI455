@@ -188,7 +188,7 @@ def main():
     robot_controller.stop_drive()
     app.config["SERVER_NAME"] = server_name
     app.run(host=server_name, port=5002, debug=True, use_reloader=False)
-    #robot_controller.WallFollowTick()
+    robot_controller.WallFollowTick()
 
 
 def exit_handler():
