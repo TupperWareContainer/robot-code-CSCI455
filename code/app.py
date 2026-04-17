@@ -6,7 +6,7 @@ from flask_cors import CORS
 from robot_controller import RobotController
 from robot import Robot
 import threading
-from threading import Timer
+from threading import Timer, Thread
 import atexit
 import time
 
@@ -188,7 +188,9 @@ def main():
     robot_controller.stop_drive()
     app.config["SERVER_NAME"] = server_name
     app.run(host=server_name, port=5002, debug=True, use_reloader=False)
-    robot_controller.WallFollowTick()
+
+    wall_follow_thread = Thread(target=robot_controller.WallFollowTick)
+    wall_follow_thread.start()
 
 
 def exit_handler():
