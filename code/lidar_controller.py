@@ -23,7 +23,8 @@ class LidarController:
         self.__scan_thread = Thread(target = self.StartScan)
         self.__scan_thread.start()
         self._last_update_time = time.time()
-        self._swap_interval = 0.25
+        self._swap_interval = 1 # How often we swap the old data with the new data.
+                                # The higher the number the longer the data has to build up.
 
     def StartScan(self):
         try:
@@ -53,6 +54,9 @@ class LidarController:
                     if not started:
                         # Skip the first partial lidar spin. This ensures that we only keep full spins!
                         continue
+
+                    if distance == 0.0:
+                        distance = 5000
 
                     idx = min([359, floor(angle)])
                     self._buffered_scan_data[idx] = distance # Write the distances to the buffer
