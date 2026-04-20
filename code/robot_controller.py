@@ -16,7 +16,9 @@ STOP_DISTANCE = 1000
 BODY_SIZE = 250
 
 # the number of alignemnt measurements to take per side (eg 10 measurements per side means 20 total measurements)
-NUM_ALIGNMENT_MEASUREMENTS_PER_SIDE = 25 
+NUM_ALIGNMENT_MEASUREMENTS_PER_SIDE = 25
+ALIGNMENT_OK_PERCENT = 0.75
+
 
 ALIGNMENT_ANGLE_INCREMENT = 1
 
@@ -99,7 +101,7 @@ class RobotController:
             result = (dA, dB, a,b,angle, delta_distance)
             alignment_data.append(result)
             
-        if(len(alignment_data) < MIN_ALIGNMENT_MEASUREMENTS):
+        if(len(alignment_data) / MIN_ALIGNMENT_MEASUREMENTS < ALIGNMENT_OK_PERCENT):
             print("RobotController::AlignWithLeftWall() Failed : Insufficient number of alignment measurements!")
             return False
         deltas  = [] # delta angle, delta distance
