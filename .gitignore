@@ -2,3 +2,4 @@
 .venv
 venv
 reflection_logs
+__pycache__

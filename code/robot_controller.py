@@ -16,7 +16,9 @@ STOP_DISTANCE = 1000
 BODY_SIZE = 250
 
 # the number of alignemnt measurements to take per side (eg 10 measurements per side means 20 total measurements)
-NUM_ALIGNMENT_MEASUREMENTS_PER_SIDE = 25 
+NUM_ALIGNMENT_MEASUREMENTS_PER_SIDE = 25
+ALIGNMENT_OK_PERCENT = 0.75
+
 
 ALIGNMENT_ANGLE_INCREMENT = 1
 
@@ -77,6 +79,7 @@ class RobotController:
         self.__safety_thread.start()
     
     def AlignWithLeftWall(self) -> bool: 
+        print("ALIGNING WITH LEFT WALL")
         alignment_data  = [] # distance, distance, angle A, angle B, delta angle (from left angle), delta distance
 
         for i in range(0, NUM_ALIGNMENT_MEASUREMENTS_PER_SIDE):
@@ -98,7 +101,8 @@ class RobotController:
             result = (dA, dB, a,b,angle, delta_distance)
             alignment_data.append(result)
             
-        if(len(alignment_data) < MIN_ALIGNMENT_MEASUREMENTS):
+        if(len(alignment_data) / MIN_ALIGNMENT_MEASUREMENTS < ALIGNMENT_OK_PERCENT):
+            print("RobotController::AlignWithLeftWall() Failed : Insufficient number of alignment measurements!")
             return False
         deltas  = [] # delta angle, delta distance
         
@@ -125,7 +129,7 @@ class RobotController:
             print("aligned")
             pass
         
-
+        print("RobotController::AlignWithLeftWall() Succeeded")
 
         return False
 
@@ -309,18 +313,23 @@ class RobotController:
     def WallFollowTick(self):
         try:
             while True:
-                self.__state = RobotState.WALL_FOLLOW
+                self.__wallfollowstate = "ALIGN_LEFT"
+                ## update resulting state and then plug into this function
 
-                if self.IsFrontBlocked():  # Case 1
-                    self.stop_drive()
-                    self.AlignWithLeftWall()
-                elif not self.AlignWithRightWall():  # Case 4
-                    self.__robotInstance.turn_wheels(7000)  # Turn Right slowly
-                else:
-                    self.__robotInstance.drive_wheels(7000)  # Drive forward slowly
+
+                self.WallFollowStateMachine(self.__wallfollowstate)
+                time.sleep(1)
         except KeyboardInterrupt:
+            self.stop_drive()
+            self.AlignWithLeftWall()
             print("Stopping...")
-
+    def WallFollowStateMachine(self, wallFollowState):
+        if(wallFollowState == "ALIGN_LEFT"):
+            self.AlignWithLeftWall()
+        elif(wallFollowState == "ALIGN_RIGHT"):
+            self.AlignWithRightWall()
+        else: # check if front or back is blocked and drive from there
+            return
     def pan_head(self, rot : int):
         self.__robotInstance.pan_head(rot)
 

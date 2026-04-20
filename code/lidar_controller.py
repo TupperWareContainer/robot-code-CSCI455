@@ -13,13 +13,17 @@ class LidarController:
     __timeout : float
 
     def __init__(self, lidar_port : str, timeout : float, max_distance : float):
-        self.__lidar = RPLidar(lidar_port, timeout=timeout)
+        self.__lidar = RPLidar(lidar_port, timeout=timeout, baudrate=115200)
         self.__lidar_port = lidar_port
         self.__timeout = timeout 
         self.__max_distance = max_distance
         self.__stopScan = False
         self._scan_data = [0] * 360
+        self._buffered_scan_data = [0] * 360
         self.__scan_thread = Thread(target = self.StartScan)
+        self.__scan_thread.start()
+        self._last_update_time = time.time()
+        self._swap_interval = 0.25
 
     def StartScan(self):
         try:
@@ -36,14 +40,14 @@ class LidarController:
         while not self.__stopScan:
             try:
                 # iter_scans is a blocking generator
-                for (new_scan, quality, angle, distance) in self.__lidar.iter_measures(scan_type='express'):
+                for (new_scan, quality, angle, distance) in self.__lidar.iter_measurments(max_buf_meas=1000):
                     if new_scan:
                         started = True
 
                         scan_count += 1
 
-                        if scan_count % 3 == 0:
-                            self.__lidar.clear_input()  # Clears the input after every 3 spins
+                        if scan_count % 5 == 0:
+                            #self.__lidar.clear_input()  # Clears the input buffer after every 3 spins
                             scan_count = 0
 
                     if not started:
@@ -51,7 +55,12 @@ class LidarController:
                         continue
 
                     idx = min([359, floor(angle)])
-                    self._scan_data[idx] = distance
+                    self._buffered_scan_data[idx] = distance # Write the distances to the buffer
+
+                    if time.time() - self._last_update_time >= self._swap_interval:
+                        self._scan_data[:] = self._buffered_scan_data # Move the contents of the buffer to scan data
+                        self._buffered_scan_data[:] = [0] * 360  # Reset the buffer
+                        self._last_update_time = time.time()
             except RPLidarException as e:
                 # This is where 'line length mismatch' is caught
                 print(f"Lidar Hardware Error: {e}. Reconnecting...")
