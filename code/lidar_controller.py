@@ -23,7 +23,7 @@ class LidarController:
         self.__scan_thread = Thread(target = self.StartScan)
         self.__scan_thread.start()
         self._last_update_time = time.time()
-        self._swap_interval = 0.2
+        self._swap_interval = 0.4
 
     def StartScan(self):
         try:
