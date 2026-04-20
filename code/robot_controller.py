@@ -100,6 +100,7 @@ class RobotController:
             alignment_data.append(result)
             
         if(len(alignment_data) < MIN_ALIGNMENT_MEASUREMENTS):
+            print("RobotController::AlignWithLeftWall() Failed : Insufficient number of alignment measurements!")
             return False
         deltas  = [] # delta angle, delta distance
         
@@ -126,7 +127,7 @@ class RobotController:
             print("aligned")
             pass
         
-
+        print("RobotController::AlignWithLeftWall() Succeeded")
 
         return False
 
