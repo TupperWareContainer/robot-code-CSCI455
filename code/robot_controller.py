@@ -309,20 +309,23 @@ class RobotController:
     def WallFollowTick(self):
         try:
             while True:
-                self.__state = RobotState.WALL_FOLLOW
+                self.__wallfollowstate = "ALIGN_LEFT"
+                ## update resulting state and then plug into this function
 
-                if self.IsFrontBlocked():  # Case 1
-                    self.stop_drive()
-                    self.AlignWithLeftWall()
-                elif not self.AlignWithRightWall():  # Case 4
-                    self.__robotInstance.turn_wheels(8000)  # Turn Right slowly
-                else:
-                    self.__robotInstance.drive_wheels(5000)  # Drive forward slowly
 
+                self.WallFollowStateMachine(self.__wallfollowstate)
                 time.sleep(2)
         except KeyboardInterrupt:
+            self.stop_drive()
+            self.AlignWithLeftWall()
             print("Stopping...")
-
+    def WallFollowStateMachine(self, wallFollowState):
+        if(wallFollowState == "ALIGN_LEFT"):
+            self.AlignWithLeftWall()
+        elif(wallFollowState == "ALIGN_RIGHT"):
+            self.AlignWithRightWall()
+        else: # check if front or back is blocked and drive from there
+            return
     def pan_head(self, rot : int):
         self.__robotInstance.pan_head(rot)
 

@@ -13,7 +13,7 @@ class LidarController:
     __timeout : float
 
     def __init__(self, lidar_port : str, timeout : float, max_distance : float):
-        self.__lidar = RPLidar(lidar_port, timeout=timeout)
+        self.__lidar = RPLidar(lidar_port, timeout=timeout, baudrate=115200)
         self.__lidar_port = lidar_port
         self.__timeout = timeout 
         self.__max_distance = max_distance
