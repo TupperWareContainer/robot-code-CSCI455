@@ -40,14 +40,14 @@ class LidarController:
         while not self.__stopScan:
             try:
                 # iter_scans is a blocking generator
-                for (new_scan, quality, angle, distance) in self.__lidar.iter_measurments():
+                for (new_scan, quality, angle, distance) in self.__lidar.iter_measurments(max_buf_meas=1000):
                     if new_scan:
                         started = True
 
                         scan_count += 1
 
                         if scan_count % 5 == 0:
-                            self.__lidar.clear_input()  # Clears the input buffer after every 3 spins
+                            #self.__lidar.clear_input()  # Clears the input buffer after every 3 spins
                             scan_count = 0
 
                     if not started:
