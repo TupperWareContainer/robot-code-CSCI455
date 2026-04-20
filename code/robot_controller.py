@@ -368,32 +368,27 @@ class RobotController:
 
     def WallFollowStateMachine(self, wallFollowState):
         match wallFollowState:
-            case ALIGN_LEFT:
+            case WallFollowState.ALIGN_LEFT:
+                print("aligning with left wall")
                 if(self.__last_alignment_state != wallFollowState):
                     self.drive_wheels(6000)
                 self.__last_alignment = self.AlignWithLeftWall()
                 pass
-            case TURN_LEFT:
-
-                if(__last_alignment_state != wallFollowState):
-                    self.drive_wheels(6000)
+            case WallFollowState.TURN_LEFT:
+                print("turning left")
                 self.steer_left()
                 pass
-            case TURN_RIGHT:
-
-                if(__last_alignment_state != wallFollowState):
-                    self.drive_wheels(6000)
+            case WallFollowState.TURN_RIGHT:
+                print("turning right")
                 self.steer_right()
                 pass
-            case DRIVE_FORWARD:
-                if(__last_alignment_state != wallFollowState):
+            case WallFollowState.DRIVE_FORWARD:
+                print("driving forward")
+                if(self.__last_alignment_state != wallFollowState):
                     self.stop_steer()
                 self.drive(8000)
-        elif(wallFollowState == WallFollowState.ALIGN_RIGHT):
-            self.__last_alignment = self.AlignWithRightWall()
-        else: # check if front or back is blocked and drive from there
-            pass
-
+            case _: 
+                pass
 
     def steer_left(self):
         self.turn(8000)
