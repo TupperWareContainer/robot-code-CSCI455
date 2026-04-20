@@ -77,6 +77,7 @@ class RobotController:
         self.__safety_thread.start()
     
     def AlignWithLeftWall(self) -> bool: 
+        print("ALIGNING WITH LEFT WALL")
         alignment_data  = [] # distance, distance, angle A, angle B, delta angle (from left angle), delta distance
 
         for i in range(0, NUM_ALIGNMENT_MEASUREMENTS_PER_SIDE):
@@ -314,7 +315,7 @@ class RobotController:
 
 
                 self.WallFollowStateMachine(self.__wallfollowstate)
-                time.sleep(2)
+                time.sleep(1)
         except KeyboardInterrupt:
             self.stop_drive()
             self.AlignWithLeftWall()
