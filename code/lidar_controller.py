@@ -58,8 +58,8 @@ class LidarController:
                     self._buffered_scan_data[idx] = distance # Write the distances to the buffer
 
                     if time.time() - self._last_update_time >= self._swap_interval:
-                        self._scan_data = self._buffered_scan_data # Move the contents of the buffer to scan data
-                        self._buffered_scan_data = [0] * 360  # Reset the buffer
+                        self._scan_data[:] = self._buffered_scan_data # Move the contents of the buffer to scan data
+                        self._buffered_scan_data[:] = [0] * 360  # Reset the buffer
                         self._last_update_time = time.time()
             except RPLidarException as e:
                 # This is where 'line length mismatch' is caught
