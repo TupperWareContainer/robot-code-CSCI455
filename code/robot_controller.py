@@ -42,6 +42,16 @@ class RobotState(Enum):
     ACTION_EXEC = 4
     WALL_FOLLOW = 5
 
+class WallFollowState(Enum):
+    NONE = 0
+    ALIGN_LEFT = 1
+    ALIGN_RIGHT = 2
+    DRIVE_FORWARD = 3
+    STOP_MOTORS = 4
+    TURN_LEFT = 5
+    TURN_RIGHT = 6
+
+
 class RobotController:
     __scope : list[str]
     __actionQueue : deque[RobotAction]
@@ -103,6 +113,7 @@ class RobotController:
             
         if(len(alignment_data) / MIN_ALIGNMENT_MEASUREMENTS < ALIGNMENT_OK_PERCENT):
             print("RobotController::AlignWithLeftWall() Failed : Insufficient number of alignment measurements!")
+            self.turn(6000) # stop turning  
             return False
         deltas  = [] # delta angle, delta distance
         
@@ -126,10 +137,11 @@ class RobotController:
             pass
         else:           # aligned
             self.turn(6000)
-            print("aligned")
+            print("RobotController::AlignWithLeftWall() Succeeded : aligned")
+            return True
             pass
         
-        print("RobotController::AlignWithLeftWall() Succeeded")
+        print("RobotController::AlignWithLeftWall() Succeeded : not aligned")
 
         return False
 
@@ -312,24 +324,85 @@ class RobotController:
 
     def WallFollowTick(self):
         try:
-            while True:
-                self.__wallfollowstate = "ALIGN_LEFT"
-                ## update resulting state and then plug into this function
+            self.__wall_desired = "left"
+            self.__last_alignment = False
+            self.__last_alignment_state = WallFollowState.NONE
+            self.__wallfollowstate = WallFollowState.NONE
 
+            while True:
+                self.__last_alignment_state = self.__wallfollowstate
+
+                leftDist = self._lidar_controller.GetDistanceMM(self.__wallLeftAngle)
+                rightDist = self._lidar_controller.GetDistanceMM(self.__wallRightAngle)
+                
+                isLeftClose = (leftDist != 0) and (leftDist < STOP_DISTANCE)              
+                isRightClose = (rightDist != 0) and (rightDist < STOP_DISTANCE)   
+                
+                isLeftFar = (not isLeftClose) and (not leftDist == 0) and (leftDist > STOP_DISTANCE + BODY_SIZE)
+                isRightFar = (not isRightClose) and (not rightDist == 0) and (rightDist > STOP_DISTANCE + BODY_SIZE)
+ 
+                # case 1, front is blocked 
+                if(self.IsFrontBlocked()):
+                    self.__wallfollowstate = WallFollowState.ALIGN_LEFT
+                
+                # case 2, wall is too close
+                elif(self.__wall_desired == "left" and isLeftClose):
+                    self.__wallfollowstate = WallFollowState.TURN_RIGHT
+                elif(self.__wall_desired == "right" and isRightClose):
+                    self.__wallfollowstate = WallFollowState.TURN_LEFT
+                # case 3, wall is too far 
+                elif(self.__wall_desired == "left" and isLeftFar):
+                    self.__wallfollowstate = WallFollowState.TURN_LEFT
+                elif(self.__wall_desired == "right" and isRightFar):
+                    self.__wallfollowstate = WallFollowState.TURN_RIGHT
+                else:
+                    self.__wallfollowstate = WallFollowState.DRIVE_FORWARD
 
                 self.WallFollowStateMachine(self.__wallfollowstate)
-                time.sleep(1)
+                time.sleep(0.25)
         except KeyboardInterrupt:
             self.stop_drive()
-            self.AlignWithLeftWall()
             print("Stopping...")
+    
+
+
     def WallFollowStateMachine(self, wallFollowState):
-        if(wallFollowState == "ALIGN_LEFT"):
-            self.AlignWithLeftWall()
-        elif(wallFollowState == "ALIGN_RIGHT"):
-            self.AlignWithRightWall()
+        match wallFollowState:
+            case ALIGN_LEFT:
+                if(self.__last_alignment_state != wallFollowState):
+                    self.drive_wheels(6000)
+                self.__last_alignment = self.AlignWithLeftWall()
+                pass
+            case TURN_LEFT:
+
+                if(__last_alignment_state != wallFollowState):
+                    self.drive_wheels(6000)
+                self.steer_left()
+                pass
+            case TURN_RIGHT:
+
+                if(__last_alignment_state != wallFollowState):
+                    self.drive_wheels(6000)
+                self.steer_right()
+                pass
+            case DRIVE_FORWARD:
+                if(__last_alignment_state != wallFollowState):
+                    self.stop_steer()
+                self.drive(8000)
+        elif(wallFollowState == WallFollowState.ALIGN_RIGHT):
+            self.__last_alignment = self.AlignWithRightWall()
         else: # check if front or back is blocked and drive from there
-            return
+            pass
+
+
+    def steer_left(self):
+        self.turn(8000)
+    def steer_right(self):
+        self.turn(4000)
+   
+    def stop_steer(self):
+        self.turn(6000)
+
     def pan_head(self, rot : int):
         self.__robotInstance.pan_head(rot)
 
