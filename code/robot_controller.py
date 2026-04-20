@@ -317,7 +317,7 @@ class RobotController:
                 elif not self.AlignWithRightWall():  # Case 4
                     self.__robotInstance.turn_wheels(8000)  # Turn Right slowly
                 else:
-                    self.__robotInstance.drive_wheels(8000)  # Drive forward slowly
+                    self.__robotInstance.drive_wheels(5000)  # Drive forward slowly
 
                 time.sleep(2)
         except KeyboardInterrupt:
