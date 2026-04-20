@@ -371,7 +371,7 @@ class RobotController:
             case WallFollowState.ALIGN_LEFT:
                 print("aligning with left wall")
                 if(self.__last_alignment_state != wallFollowState):
-                    self.drive_wheels(6000)
+                    self.drive(6000)
                 self.__last_alignment = self.AlignWithLeftWall()
                 pass
             case WallFollowState.TURN_LEFT:
