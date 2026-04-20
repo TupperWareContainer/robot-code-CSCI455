@@ -352,6 +352,7 @@ class RobotController:
                     self.__wallfollowstate = WallFollowState.TURN_LEFT
                 # case 3, wall is too far 
                 elif(self.__wall_desired == "left" and isLeftFar):
+
                     self.__wallfollowstate = WallFollowState.TURN_LEFT
                 elif(self.__wall_desired == "right" and isRightFar):
                     self.__wallfollowstate = WallFollowState.TURN_RIGHT
