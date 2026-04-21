@@ -194,13 +194,16 @@
           if (element) element.textContent = message
         }
 
-        //function setSpeechButtonState() {
-        //  speechListening = listening;
-        //  const startBtn = document.getElementById("speechStartBtn");
-        //  const stopBtn = document.getElementById("speechStopBtn");
-        //  if (startBtn) startBtn.disabled = listening;
-        //  if (stopBtn) stopBtn.disabled = listening;
-        //}
+        function updateSpeechButtonState() {
+          const startBtn = document.getElementById("speechStartBtn");
+          const stopBtn = document.getElementById("speechStopBtn");
+          if (startBtn) {
+            startBtn.disable = true;
+          }
+          if (stopBtn) {
+            startBtn.disable = false;
+          }
+        }
 
         function initSpeechRecognition() {
           if (speechRecognition) return speechRecognition;
@@ -218,6 +221,7 @@
           rec.maxAlternatives = 1;
 
           rec.onstart = () => {
+            updateSpeechButtonState()
             setSpeechStatus("Listening...")
           }
 
