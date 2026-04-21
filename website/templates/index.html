@@ -194,31 +194,30 @@
           if (element) element.textContent = message
         }
 
-        function setSpeechButtonState() {
-          isListening = listening;
-          const startBtn = document.getElementById("speechStartBtn");
-          const stopBtn = document.getElementById("speechStopBtn");
-          if (startBtn) startBtn.disabled = listening;
-          if (stopBtn) stopBtn.disabled = listening;
-        }
+        //function setSpeechButtonState() {
+        //  speechListening = listening;
+        //  const startBtn = document.getElementById("speechStartBtn");
+        //  const stopBtn = document.getElementById("speechStopBtn");
+        //  if (startBtn) startBtn.disabled = listening;
+        //  if (stopBtn) stopBtn.disabled = listening;
+        //}
 
         function initSpeechRecognition() {
           if (speechRecognition) return speechRecognition;
 
-          const recognitionCtor = getSpeechRecognitionCtor();
-          if (!recognitionCtor) {
+          const RecognitionCtor = getSpeechRecognitionCtor();
+          if (!RecognitionCtor) {
             setSpeechStatus("Speech recognition is not supported in your browser. Try Chrome or Edge.");
             return null;
           }
 
-          const rec = new recognitionCtor();
+          const rec = new RecognitionCtor();
           rec.lang = "en-US";
           rec.continuous = false;
           rec.interimResults = true;
           rec.maxAlternatives = 1;
 
           rec.onstart = () => {
-            setSpeechButtonState(true);
             setSpeechStatus("Listening...")
           }
 
@@ -235,10 +234,13 @@
               } else {
                 interimTranscript += transcript;
               }
+              console.log(result)
             }
 
             setSpeechStatus(finalTranscript || interimTranscript)
-          }
+        }
+
+          return rec;
         }
 
         const sendRotationData = (rot, endpoint) => {
@@ -409,7 +411,6 @@
         }
 
         setInterval(sendPing, 1000)
-        initSpeechRecognition()
 
         // Event Listeners for Mouse and Touch
         window.addEventListener('mousedown', handleStart);
@@ -456,6 +457,29 @@
             ask.value = ''
           }
         })
+
+        const recognition = initSpeechRecognition();
+
+        if (recognition) {
+            const startBtn = document.getElementById("speechStartBtn");
+            const stopBtn = document.getElementById("speechStopBtn")
+
+            startBtn.addEventListener('click', () => {
+                try {
+                    recognition.start();
+                } catch (e) {
+                    console.log("Recognition already started or error:", e);
+                }
+            })
+
+            stopBtn.addEventListener('click', () => {
+                try {
+                    recognition.stop();
+                } catch (e) {
+                    console.log("Recognition already stopped or error.", e)
+                }
+            })
+        }
     </script>
 </body>
 </html>
