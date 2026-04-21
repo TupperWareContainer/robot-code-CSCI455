@@ -175,9 +175,12 @@
 
     <!-- Column 4: Audio Recorder Buttons -->
     <div class="control-group button-col">
+      <div>Ask the robot anything</div>
       <button id="speechStartBtn">Start Recording</button>
       <button id="speechStopBtn">Stop Recording</button>
+      <button id="speechSendBtn">Send Recording</button>
       <div id="speechStatus"></div>
+      <div id="message"></div>
     </div>
 
     <script>
@@ -197,6 +200,10 @@
         const maxDistance = 60; // How far the stick can move from center
         let speechRecognition = null;
         let isListening = false;
+        const startBtn = document.getElementById("speechStartBtn");
+        const stopBtn = document.getElementById("speechStopBtn");
+        const sendBtn = document.getElementById("speechSendBtn");
+        let message = ""
 
         function getSpeechRecognitionCtor() {
           return window.SpeechRecognition || window.webkitSpeechRecognition || null;
@@ -207,15 +214,9 @@
           if (element) element.textContent = message
         }
 
-        function updateSpeechButtonState() {
-          const startBtn = document.getElementById("speechStartBtn");
-          const stopBtn = document.getElementById("speechStopBtn");
-          if (startBtn) {
-            startBtn.disable = true;
-          }
-          if (stopBtn) {
-            startBtn.disable = false;
-          }
+        function setSpeechMsg(message) {
+          const element = document.getElementById("message");
+          if (element) element.textContent = message
         }
 
         function initSpeechRecognition() {
@@ -229,13 +230,16 @@
 
           const rec = new RecognitionCtor();
           rec.lang = "en-US";
-          rec.continuous = false;
+          rec.continuous = true;
           rec.interimResults = true;
           rec.maxAlternatives = 1;
 
           rec.onstart = () => {
-            updateSpeechButtonState()
             setSpeechStatus("Listening...")
+          }
+
+          rec.onend = () => {
+            setSpeechStatus("Stopped...")
           }
 
           rec.onresult = (event) => {
@@ -254,9 +258,11 @@
               console.log(result)
             }
 
-            setSpeechStatus(finalTranscript || interimTranscript)
-        }
+            console.log(interimTranscript)
 
+            setSpeechMsg(finalTranscript || interimTranscript)
+            message = finalTranscript
+        }
           return rec;
         }
 
@@ -478,12 +484,10 @@
         const recognition = initSpeechRecognition();
 
         if (recognition) {
-            const startBtn = document.getElementById("speechStartBtn");
-            const stopBtn = document.getElementById("speechStopBtn")
-
             startBtn.addEventListener('click', () => {
                 try {
                     recognition.start();
+                    startBtn.disabled = true;
                 } catch (e) {
                     console.log("Recognition already started or error:", e);
                 }
@@ -492,9 +496,20 @@
             stopBtn.addEventListener('click', () => {
                 try {
                     recognition.stop();
+                    startBtn.disabled = false;
                 } catch (e) {
                     console.log("Recognition already stopped or error.", e)
                 }
+            })
+
+            sendBtn.addEventListener('click', () => {
+              if (message !== "") {
+                console.log("Sending " + message)
+                sendQuestion(message);
+                setSpeechStatus("Sending...")
+              } else {
+                setSpeechStatus("No message to send...")
+              }
             })
         }
     </script>
