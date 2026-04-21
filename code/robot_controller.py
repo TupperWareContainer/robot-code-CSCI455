@@ -331,10 +331,12 @@ class RobotController:
 
             while True:
                 self.__last_alignment_state = self.__wallfollowstate
-
+  
                 leftDist = self._lidar_controller.GetDistanceMM(self.__wallLeftAngle)
+
                 rightDist = self._lidar_controller.GetDistanceMM(self.__wallRightAngle)
                 
+                print("Left Dist: " + str(leftDist) + "\nRight Dist: " + str(rightDist)) 
                 isLeftClose = (leftDist != 0) and (leftDist < STOP_DISTANCE)              
                 isRightClose = (rightDist != 0) and (rightDist < STOP_DISTANCE)   
                 
@@ -356,6 +358,7 @@ class RobotController:
                     self.__wallfollowstate = WallFollowState.TURN_LEFT
                 elif(self.__wall_desired == "right" and isRightFar):
                     self.__wallfollowstate = WallFollowState.TURN_RIGHT
+                
                 else:
                     self.__wallfollowstate = WallFollowState.DRIVE_FORWARD
 
@@ -388,7 +391,10 @@ class RobotController:
                 if(self.__last_alignment_state != wallFollowState):
                     self.stop_steer()
                 self.drive(4000)
-            case _: 
+                pass
+            case _:
+                self.drive(6000)
+                self.turn(6000)
                 pass
 
     def steer_left(self):
