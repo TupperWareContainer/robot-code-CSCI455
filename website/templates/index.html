@@ -160,6 +160,13 @@
       <input type="text" id="ask" name="ask">
     </div>
 
+    <!-- Column 4: Audio Recorder Buttons -->
+    <div class="control-group button-col">
+      <button id="speechStartBtn">Start Recording</button>
+      <button id="speechStopBtn">Stop Recording</button>
+      <div id="speechStatus"></div>
+    </div>
+
     <script>
         const container = document.getElementById('joy-container');
         const stick = document.getElementById('joystick');
@@ -175,6 +182,62 @@
         let dragStart = null;
         let stickPos = { x: 0, y: 0 };
         const maxDistance = 60; // How far the stick can move from center
+        let speechRecognition = null;
+        let isListening = false;
+
+        function getSpeechRecognitionCtor() {
+          return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+        }
+
+        function setSpeechStatus(message) {
+          const element = document.getElementById("speechStatus");
+          if (element) element.textContent = message
+        }
+
+        function setSpeechButtonState() {
+          isListening = listening;
+          const startBtn = document.getElementById("speechStartBtn");
+          const stopBtn = document.getElementById("speechStopBtn");
+          if (startBtn) startBtn.disabled = listening;
+          if (stopBtn) stopBtn.disabled = listening;
+        }
+
+        function initSpeechRecognition() {
+          if (speechRecognition) return speechRecognition;
+
+          const recognitionCtor = getSpeechRecognitionCtor();
+          if (!recognitionCtor) {
+            setSpeechStatus("Speech recognition is not supported in your browser. Try Chrome or Edge.");
+            return null;
+          }
+
+          const rec = new recognitionCtor();
+          rec.lang = "en-US";
+          rec.continuous = false;
+          rec.interimResults = true;
+          rec.maxAlternatives = 1;
+
+          rec.onstart = () => {
+            setSpeechButtonState(true);
+            setSpeechStatus("Listening...")
+          }
+
+          rec.onresult = (event) => {
+            let finalTranscript = "";
+            let interimTranscript = "";
+
+            for (let i = event.resultIndex; i < event.results.length; i += 1) {
+              const result = event.results[i];
+              const transcript = result[0].transcript.trim();
+
+              if (result.isFinal) {
+                finalTranscript += transcript;
+              } else {
+                interimTranscript += transcript;
+              }
+            }
+          }
+        }
 
         const sendRotationData = (rot, endpoint) => {
             const rot_data = {
@@ -344,6 +407,7 @@
         }
 
         setInterval(sendPing, 1000)
+        initSpeechRecognition()
 
         // Event Listeners for Mouse and Touch
         window.addEventListener('mousedown', handleStart);
