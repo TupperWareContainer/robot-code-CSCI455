@@ -111,32 +111,11 @@ class RobotController:
             result = (dA, dB, a,b,angle, delta_distance)
             alignment_data.append(result)
             
-        while(len(alignment_data) / MIN_ALIGNMENT_MEASUREMENTS < ALIGNMENT_OK_PERCENT):
+        if(len(alignment_data) / MIN_ALIGNMENT_MEASUREMENTS < ALIGNMENT_OK_PERCENT):
             print("RobotController::AlignWithLeftWall() Failed : Insufficient number of alignment measurements!")
             self.stop_drive() # stop turning and driving
-            alignment_data.clear()
-            time.sleep(0.5)
-
-            # Try to align again after we wait 0.5 seconds
-            for i in range(0, NUM_ALIGNMENT_MEASUREMENTS_PER_SIDE):
-                angle = (i + 1) * ALIGNMENT_ANGLE_INCREMENT
-                a = self.__wallLeftAngle + angle
-                b = self.__wallLeftAngle - angle
-
-                if (a > 360):
-                    a = a - 360
-                if (b < 0):
-                    b = 360 + b
-
-                dA = self._lidar_controller.GetDistanceMM(a)
-                dB = self._lidar_controller.GetDistanceMM(b)
-
-                if (dA == 0.0 or dB == 0.0):
-                    continue
-                delta_distance = abs(dA) - abs(
-                    dB)  ## positive delta = needs to rotate CCW, negative delta = needs to rotate CW
-                result = (dA, dB, a, b, angle, delta_distance)
-                alignment_data.append(result)
+            time.sleep(1)
+            return False
 
         deltas  = [] # delta angle, delta distance
         
