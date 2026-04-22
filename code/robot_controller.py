@@ -114,6 +114,7 @@ class RobotController:
         while(len(alignment_data) / MIN_ALIGNMENT_MEASUREMENTS < ALIGNMENT_OK_PERCENT):
             print("RobotController::AlignWithLeftWall() Failed : Insufficient number of alignment measurements!")
             self.stop_drive() # stop turning and driving
+            alignment_data.clear()
             time.sleep(0.5)
 
             # Try to align again after we wait 0.5 seconds
