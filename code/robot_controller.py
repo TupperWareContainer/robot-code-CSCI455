@@ -341,10 +341,18 @@ class RobotController:
                 isLeftClose = (leftDist != 0) and (leftDist < STOP_DISTANCE)              
                 isRightClose = (rightDist != 0) and (rightDist < STOP_DISTANCE)   
                 
-                isLeftFar = (not isLeftClose) and (not leftDist == 0) and (leftDist > STOP_DISTANCE + BODY_SIZE)
-                isRightFar = (not isRightClose) and (not rightDist == 0) and (rightDist > STOP_DISTANCE + BODY_SIZE)
+                isLeftFar = (not isLeftClose) and (not leftDist == 0) 
+                isRightFar = (not isRightClose) and (not rightDist == 0) 
 
-
+                print("Left Dist: " + str(leftDist) + "\nRight Dist: " + str(rightDist))
+                if(isLeftClose):
+                    print("Left is Close")
+                if(isLeftFar): 
+                    print("Left is Far")
+                if(isRightClose):
+                    print("Right is Close")
+                if(isRightFar):
+                    print("Right is Far")
  
                 # case 1, front is blocked 
                 if(self.IsFrontBlocked() or ((self.__last_alignment_state == WallFollowState.ALIGN_LEFT) and self.__last_alignment == False)):
