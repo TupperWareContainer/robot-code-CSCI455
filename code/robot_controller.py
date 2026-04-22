@@ -363,8 +363,9 @@ class RobotController:
                 self.WallFollowStateMachine(self.__wallfollowstate)
                 time.sleep(0.25)
         except KeyboardInterrupt:
-            self.stop_drive()
             print("Stopping...")
+        finally:
+            self.stop_drive()
     
 
 
