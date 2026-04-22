@@ -23,7 +23,7 @@ class LidarController:
         self.__scan_thread = Thread(target = self.StartScan)
         self.__scan_thread.start()
         self._last_update_time = time.time()
-        self._swap_interval = 1 # How often we swap the old data with the new data.
+        self._swap_interval = 3 # How often we swap the old data with the new data.
                                 # If this is 1. Then we are currently reading 1 second of data from the lidar.
 
     def StartScan(self):

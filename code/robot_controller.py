@@ -114,7 +114,7 @@ class RobotController:
         if(len(alignment_data) / MIN_ALIGNMENT_MEASUREMENTS < ALIGNMENT_OK_PERCENT):
             print("RobotController::AlignWithLeftWall() Failed : Insufficient number of alignment measurements!")
             self.stop_drive() # stop turning and driving
-            time.sleep(1)
+            time.sleep(0.5)
             return False
 
         deltas  = [] # delta angle, delta distance
@@ -330,7 +330,7 @@ class RobotController:
             self.__last_alignment = False
             self.__last_alignment_state = WallFollowState.NONE
             self.__wallfollowstate = WallFollowState.NONE
-            time.sleep(1.5) # Wait for the lidar to populate the data before we start!
+            time.sleep(4) # Wait for the lidar to populate the data before we start!
 
             while True:
                 self.__last_alignment_state = self.__wallfollowstate
