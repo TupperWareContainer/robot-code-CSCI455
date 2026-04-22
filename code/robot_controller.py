@@ -112,9 +112,9 @@ class RobotController:
             alignment_data.append(result)
             
         while(len(alignment_data) / MIN_ALIGNMENT_MEASUREMENTS < ALIGNMENT_OK_PERCENT):
-            #print("RobotController::AlignWithLeftWall() Failed : Insufficient number of alignment measurements!")
+            print("RobotController::AlignWithLeftWall() Failed : Insufficient number of alignment measurements!")
             self.stop_drive() # stop turning and driving
-            time.sleep(1)
+            time.sleep(0.5)
         deltas  = [] # delta angle, delta distance
         
         total = 0.0
