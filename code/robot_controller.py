@@ -113,7 +113,8 @@ class RobotController:
             
         if(len(alignment_data) / MIN_ALIGNMENT_MEASUREMENTS < ALIGNMENT_OK_PERCENT):
             print("RobotController::AlignWithLeftWall() Failed : Insufficient number of alignment measurements!")
-            self.turn(6000) # stop turning  
+            self.turn(6000) # stop turning
+            self.drive(6000)
             return False
         deltas  = [] # delta angle, delta distance
         
@@ -341,6 +342,8 @@ class RobotController:
                 
                 isLeftFar = (not isLeftClose) and (not leftDist == 0) and (leftDist > STOP_DISTANCE + BODY_SIZE)
                 isRightFar = (not isRightClose) and (not rightDist == 0) and (rightDist > STOP_DISTANCE + BODY_SIZE)
+
+
  
                 # case 1, front is blocked 
                 if(self.IsFrontBlocked()):
