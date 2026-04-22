@@ -118,6 +118,14 @@
         button:active {
             background: #222;
         }
+
+        .selected {
+            background-color: red;
+        }
+
+        .selected:hover {
+            background-color: darkred;
+        }
     </style>
 </head>
 <body>
@@ -160,6 +168,10 @@
       <input type="text" id="ask" name="ask">
     </div>
 
+    <div class="control-group">
+        <button id="wall-follow">Start Wall Follow</button>
+    </div>
+
     <script>
         const container = document.getElementById('joy-container');
         const stick = document.getElementById('joystick');
@@ -171,6 +183,7 @@
         const say3 = document.getElementById('say3');
         const say4 = document.getElementById('say4');
         const ask = document.getElementById('ask')
+        const wallFollow = document.getElementById('wall-follow')
         let isMouseInside = false;
         let dragStart = null;
         let stickPos = { x: 0, y: 0 };
@@ -389,6 +402,16 @@
             sendQuestion(inputValue)
             ask.value = ''
           }
+        })
+
+        wallFollow.addEventListener('click', function () {
+            if (!wallFollow.classList.contains("selected")) {
+                wallFollow.textContent = "Stop Wall Follow"
+                wallFollow.classList.add("selected")
+            } else {
+                wallFollow.textContent = "Start Wall Follow"
+                wallFollow.classList.remove("selected")
+            }
         })
     </script>
 </body>
