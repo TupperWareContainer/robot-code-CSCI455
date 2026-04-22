@@ -347,7 +347,7 @@ class RobotController:
 
  
                 # case 1, front is blocked 
-                if(self.IsFrontBlocked()):
+                if(self.IsFrontBlocked() or ((self.__last_alignment_state == WallFollowState.ALIGN_LEFT) and self.__last_alignment == False)):
                     self.__wallfollowstate = WallFollowState.ALIGN_LEFT
                 
                 # case 2, wall is too close
