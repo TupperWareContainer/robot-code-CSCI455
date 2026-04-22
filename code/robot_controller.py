@@ -328,6 +328,7 @@ class RobotController:
             self.__last_alignment = False
             self.__last_alignment_state = WallFollowState.NONE
             self.__wallfollowstate = WallFollowState.NONE
+            time.sleep(1) # Wait for the data to build up before we start
 
             while True:
                 self.__last_alignment_state = self.__wallfollowstate
