@@ -201,4 +201,9 @@ atexit.register(exit_handler)
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("Stopping...")
+    finally:
+        robot_controller.stop_drive()
