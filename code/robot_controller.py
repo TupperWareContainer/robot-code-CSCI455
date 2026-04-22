@@ -366,6 +366,7 @@ class RobotController:
             print("Stopping...")
         finally:
             self.stop_drive()
+            print("Stopping...")
     
 
 
