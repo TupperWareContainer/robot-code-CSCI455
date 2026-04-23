@@ -22,9 +22,6 @@ class LidarController:
         self._buffered_scan_data = [0] * 360
         self.__scan_thread = Thread(target = self.StartScan)
         self.__scan_thread.start()
-        self._last_update_time = time.time()
-        self._swap_interval = 0.125 # How often we swap the old data with the new data.
-                                # If this is 1. Then we are currently reading 1 second of data from the lidar.
 
     def StartScan(self):
         try:
@@ -43,6 +40,8 @@ class LidarController:
                 for (new_scan, quality, angle, distance) in self.__lidar.iter_measurments(max_buf_meas=1000):
                     if new_scan:
                         started = True
+                        self._scan_data[:] = self._buffered_scan_data  # Move the contents of the buffer to scan data
+                        self._buffered_scan_data[:] = [0] * 360  # Reset the buffer
 
                     if not started:
                         # Skip the first partial lidar spin. This ensures that we only keep full spins!
@@ -53,11 +52,6 @@ class LidarController:
 
                     idx = min([359, floor(angle)])
                     self._buffered_scan_data[idx] = distance # Write the distances to the buffer
-
-                    if time.time() - self._last_update_time >= self._swap_interval:
-                        self._scan_data[:] = self._buffered_scan_data # Move the contents of the buffer to scan data
-                        self._buffered_scan_data[:] = [0] * 360  # Reset the buffer
-                        self._last_update_time = time.time()
             except RPLidarException as e:
                 # This is where 'line length mismatch' is caught
                 print(f"Lidar Hardware Error: {e}. Reconnecting...")
