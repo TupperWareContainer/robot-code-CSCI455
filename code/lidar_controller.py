@@ -41,7 +41,7 @@ class LidarController:
                         continue
 
                     if distance == 0.0:
-                        continue
+                        distance = 5000
 
                     idx = min([359, floor(angle)])
                     self._buffered_scan_data[idx] = distance # Write the distances to the buffer
