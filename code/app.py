@@ -151,6 +151,20 @@ def ask():
     return jsonify({"error": "Request must be JSON"}), 400
 
 
+@app.post('/wall_follow')
+def wall_follow():
+    if request.is_json:
+        data = request.get_json()
+        do_wall_follow = data.get('state')
+        robot_controller.set_do_wall_follow(do_wall_follow)
+
+        if do_wall_follow:
+            wall_follow_thread = Thread(target=robot_controller.WallFollowTick)
+            wall_follow_thread.start()
+
+        return jsonify({"response": f"Received: {data.get('state', 'no state')}"}), 200
+    return jsonify({"error": "Request must be JSON"}), 400
+
 @app.get("/ping")
 def fping():
     global ping
@@ -186,9 +200,6 @@ def main():
     thread.start()
 
     robot_controller.stop_drive()
-
-    wall_follow_thread = Thread(target=robot_controller.WallFollowTick)
-    wall_follow_thread.start()
 
     app.config["SERVER_NAME"] = server_name
     app.run(host=server_name, port=5002, debug=True, use_reloader=False)

@@ -82,6 +82,7 @@ class RobotController:
         self._is_rear_blocked = False
         self.__wallLeftAngle = wall_left_angle
         self.__wallRightAngle = wall_right_angle
+        self._do_wall_follow = False
         
         self._lidar_controller = LidarController(LIDAR_PORT, timeout=3, max_distance=0)
 
@@ -324,6 +325,9 @@ class RobotController:
         self.__robotInstance.turn_wheels(6000)
         self.__robotInstance.drive_wheels(6000)
 
+    def set_do_wall_follow(self, do_wall_follow):
+        self._do_wall_follow = do_wall_follow
+
     def WallFollowTick(self):
         try:
             self.__wall_desired = "left"
@@ -332,7 +336,7 @@ class RobotController:
             self.__wallfollowstate = WallFollowState.NONE
             time.sleep(4) # Wait for the lidar to populate the data before we start!
 
-            while True:
+            while self._do_wall_follow:
                 self.__last_alignment_state = self.__wallfollowstate
 
                 leftDist = self._lidar_controller.GetDistanceMM(self.__wallLeftAngle)
@@ -374,6 +378,7 @@ class RobotController:
 
                 self.WallFollowStateMachine(self.__wallfollowstate)
                 time.sleep(0.25)
+            self.stop_drive()
         except KeyboardInterrupt:
             print("Stopping...")
         finally:
