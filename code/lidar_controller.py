@@ -24,14 +24,7 @@ class LidarController:
         self.__scan_thread.start()
 
     def StartScan(self):
-        try:
-            print("Cleaning up Lidar state")
-            self.__lidar.stop() 
-            self.__lidar.disconnect()
-            self.__lidar.connect()
-            self.__lidar.clear_input()
-        except Exception as e:
-            print(f"Unexpected Error: {e}")
+        self.RebootLidar()
         started = False
 
         while not self.__stopScan:
