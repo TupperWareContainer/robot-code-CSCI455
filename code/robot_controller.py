@@ -432,9 +432,9 @@ class RobotController:
                 pass
 
     def steer_left(self):
-        self.turn(8000)
-    def steer_right(self):
         self.turn(4000)
+    def steer_right(self):
+        self.turn(8000)
    
     def stop_steer(self):
         self.turn(6000)
