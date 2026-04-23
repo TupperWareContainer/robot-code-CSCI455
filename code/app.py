@@ -195,9 +195,9 @@ def speak_messages():
 def main():
     ping = False
     safetythread = RepeatingTimer(timeout, safety_check)
-    thread = threading.Thread(target=speak_messages)
+   # thread = threading.Thread(target=speak_messages)
     safetythread.start()
-    thread.start()
+   # thread.start()
 
     robot_controller.stop_drive()
 
