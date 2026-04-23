@@ -35,7 +35,6 @@ class LidarController:
         started = False
 
         while not self.__stopScan:
-            self.__connect()
             try:
                 # iter_scans is a blocking generator
                 for (new_scan, quality, angle, distance) in self.__lidar.iter_measurments(max_buf_meas=1000):
