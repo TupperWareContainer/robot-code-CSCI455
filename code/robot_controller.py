@@ -339,6 +339,8 @@ class RobotController:
             time.sleep(4) # Wait for the lidar to populate the data before we start!
 
             while self._do_wall_follow:
+                print("Following Wall")
+
                 self.__last_alignment_state = self.__wallfollowstate
 
                 leftDist = self._lidar_controller.GetDistanceMM(self.__wallLeftAngle)
