@@ -36,6 +36,7 @@ class LidarController:
                         self._scan_data[:] = self._buffered_scan_data  # Move the contents of the buffer to scan data
                         self._buffered_scan_data[:] = [0] * 360  # Reset the buffer
                         print("Moved data")
+                        print(self._scan_data)
 
                     if not started:
                         # Skip the first partial lidar spin. This ensures that we only keep full spins!
