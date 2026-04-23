@@ -14,10 +14,13 @@ class WheelController:
     def drive(self, speed, chan):
         # 1200 min 1800 max
         # Scale the offset from neutral to 75%
-        offset = speed - WheelController.NEUTRAL
+        if speed != WheelController.NEUTRAL:
+            offset = speed - WheelController.NEUTRAL
 
-        limited = WheelController.NEUTRAL + int(offset * 0.45)
-        limited = max(4000, min(8000, limited))
+            limited = WheelController.NEUTRAL + int(offset * 0.45)
+            limited = max(4000, min(8000, limited))
+        else:
+            limited = WheelController.NEUTRAL # If we are trying to stop we don't need to limit it.
 
         print("driving " + str(limited) + " to channel " + str(chan) )
         self.controller.setRange(chan, 0, 0)

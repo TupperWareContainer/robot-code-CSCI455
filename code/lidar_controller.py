@@ -23,7 +23,8 @@ class LidarController:
         self.__scan_thread = Thread(target = self.StartScan)
         self.__scan_thread.start()
         self._last_update_time = time.time()
-        self._swap_interval = 0.25
+        self._swap_interval = 3 # How often we swap the old data with the new data.
+                                # If this is 1. Then we are currently reading 1 second of data from the lidar.
 
     def StartScan(self):
         try:
@@ -35,7 +36,6 @@ class LidarController:
         except Exception as e:
             print(f"Unexpected Error: {e}")
         started = False
-        scan_count = 0
 
         while not self.__stopScan:
             try:
@@ -44,15 +44,12 @@ class LidarController:
                     if new_scan:
                         started = True
 
-                        scan_count += 1
-
-                        if scan_count % 5 == 0:
-                            #self.__lidar.clear_input()  # Clears the input buffer after every 3 spins
-                            scan_count = 0
-
                     if not started:
                         # Skip the first partial lidar spin. This ensures that we only keep full spins!
                         continue
+
+                    if distance == 0.0:
+                        distance = 5000
 
                     idx = min([359, floor(angle)])
                     self._buffered_scan_data[idx] = distance # Write the distances to the buffer
