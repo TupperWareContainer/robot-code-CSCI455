@@ -35,6 +35,7 @@ class LidarController:
         started = False
 
         while not self.__stopScan:
+            self.__connect()
             try:
                 # iter_scans is a blocking generator
                 for (new_scan, quality, angle, distance) in self.__lidar.iter_measurments(max_buf_meas=1000):
@@ -43,14 +44,12 @@ class LidarController:
                         self._scan_data[:] = self._buffered_scan_data  # Move the contents of the buffer to scan data
                         self._buffered_scan_data[:] = [0] * 360  # Reset the buffer
 
-                    print(distance)
-
                     if not started:
                         # Skip the first partial lidar spin. This ensures that we only keep full spins!
                         continue
 
                     if distance == 0.0:
-                        distance = 5000
+                        continue
 
                     idx = min([359, floor(angle)])
                     self._buffered_scan_data[idx] = distance # Write the distances to the buffer
