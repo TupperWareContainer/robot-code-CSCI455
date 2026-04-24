@@ -358,11 +358,13 @@ class RobotController:
                 isLeftFar = (not isLeftClose) and (not leftDist == -1)
                 isRightFar = (not isRightClose) and (not rightDist == -1)
 
+                # If the non-desired side has no data, treat as far away
                 if leftDist == -1:
-                    isLeftFar = True
-
+                    isLeftClose = False
+                    isLeftFar = False  # unknown, don't react to it
                 if rightDist == -1:
-                    isRightFar = True
+                    isRightClose = False
+                    isRightFar = False
 
                 print("Left Dist: " + str(leftDist) + "\nRight Dist: " + str(rightDist))
                 if(isLeftClose):
