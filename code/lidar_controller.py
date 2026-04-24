@@ -50,9 +50,6 @@ class LidarController:
                         # Skip the first partial lidar spin. This ensures that we only keep full spins!
                         continue
 
-                    if distance == 0.0:
-                        continue
-
                     idx = min([359, floor(angle)])
                     self._buffered_scan_data[idx] = distance # Write the distances to the buffer
             except RPLidarException as e:
