@@ -25,6 +25,7 @@ robot_controller = RobotController(Robot("./testDialogFileForPractice.txt"), 270
 timeout = 5
 
 ping = False
+start_wall_follow = False
 
 @app.post('/pan_head')
 def pan_head():
@@ -46,7 +47,6 @@ def tilt_head():
 
         return jsonify({"response": f"Received: {data.get('rot', 'no message')}"}), 200
     return jsonify({"error": "Request must be JSON"}), 400
-
 
 
 @app.post('/rotate_waist')
@@ -128,6 +128,8 @@ def speak():
 
 @app.post('/ask')
 def ask():
+    global start_wall_follow
+
     if request.is_json:
         data = request.get_json()
         question : str = data.get('question')
@@ -138,11 +140,25 @@ def ask():
         if question in ["stop", "cancel", "reset", "quit"]:
             robot_controller.reset_robot_dialog_and_state()
 
+        # Detect destination from speech
+        if any(word in question_words for word in ["bathroom", "restroom"]):
+            robot_controller.set_destination("bathroom")
+        elif any(word in question_words for word in ["lab", "robot"]):
+            robot_controller.set_destination("lab")
+
         # Get the question and resolve the response and add that to the message queue
         actions, response = robot_controller.get_dialog_response(question_words)
+
         print(actions)
         print(response)
         message_queue.put(response)
+
+        # Strip punctuation and make it lowercase so that it matches!
+        translator = str.maketrans('', '', ".,?!'")
+        response = response.translate(translator).lower()
+
+        if response == "follow me":
+            start_wall_follow = True
 
         if actions:
             robot_controller.queue_actions(actions)
@@ -192,6 +208,13 @@ def speak_messages():
             message = message_queue.get()
             robot_controller.speak_message(message)
 
+def listen_for_destination():
+    while not start_wall_follow:
+        if robot_controller.IsFrontBlocked() and start_wall_follow:
+            wall_follow_thread = Thread(target=robot_controller.WallFollowTick)
+            wall_follow_thread.start()
+        time.sleep(1)
+
 def main():
     ping = False
     safetythread = RepeatingTimer(timeout, safety_check)
@@ -201,8 +224,8 @@ def main():
 
     robot_controller.stop_drive()
 
-    wall_follow_thread = Thread(target=robot_controller.WallFollowTick)
-    wall_follow_thread.start()
+    destination_listen_thread = threading.Thread(target=listen_for_destination)
+    destination_listen_thread.start()
 
     app.config["SERVER_NAME"] = server_name
     app.run(host=server_name, port=5002, debug=True, use_reloader=False)

@@ -54,6 +54,7 @@ class WallFollowState(Enum):
     STOP_MOTORS = 4
     TURN_LEFT = 5
     TURN_RIGHT = 6
+    AT_INTERSECTION = 7
 
 
 class RobotController:
@@ -89,6 +90,7 @@ class RobotController:
         self.__wallLeftAngle = wall_left_angle
         self.__wallRightAngle = wall_right_angle
         self._do_wall_follow = True
+        self._destination = ""
         
         self._lidar_controller = LidarController(LIDAR_PORT, timeout=3, max_distance=0)
 
@@ -405,6 +407,9 @@ class RobotController:
 
     def set_do_wall_follow(self, do_wall_follow):
         self._do_wall_follow = do_wall_follow
+
+    def set_destination(self, destination):
+        self._destination = destination
 
     def WallFollowTick(self):
         try:
