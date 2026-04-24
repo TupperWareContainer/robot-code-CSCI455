@@ -171,6 +171,7 @@ class RobotController:
         self.__isSafetyTimerActive = True
         while(True):
             if(not self.__safeTimeSet or not self.__isPerformingAction):
+                time.sleep(0.1)
                 continue
             elif(time.time() - self.__lastSafetyTime >= self.__maxSafetyTime):
                 self.__robotInstance.StopAllChannels()
