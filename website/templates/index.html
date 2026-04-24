@@ -125,6 +125,17 @@
 
         .selected:hover {
             background-color: darkred;
+        button:disabled {
+          background: #222;
+          color: #666;
+          cursor: not-allowed;
+          opacity: 0.6;
+          transform: none;
+        }
+
+        button:disabled:hover {
+          background: #222;
+          transform: none;
         }
     </style>
 </head>
@@ -170,6 +181,14 @@
 
     <div class="control-group">
         <button id="wall-follow">Start Wall Follow</button>
+    <!-- Column 4: Audio Recorder Buttons -->
+    <div class="control-group button-col">
+      <div>Ask the robot anything</div>
+      <button id="speechStartBtn">Start Recording</button>
+      <button id="speechStopBtn">Stop Recording</button>
+      <button id="speechSendBtn">Send Recording</button>
+      <div id="speechStatus"></div>
+      <div id="message"></div>
     </div>
 
     <script>
@@ -188,6 +207,73 @@
         let dragStart = null;
         let stickPos = { x: 0, y: 0 };
         const maxDistance = 60; // How far the stick can move from center
+        let speechRecognition = null;
+        let isListening = false;
+        const startBtn = document.getElementById("speechStartBtn");
+        const stopBtn = document.getElementById("speechStopBtn");
+        const sendBtn = document.getElementById("speechSendBtn");
+        let message = ""
+
+        function getSpeechRecognitionCtor() {
+          return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+        }
+
+        function setSpeechStatus(message) {
+          const element = document.getElementById("speechStatus");
+          if (element) element.textContent = message
+        }
+
+        function setSpeechMsg(message) {
+          const element = document.getElementById("message");
+          if (element) element.textContent = message
+        }
+
+        function initSpeechRecognition() {
+          if (speechRecognition) return speechRecognition;
+
+          const RecognitionCtor = getSpeechRecognitionCtor();
+          if (!RecognitionCtor) {
+            setSpeechStatus("Speech recognition is not supported in your browser. Try Chrome, Edge or Opera.");
+            return null;
+          }
+
+          const rec = new RecognitionCtor();
+          rec.lang = "en-US";
+          rec.continuous = true;
+          rec.interimResults = true;
+          rec.maxAlternatives = 1;
+
+          rec.onstart = () => {
+            setSpeechStatus("Listening...")
+          }
+
+          rec.onend = () => {
+            setSpeechStatus("Stopped...")
+          }
+
+          rec.onresult = (event) => {
+            let finalTranscript = "";
+            let interimTranscript = "";
+
+            for (let i = event.resultIndex; i < event.results.length; i += 1) {
+              const result = event.results[i];
+              const transcript = result[0].transcript.trim();
+
+              if (result.isFinal) {
+                finalTranscript += transcript;
+              } else {
+                interimTranscript += transcript;
+              }
+              console.log(result)
+            }
+
+            console.log(interimTranscript)
+
+            setSpeechMsg(finalTranscript || interimTranscript)
+            message = finalTranscript
+        }
+          return rec;
+        }
 
         const sendRotationData = (rot, endpoint) => {
             const rot_data = {
@@ -437,6 +523,37 @@
 
             }
         })
+        const recognition = initSpeechRecognition();
+
+        if (recognition) {
+            startBtn.addEventListener('click', () => {
+                try {
+                    recognition.start();
+                    startBtn.disabled = true;
+                } catch (e) {
+                    console.log("Recognition already started or error:", e);
+                }
+            })
+
+            stopBtn.addEventListener('click', () => {
+                try {
+                    recognition.stop();
+                    startBtn.disabled = false;
+                } catch (e) {
+                    console.log("Recognition already stopped or error.", e)
+                }
+            })
+
+            sendBtn.addEventListener('click', () => {
+              if (message !== "") {
+                console.log("Sending " + message)
+                sendQuestion(message);
+                setSpeechStatus("Sending...")
+              } else {
+                setSpeechStatus("No message to send...")
+              }
+            })
+        }
     </script>
 </body>
 </html>
