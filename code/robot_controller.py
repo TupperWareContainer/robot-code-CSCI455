@@ -110,8 +110,8 @@ class RobotController:
 
             if dA == -1 or dB == -1:
                 continue  # skip uninitialized
-            if (dA == 0.0 or dB == 0.0) :
-                continue
+            #if (dA == 0.0 or dB == 0.0) :
+            #    continue
             delta_distance = abs(dA) - abs(dB) ## positive delta = needs to rotate CCW, negative delta = needs to rotate CW 
             result = (dA, dB, a,b,angle, delta_distance)
             alignment_data.append(result)
