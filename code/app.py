@@ -207,6 +207,7 @@ def speak_messages():
         if message_queue.qsize() > 0:
             message = message_queue.get()
             robot_controller.speak_message(message)
+        time.sleep(1)
 
 def listen_for_destination():
     while not start_wall_follow:
@@ -218,9 +219,9 @@ def listen_for_destination():
 def main():
     ping = False
     safetythread = RepeatingTimer(timeout, safety_check)
-   # thread = threading.Thread(target=speak_messages)
+    thread = threading.Thread(target=speak_messages)
     safetythread.start()
-   # thread.start()
+    thread.start()
 
     robot_controller.stop_drive()
 
