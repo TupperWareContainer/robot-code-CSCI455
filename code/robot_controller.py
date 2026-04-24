@@ -14,6 +14,7 @@ Command Based Interface for controlling a Robot instance
 LIDAR_PORT = '/dev/ttyUSB0'
 STOP_DISTANCE = 305
 BODY_SIZE = 250
+FAR_DISTANCE = 700
 
 # the number of alignemnt measurements to take per side (eg 10 measurements per side means 20 total measurements)
 NUM_ALIGNMENT_MEASUREMENTS_PER_SIDE = 5
