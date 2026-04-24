@@ -116,7 +116,7 @@ class RobotController:
             result = (dA, dB, a,b,angle, delta_distance)
             alignment_data.append(result)
             
-        if(len(alignment_data) < ALIGNMENT_OK_PERCENT):
+        if(len(alignment_data) < MIN_ALIGNMENT_MEASUREMENTS):
             print("RobotController::AlignWithLeftWall() Failed : Insufficient number of alignment measurements!")
             self.stop_drive() # stop turning and driving
             time.sleep(0.125)
@@ -359,10 +359,10 @@ class RobotController:
                 isRightFar = (not isRightClose) and (not rightDist == -1)
 
                 if leftDist == -1:
-                    isRightFar = True
+                    isLeftFar = True
 
                 if rightDist == -1:
-                    isLeftFar = True
+                    isRightFar = True
 
                 print("Left Dist: " + str(leftDist) + "\nRight Dist: " + str(rightDist))
                 if(isLeftClose):
