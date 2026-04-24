@@ -119,6 +119,12 @@
             background: #222;
         }
 
+        .selected {
+            background-color: red;
+        }
+
+        .selected:hover {
+            background-color: darkred;
         button:disabled {
           background: #222;
           color: #666;
@@ -173,6 +179,8 @@
       <input type="text" id="ask" name="ask">
     </div>
 
+    <div class="control-group">
+        <button id="wall-follow">Start Wall Follow</button>
     <!-- Column 4: Audio Recorder Buttons -->
     <div class="control-group button-col">
       <div>Ask the robot anything</div>
@@ -194,6 +202,7 @@
         const say3 = document.getElementById('say3');
         const say4 = document.getElementById('say4');
         const ask = document.getElementById('ask')
+        const wallFollow = document.getElementById('wall-follow')
         let isMouseInside = false;
         let dragStart = null;
         let stickPos = { x: 0, y: 0 };
@@ -433,6 +442,27 @@
                     .catch((error) => console.error('Error:', error))
         }
 
+        const sendWallFollow = (state) => {
+            const wall_follow_data = {
+                'state': state
+            }
+            const jsonData = JSON.stringify(wall_follow_data)
+
+            /*
+            Make sure that this url is pointing to the
+            flask server running on the robot
+            */
+            fetch('http://10.158.167.65:5002/wall_follow', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: jsonData
+            }).then(response => response.json())
+                    .then(data => console.log('Success:', data))
+                    .catch((error) => console.error('Error:', error))
+        }
+
         setInterval(sendPing, 1000)
 
         // Event Listeners for Mouse and Touch
@@ -481,6 +511,18 @@
           }
         })
 
+        wallFollow.addEventListener('click', function () {
+            if (!wallFollow.classList.contains("selected")) {
+                wallFollow.textContent = "Stop Wall Follow";
+                wallFollow.classList.add("selected");
+                sendWallFollow(true);
+            } else {
+                wallFollow.textContent = "Start Wall Follow";
+                wallFollow.classList.remove("selected");
+                sendWallFollow(false);
+
+            }
+        })
         const recognition = initSpeechRecognition();
 
         if (recognition) {

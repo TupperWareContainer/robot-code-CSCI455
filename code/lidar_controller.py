@@ -18,46 +18,40 @@ class LidarController:
         self.__timeout = timeout 
         self.__max_distance = max_distance
         self.__stopScan = False
-        self._scan_data = [0] * 360
-        self._buffered_scan_data = [0] * 360
+        self._scan_data = [-1] * 360
+        self._buffered_scan_data = [-1] * 360
         self.__scan_thread = Thread(target = self.StartScan)
         self.__scan_thread.start()
-        self._last_update_time = time.time()
-        self._swap_interval = 1 # How often we swap the old data with the new data.
-                                # If this is 1. Then we are currently reading 1 second of data from the lidar.
+        self.__lock = threading.Lock()
 
     def StartScan(self):
-        try:
-            print("Cleaning up Lidar state")
-            self.__lidar.stop() 
-            self.__lidar.disconnect()
-            self.__lidar.connect()
-            self.__lidar.clear_input()
-        except Exception as e:
-            print(f"Unexpected Error: {e}")
+        self.RebootLidar()
         started = False
 
         while not self.__stopScan:
             try:
+                prev_angle = None
+
                 # iter_scans is a blocking generator
                 for (new_scan, quality, angle, distance) in self.__lidar.iter_measurments(max_buf_meas=1000):
                     if new_scan:
                         started = True
+                    #    self._scan_data[:] = self._buffered_scan_data  # Move the contents of the buffer to scan data
+                    #    self._buffered_scan_data[:] = [0] * 360  # Reset the buffer
+
+                    if prev_angle is not None and angle < prev_angle - 180:
+                        started = True
+                        with self.__lock:
+                            self._scan_data[:] = self._buffered_scan_data
+                        self._buffered_scan_data[:] = [-1] * 360
+                    prev_angle = angle
 
                     if not started:
                         # Skip the first partial lidar spin. This ensures that we only keep full spins!
                         continue
 
-                    if distance == 0.0:
-                        distance = 5000
-
                     idx = min([359, floor(angle)])
                     self._buffered_scan_data[idx] = distance # Write the distances to the buffer
-
-                    if time.time() - self._last_update_time >= self._swap_interval:
-                        self._scan_data[:] = self._buffered_scan_data # Move the contents of the buffer to scan data
-                        self._buffered_scan_data[:] = [0] * 360  # Reset the buffer
-                        self._last_update_time = time.time()
             except RPLidarException as e:
                 # This is where 'line length mismatch' is caught
                 print(f"Lidar Hardware Error: {e}. Reconnecting...")
