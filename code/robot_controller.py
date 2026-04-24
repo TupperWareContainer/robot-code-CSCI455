@@ -346,6 +346,12 @@ class RobotController:
 
                 leftDist = self._lidar_controller.GetDistanceMM(self.__wallLeftAngle)
                 rightDist = self._lidar_controller.GetDistanceMM(self.__wallRightAngle)
+
+                if leftDist == -1 or rightDist == -1:
+                    print("Waiting for lidar data...")
+                    time.sleep(0.25)
+                    self.stop_drive()
+                    continue
                 
                 isLeftClose = (leftDist != -1) and (leftDist < STOP_DISTANCE)
                 isRightClose = (rightDist != -1) and (rightDist < STOP_DISTANCE)
