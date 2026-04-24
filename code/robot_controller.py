@@ -190,7 +190,7 @@ class RobotController:
         # If all readings are 0, no lidar data — fail safe and block
         if len(non_zero) == 0:
             print("Not initialized")
-            return True
+            return False
 
         # Filter out robot's own body readings
         external = [(angle,distance) for (angle,distance) in readings if distance > BODY_SIZE]
