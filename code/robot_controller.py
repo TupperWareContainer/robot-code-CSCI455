@@ -352,8 +352,8 @@ class RobotController:
                     self.stop_drive()
                     continue
                 
-                isLeftClose = (leftDist != -1) and (leftDist < STOP_DISTANCE)
-                isRightClose = (rightDist != -1) and (rightDist < STOP_DISTANCE)
+                isLeftClose = (leftDist != -1) and (leftDist != 0) and (leftDist < STOP_DISTANCE)
+                isRightClose = (rightDist != -1) and (rightDist != 0) and (rightDist < STOP_DISTANCE)
                 
                 isLeftFar = (not isLeftClose) and (not leftDist == -1)
                 isRightFar = (not isRightClose) and (not rightDist == -1)
