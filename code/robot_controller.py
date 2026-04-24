@@ -360,10 +360,10 @@ class RobotController:
                 isRightFar = (not isRightClose) and (not rightDist == -1)
 
                 if leftDist == -1:
-                    isLeftFar = True
+                    isRightFar = True
 
                 if rightDist == -1:
-                    isRightFar = True
+                    isLeftFar = True
 
                 print("Left Dist: " + str(leftDist) + "\nRight Dist: " + str(rightDist))
                 if(isLeftClose):
