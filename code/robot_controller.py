@@ -13,6 +13,9 @@ Command Based Interface for controlling a Robot instance
 
 LIDAR_PORT = '/dev/ttyUSB0'
 STOP_DISTANCE = 305
+
+WALL_CLOSE_DISTANCE = 600
+
 BODY_SIZE = 250
 
 # the number of alignemnt measurements to take per side (eg 10 measurements per side means 20 total measurements)
@@ -352,20 +355,22 @@ class RobotController:
                     self.stop_drive()
                     continue
                 
-                isLeftClose = (leftDist != -1) and (leftDist != 0) and (leftDist < STOP_DISTANCE)
-                isRightClose = (rightDist != -1) and (rightDist != 0) and (rightDist < STOP_DISTANCE)
+                isLeftClose = (leftDist != -1) and (abs(leftDist) < WALL_CLOSE_DISTANCE)
+                isRightClose = (rightDist != -1) and (abs(rightDist) < WALL_CLOSE_DISTANCE)
                 
-                isLeftFar = (not isLeftClose) and (not leftDist == -1)
-                isRightFar = (not isRightClose) and (not rightDist == -1)
+                isLeftFar = (not isLeftClose) and (leftDist != -1) and (leftDist != 0)
+                isRightFar = (not isRightClose) and (rightDist != -1) and (rightDist != 0)
 
+                isFrontBlocked = self.IsFrontBlocked()
                 # If the non-desired side has no data, treat as far away
+                 
                 if leftDist == -1:
                     isLeftClose = False
                     isLeftFar = False  # unknown, don't react to it
                 if rightDist == -1:
                     isRightClose = False
                     isRightFar = False
-
+                
                 print("Left Dist: " + str(leftDist) + "\nRight Dist: " + str(rightDist))
                 if(isLeftClose):
                     print("Left is Close")
@@ -375,9 +380,12 @@ class RobotController:
                     print("Right is Close")
                 if(isRightFar):
                     print("Right is Far")
- 
+                if(isFrontBlocked):
+                    print("Front is Blocked")
+                else:
+                    print("Front is Clear")
                 # case 1, front is blocked 
-                if(self.IsFrontBlocked() or ((self.__last_alignment_state == WallFollowState.ALIGN_LEFT) and self.__last_alignment == False)):
+                if(isFrontBlocked or ((self.__last_alignment_state == WallFollowState.ALIGN_LEFT) and self.__last_alignment == False)):
                     self.__wallfollowstate = WallFollowState.ALIGN_LEFT
                 
                 # case 2, wall is too close
@@ -448,9 +456,9 @@ class RobotController:
                 pass
 
     def steer_left(self):
-        self.turn(4000)
-    def steer_right(self):
         self.turn(8000)
+    def steer_right(self):
+        self.turn(4000)
    
     def stop_steer(self):
         self.turn(6000)
