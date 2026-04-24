@@ -12,7 +12,10 @@ Command Based Interface for controlling a Robot instance
 '''
 
 LIDAR_PORT = '/dev/ttyUSB0'
-STOP_DISTANCE = 305
+STOP_DISTANCE = 405
+
+WALL_CLOSE_DISTANCE = 625
+
 BODY_SIZE = 250
 FAR_DISTANCE = 700
 
@@ -155,6 +158,73 @@ class RobotController:
         return False
 
             
+    def AlignWithRightWall(self) -> bool: 
+        self.steer_left()
+        time.sleep(0.25)
+        self.stop_steer()
+        return True
+
+        '''print("ALIGNING WITH RIGHT WALL")
+        alignment_data  = [] # distance, distance, angle A, angle B, delta angle (from left angle), delta distance
+
+        for i in range(0, NUM_ALIGNMENT_MEASUREMENTS_PER_SIDE):
+            angle = (i + 1) * ALIGNMENT_ANGLE_INCREMENT
+            a = self.__wallRightAngle + angle
+            b = self.__wallRightAngle - angle
+            
+            if(a > 360):
+                a = a - 360 
+            if(b < 0 ):
+                b = 360 + b
+
+            dA = self._lidar_controller.GetDistanceMM(a)
+            dB = self._lidar_controller.GetDistanceMM(b)
+
+            if dA == -1 or dB == -1:
+                continue  # skip uninitialized
+            #if (dA == 0.0 or dB == 0.0) :
+            #    continue
+            delta_distance = abs(dA) - abs(dB) ## positive delta = needs to rotate CCW, negative delta = needs to rotate CW 
+            result = (dA, dB, a,b,angle, delta_distance)
+            alignment_data.append(result)
+            
+        #if(len(alignment_data) < MIN_ALIGNMENT_MEASUREMENTS):
+        #    print("RobotController::AlignWithLeftWall() Failed : Insufficient number of alignment measurements!")
+        #    self.stop_drive() # stop turning and driving
+        #    time.sleep(0.125)
+        #    return False
+
+        deltas  = [] # delta angle, delta distance
+        
+        total = 0.0
+        for data in alignment_data:
+            total += data[5]
+        num_data_points = len(alignment_data)
+        avg = total * 1.0 / (1 if (num_data_points == 0) else num_data_points)
+
+        print("average distance from wall " + str(avg))
+        if(abs(avg) < ALIGNMENT_COEFFICIENT):
+            avg = 0
+        
+        if(avg > 0):    # turn CCW
+            self.steer_left()
+            print("turning CCW")
+            pass
+        elif(avg < 0): # turn CW
+            self.steer_right()
+            print("turning CW")
+            pass 
+        else:           # aligned
+            self.stop_steer()
+            print("RobotController::AlignWithRightWall() Succeeded : aligned")
+            return True
+            pass
+        
+        print("RobotController::AlignWithRightWall() Succeeded : not aligned")
+        time.sleep(0.125)
+        self.stop_steer()
+        return False
+        '''
 
 
     def Update(self):
@@ -183,14 +253,16 @@ class RobotController:
                 self.__safeTimeSet = False
             time.sleep(1)
 
-    def __IsBlocked(self, angles: list[int]) -> bool:
+    def __IsBlocked(self, angles: list[int], right = False) -> bool:
         distances = []
         for a in angles:
             distances.append(self._lidar_controller.GetDistanceMM(a))
 
         readings = list(zip(angles, distances)) # [(angle, distance) for angle in angles for distance in distances]
         non_zero = [distance for (a,distance) in readings if distance != -1]
-                
+        stop_dist = STOP_DISTANCE
+        if(right):
+            stop_dist = STOP_DISTANCE + BODY_SIZE + 100
         # If all readings are -1, no lidar data — fail safe and block
         if len(non_zero) == 0:
             print("Not initialized")
@@ -202,11 +274,11 @@ class RobotController:
         # If nothing external detected, path is clear
         if len(external) == 0:
             return False
-        return any(d < STOP_DISTANCE for (a,d) in external)
+        return any(d < stop_dist for (a,d) in external)
 
-    def IsFrontBlocked(self) -> bool:
+    def IsFrontBlocked(self, right = False) -> bool:
         front_angles = list(range(355, 360)) + list(range(0, 5))  # Front angles: 350-359 and 0-9
-        is_front_blocked = self.__IsBlocked(front_angles)
+        is_front_blocked = self.__IsBlocked(front_angles, right)
      
         if is_front_blocked:
             print("Front is BLOCKED")
@@ -353,20 +425,27 @@ class RobotController:
                     self.stop_drive()
                     continue
                 
-                isLeftClose = (leftDist != -1) and (leftDist != 0) and (leftDist < STOP_DISTANCE)
-                isRightClose = (rightDist != -1) and (rightDist != 0) and (rightDist < STOP_DISTANCE)
+                isLeftClose = (leftDist != -1) and (abs(leftDist) < WALL_CLOSE_DISTANCE)
+                isRightClose = (rightDist != -1) and (abs(rightDist) < WALL_CLOSE_DISTANCE + BODY_SIZE)
                 
-                isLeftFar = (not isLeftClose) and (not leftDist == -1)
-                isRightFar = (not isRightClose) and (not rightDist == -1)
+                isLeftFar = (not isLeftClose) and (leftDist != -1) and (leftDist != 0)
+                isRightFar = (not isRightClose) and (rightDist != -1) and (rightDist != 0)
+
+                isFrontBlocked = False
+                if(self.__wall_desired == "right"):
+                    isFrontBlocked = self.IsFrontBlocked(True)
+                else:
+                    isFrontBlocked = self.IsFrontBlocked(False)
 
                 # If the non-desired side has no data, treat as far away
+                 
                 if leftDist == -1:
                     isLeftClose = False
                     isLeftFar = False  # unknown, don't react to it
                 if rightDist == -1:
                     isRightClose = False
                     isRightFar = False
-
+                
                 print("Left Dist: " + str(leftDist) + "\nRight Dist: " + str(rightDist))
                 if(isLeftClose):
                     print("Left is Close")
@@ -376,32 +455,37 @@ class RobotController:
                     print("Right is Close")
                 if(isRightFar):
                     print("Right is Far")
- 
+                if(isFrontBlocked):
+                    print("Front is Blocked")
+                else:
+                    print("Front is Clear")
                 # case 1, front is blocked 
-                if(self.IsFrontBlocked() or ((self.__last_alignment_state == WallFollowState.ALIGN_LEFT) and self.__last_alignment == False)):
+                if(self.__wall_desired == "left" and (isFrontBlocked or ((self.__last_alignment_state == WallFollowState.ALIGN_LEFT) and self.__last_alignment == False))):
                     self.__wallfollowstate = WallFollowState.ALIGN_LEFT
                 
+                elif(self.__wall_desired == "right" and (isFrontBlocked or ((self.__last_alignment_state == WallFollowState.ALIGN_RIGHT) and self.__last_alignment == False))): 
+                    self.__wallfollowstate = WallFollowState.ALIGN_RIGHT
                 # case 2, wall is too close
                 elif(self.__wall_desired == "left" and isLeftClose):
-                    if(self.__wallfollowstate == WallFollowState.TURN_RIGHT and not self.IsFrontBlocked()):
+                    if(self.__wallfollowstate == WallFollowState.TURN_RIGHT and not isFrontBlocked):
                         self.__wallfollowstate = WallFollowState.DRIVE_FORWARD
                     else:
                         self.__wallfollowstate = WallFollowState.TURN_RIGHT
                 elif(self.__wall_desired == "right" and isRightClose):
-                    if(self.__wallfollowstate == WallFollowState.TURN_LEFT and not self.IsFrontBlocked()):
+                    if(self.__wallfollowstate == WallFollowState.TURN_LEFT and not isFrontBlocked):
                         self.__wallfollowstate = WallFollowState.DRIVE_FORWARD
                     else:
                         self.__wallfollowstate = WallFollowState.TURN_LEFT
                 # case 3, wall is too far 
                 elif(self.__wall_desired == "left" and isLeftFar):
 
-                    if(self.__wallfollowstate == WallFollowState.TURN_LEFT and not self.IsFrontBlocked()):
+                    if(self.__wallfollowstate == WallFollowState.TURN_LEFT and not isFrontBlocked):
                         self.__wallfollowstate = WallFollowState.DRIVE_FORWARD
                     else:
                         self.__wallfollowstate = WallFollowState.TURN_LEFT
                 elif(self.__wall_desired == "right" and isRightFar):
 
-                    if(self.__wallfollowstate == WallFollowState.TURN_RIGHT and not self.IsFrontBlocked()):
+                    if(self.__wallfollowstate == WallFollowState.TURN_RIGHT and not isFrontBlocked):
                         self.__wallfollowstate = WallFollowState.DRIVE_FORWARD
                     else:
                         self.__wallfollowstate = WallFollowState.TURN_RIGHT
@@ -428,6 +512,12 @@ class RobotController:
                     self.drive(6000)
                 self.__last_alignment = self.AlignWithLeftWall()
                 pass
+            case WallFollowState.ALIGN_RIGHT:
+                print("aligning with right wall")
+                if(self.__last_alignment_state != wallFollowState):
+                    self.drive(6000)
+                self.__last_alignment = self.AlignWithRightWall()
+                pass
             case WallFollowState.TURN_LEFT:
                 print("turning left")
                 self.steer_left()
@@ -449,9 +539,9 @@ class RobotController:
                 pass
 
     def steer_left(self):
-        self.turn(4000)
-    def steer_right(self):
         self.turn(8000)
+    def steer_right(self):
+        self.turn(4000)
    
     def stop_steer(self):
         self.turn(6000)

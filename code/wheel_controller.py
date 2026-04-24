@@ -22,7 +22,7 @@ class WheelController:
         else:
             limited = WheelController.NEUTRAL # If we are trying to stop we don't need to limit it.
 
-        print("driving " + str(limited) + " to channel " + str(chan) )
+        #print("driving " + str(limited) + " to channel " + str(chan) )
         self.controller.setRange(chan, 0, 0)
         self.controller.setTarget(chan, limited)
 
