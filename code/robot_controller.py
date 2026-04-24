@@ -107,7 +107,9 @@ class RobotController:
 
             dA = self._lidar_controller.GetDistanceMM(a)
             dB = self._lidar_controller.GetDistanceMM(b)
-            
+
+            if dA == -1 or dB == -1:
+                continue  # skip uninitialized
             if (dA == 0.0 or dB == 0.0) :
                 continue
             delta_distance = abs(dA) - abs(dB) ## positive delta = needs to rotate CCW, negative delta = needs to rotate CW 
@@ -185,13 +187,13 @@ class RobotController:
         for a in angles:
             distances.append(self._lidar_controller.GetDistanceMM(a))
 
-        readings = [(angle, distance) for angle in angles for distance in distances]
-        non_zero = [distance for (a,distance) in readings if distance != 0]
+        readings = list(zip(angles, distances)) # [(angle, distance) for angle in angles for distance in distances]
+        non_zero = [distance for (a,distance) in readings if distance != -1]
                 
-        # If all readings are 0, no lidar data — fail safe and block
+        # If all readings are -1, no lidar data — fail safe and block
         if len(non_zero) == 0:
             print("Not initialized")
-            return False
+            return True
 
         # Filter out robot's own body readings
         external = [(angle,distance) for (angle,distance) in readings if distance > BODY_SIZE]
@@ -345,11 +347,11 @@ class RobotController:
                 leftDist = self._lidar_controller.GetDistanceMM(self.__wallLeftAngle)
                 rightDist = self._lidar_controller.GetDistanceMM(self.__wallRightAngle)
                 
-                isLeftClose = (leftDist != 0) and (leftDist < STOP_DISTANCE)              
-                isRightClose = (rightDist != 0) and (rightDist < STOP_DISTANCE)   
+                isLeftClose = (leftDist != -1) and (leftDist < STOP_DISTANCE)
+                isRightClose = (rightDist != -1) and (rightDist < STOP_DISTANCE)
                 
-                isLeftFar = (not isLeftClose) and (not leftDist == 0) 
-                isRightFar = (not isRightClose) and (not rightDist == 0) 
+                isLeftFar = (not isLeftClose) and (not leftDist == -1)
+                isRightFar = (not isRightClose) and (not rightDist == -1)
 
                 print("Left Dist: " + str(leftDist) + "\nRight Dist: " + str(rightDist))
                 if(isLeftClose):

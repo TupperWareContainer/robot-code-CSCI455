@@ -18,8 +18,8 @@ class LidarController:
         self.__timeout = timeout 
         self.__max_distance = max_distance
         self.__stopScan = False
-        self._scan_data = [0] * 360
-        self._buffered_scan_data = [0] * 360
+        self._scan_data = [-1] * 360
+        self._buffered_scan_data = [-1] * 360
         self.__scan_thread = Thread(target = self.StartScan)
         self.__scan_thread.start()
         self.__lock = threading.Lock()
@@ -43,7 +43,7 @@ class LidarController:
                         started = True
                         with self.__lock:
                             self._scan_data[:] = self._buffered_scan_data
-                        self._buffered_scan_data[:] = [0] * 360
+                        self._buffered_scan_data[:] = [-1] * 360
                     prev_angle = angle
 
                     if not started:
