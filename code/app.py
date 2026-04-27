@@ -217,9 +217,6 @@ def main():
 
     robot_controller.stop_drive()
 
-    wall_follow_thread = Thread(target=robot_controller.WallFollowTick)
-    wall_follow_thread.start()
-
     app.config["SERVER_NAME"] = server_name
     app.run(host=server_name, port=5002, debug=True, use_reloader=False)
 
