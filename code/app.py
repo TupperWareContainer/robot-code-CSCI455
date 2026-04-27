@@ -127,8 +127,6 @@ def speak():
 
 @app.post('/ask')
 def ask():
-    global start_wall_follow
-
     if request.is_json:
         data = request.get_json()
         question : str = data.get('question')
@@ -157,7 +155,7 @@ def ask():
         response = response.translate(translator).lower()
 
         if response == "follow me":
-            start_wall_follow = True
+            pass # We should start wall follow here
 
         if actions:
             robot_controller.queue_actions(actions)
