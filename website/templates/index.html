@@ -289,7 +289,7 @@
             Make sure that this url is pointing to the
             flask server running on the robot
             */
-            fetch('http://10.158.167.65:5002/' + endpoint, {
+            fetch('http://10.95.199.65:5002/' + endpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -348,7 +348,7 @@
             const joystick_data = {x: stickPos.x, y: stickPos.y};
 
             try {
-                const response = await fetch('http://10.158.167.65:5002/drive', {
+                const response = await fetch('http://10.95.199.65:5002/drive', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(joystick_data)
@@ -367,7 +367,7 @@
             const joystick_data = {x: stickPos.x, y: stickPos.y};
 
             try {
-                const response = await fetch('http://10.158.167.65:5002/drive', {
+                const response = await fetch('http://10.95.199.65:5002/drive', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(joystick_data)
@@ -406,7 +406,7 @@
             Make sure that this url is pointing to the
             flask server running on the robot
             */
-            fetch('http://10.158.167.65:5002/speak', {
+            fetch('http://10.95.199.65:5002/speak', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -418,7 +418,7 @@
         }
 
         const sendPing = () => {
-            fetch('http://10.158.167.65:5002/ping', {
+            fetch('http://10.95.199.65:5002/ping', {
                 method: 'GET'
             }).then(response => response.json())
                 .then(data => console.log(data))
@@ -435,7 +435,7 @@
             Make sure that this url is pointing to the
             flask server running on the robot
             */
-            fetch('http://10.158.167.65:5002/ask', {
+            fetch('http://10.95.199.65:5002/ask', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -456,7 +456,7 @@
             Make sure that this url is pointing to the
             flask server running on the robot
             */
-            fetch('http://10.158.167.65:5002/wall_follow', {
+            fetch('http://10.95.199.65:5002/wall_follow', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
