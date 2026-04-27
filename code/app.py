@@ -126,6 +126,28 @@ def speak():
         return jsonify({"response": f"Received: {data.get('message', 'no message')}"}), 200
     return jsonify({"error": "Request must be JSON"}), 400
 
+@app.post('/greet')
+def greet():
+    if request.is_json:
+        data = request.get_json()
+        question: str = data.get('question')
+        translator = str.maketrans('', '', ".,?!'")
+        question = question.translate(translator)
+        question_words = question.lower().split()
+
+        # Detect destination from speech
+        if any(word in question_words for word in ["bathroom", "restroom"]):
+            final_project_behavior.PathToBathroom(robot_controller)
+            start_pathing("Bathroom")
+        elif any(word in question_words for word in ["lab", "robot"]):
+            final_project_behavior.PathToLab(robot_controller)
+            start_pathing("Robot lab")
+        return jsonify({"response": f"Received: {data.get('question', 'no question')}"}), 200
+    return jsonify({"error": "Request must be JSON"}), 400
+
+def start_pathing(destination : str):
+    message_queue.put(destination + " follow me")
+    final_project_behavior.StartFinalProjectBehavior(robot_controller)
 
 @app.post('/ask')
 def ask():
@@ -139,25 +161,12 @@ def ask():
         if question in ["stop", "cancel", "reset", "quit"]:
             robot_controller.reset_robot_dialog_and_state()
 
-        # Detect destination from speech
-        if any(word in question_words for word in ["bathroom", "restroom"]):
-            final_project_behavior.PathToBathroom(robot_controller)
-        elif any(word in question_words for word in ["lab", "robot"]):
-            final_project_behavior.PathToLab(robot_controller)
-
         # Get the question and resolve the response and add that to the message queue
         actions, response = robot_controller.get_dialog_response(question_words)
 
         print(actions)
         print(response)
         message_queue.put(response)
-
-        # Strip punctuation and make it lowercase so that it matches!
-        translator = str.maketrans('', '', ".,?!'")
-        response_words = response.translate(translator).lower().split()
-
-        if any(word in response_words for word in ["follow", "me"]):
-            final_project_behavior.StartFinalProjectBehavior(robot_controller)
 
         if actions:
             robot_controller.queue_actions(actions)

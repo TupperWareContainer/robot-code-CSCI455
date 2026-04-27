@@ -425,6 +425,27 @@
                 .catch(error => console.error('Error:', error));
         }
 
+        const sendGreeting = (question) => {
+            const question_data = {
+                'question': question
+            }
+            const jsonData = JSON.stringify(question_data)
+
+            /*
+            Make sure that this url is pointing to the
+            flask server running on the robot
+            */
+            fetch('http://10.95.199.65:5002/greet', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: jsonData
+            }).then(response => response.json())
+                    .then(data => console.log('Success:', data))
+                    .catch((error) => console.error('Error:', error))
+        }
+
         const sendQuestion = (question) => {
             const question_data = {
                 'question': question
@@ -551,7 +572,7 @@
             sendBtn.addEventListener('click', () => {
               if (message !== "") {
                 console.log("Sending " + message)
-                sendQuestion(message);
+                sendGreeting(message);
                 setSpeechStatus("Sent")
               } else {
                 setSpeechStatus("No message to send...")
