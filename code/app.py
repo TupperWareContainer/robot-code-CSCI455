@@ -10,6 +10,8 @@ from threading import Timer, Thread
 import atexit
 import time
 
+import final_project_behavior
+
 class RepeatingTimer(Timer):
     def run(self):
         while not self.finished.wait(self.interval):
@@ -139,9 +141,9 @@ def ask():
 
         # Detect destination from speech
         if any(word in question_words for word in ["bathroom", "restroom"]):
-            robot_controller.set_destination("bathroom")
+            final_project_behavior.PathToBathroom(robot_controller)
         elif any(word in question_words for word in ["lab", "robot"]):
-            robot_controller.set_destination("lab")
+            final_project_behavior.PathToLab(robot_controller)
 
         # Get the question and resolve the response and add that to the message queue
         actions, response = robot_controller.get_dialog_response(question_words)
@@ -152,10 +154,10 @@ def ask():
 
         # Strip punctuation and make it lowercase so that it matches!
         translator = str.maketrans('', '', ".,?!'")
-        response = response.translate(translator).lower()
+        response_words = response.translate(translator).lower().split()
 
-        if response == "follow me":
-            pass # We should start wall follow here
+        if any(word in response_words for word in ["follow", "me"]):
+            final_project_behavior.StartFinalProjectBehavior(robot_controller)
 
         if actions:
             robot_controller.queue_actions(actions)
