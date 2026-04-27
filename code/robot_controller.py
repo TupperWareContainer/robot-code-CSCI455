@@ -5,6 +5,7 @@ from lidar_controller import LidarController
 from enum import Enum
 from collections import deque
 import os
+import traceback
 '''
 RobotController.py
 Command Based Interface for controlling a Robot instance
@@ -15,6 +16,8 @@ LIDAR_PORT = '/dev/ttyUSB0'
 STOP_DISTANCE = 405
 
 WALL_CLOSE_DISTANCE = 625
+
+WALL_FOLLOW_RANGE = 150 
 
 BODY_SIZE = 250
 FAR_DISTANCE = 700
@@ -158,6 +161,7 @@ class RobotController:
         time.sleep(0.125)
         self.stop_steer()
         return False
+
 
             
     def AlignWithRightWall(self) -> bool: 
@@ -413,7 +417,7 @@ class RobotController:
 
     def WallFollowTick(self):
         try:
-            self.__wall_desired = "left"
+            self.__wall_desired = "right"
             self.__last_alignment = False
             self.__last_alignment_state = WallFollowState.NONE
             self.__wallfollowstate = WallFollowState.NONE
@@ -424,17 +428,23 @@ class RobotController:
 
                 leftDist = self._lidar_controller.GetDistanceMM(self.__wallLeftAngle)
                 rightDist = self._lidar_controller.GetDistanceMM(self.__wallRightAngle)
+                
+
 
                 if leftDist == -1 and rightDist == -1:
                     time.sleep(0.01)
-                    self.stop_drive()
+                    #print("invalid left and right distances")
+                    #self.stop_drive()
                     continue
+
+                isLeftWithinRange = abs(abs(leftDist) - WALL_CLOSE_DISTANCE) <= WALL_FOLLOW_RANGE
+                isRightWithinRange = abs(abs(rightDist) - WALL_CLOSE_DISTANCE) <= WALL_FOLLOW_RANGE
                 
-                isLeftClose = (leftDist != -1) and (abs(leftDist) < WALL_CLOSE_DISTANCE)
-                isRightClose = (rightDist != -1) and (abs(rightDist) < WALL_CLOSE_DISTANCE + BODY_SIZE)
+                isLeftClose = (leftDist != -1) and (abs(leftDist) < WALL_CLOSE_DISTANCE) and not isLeftWithinRange
+                isRightClose = (rightDist != -1) and (abs(rightDist) < WALL_CLOSE_DISTANCE + BODY_SIZE) and not isRightWithinRange
                 
-                isLeftFar = (not isLeftClose) and (leftDist != -1) and (leftDist != 0)
-                isRightFar = (not isRightClose) and (rightDist != -1) and (rightDist != 0)
+                isLeftFar = (not isLeftClose) and (leftDist != -1) and (leftDist != 0) and not isLeftWithinRange
+                isRightFar = (not isRightClose) and (rightDist != -1) and (rightDist != 0) and not isRightWithinRange
 
                 isFrontBlocked = False
                 if(self.__wall_desired == "right"):
@@ -498,12 +508,11 @@ class RobotController:
                     self.__wallfollowstate = WallFollowState.DRIVE_FORWARD
 
                 self.WallFollowStateMachine(self.__wallfollowstate)
-                time.sleep(0.25)
+                time.sleep(0.15)
+                
 
-            self.stop_drive()
         except KeyboardInterrupt:
             print("Stopping...")
-        finally:
             self.stop_drive()
     
 
@@ -539,7 +548,7 @@ class RobotController:
                 print("driving forward")
                 if(self.__last_alignment_state != wallFollowState):
                     self.stop_steer()
-                self.drive(4900)
+                self.drive(4700)
             case _: 
                 pass
 
