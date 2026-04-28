@@ -18,7 +18,7 @@ class RepeatingTimer(Timer):
             self.function(*self.args, **self.kwargs)
 
 message_queue = Queue()
-server_name = "10.158.167.65"
+server_name = "10.95.199.65"
 app = Flask(__name__)
 CORS(app)
 
