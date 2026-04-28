@@ -86,7 +86,8 @@ def drive():
             elif angle > 0:
                 direction = "backward"
 
-            if direction == "forward" and not robot_controller.IsFrontBlocked():
+            is_front_blocked, _ = robot_controller.IsFrontBlocked() # We need to unwrap here because it also has an initilizetion value.
+            if direction == "forward" and not is_front_blocked:
                 robot_controller.drive(int(throttle))
             elif direction == "backward" and not robot_controller.IsRearBlocked():
                 robot_controller.drive(int(throttle))

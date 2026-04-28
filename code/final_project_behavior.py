@@ -25,8 +25,10 @@ def StartFinalProjectBehavior(controllerInstance : RobotController):
     time.sleep(2)
 
     set_state(RobotState.WAITING)
-    while(not controllerInstance.IsFrontBlocked()):
+    is_blocked, is_init = controllerInstance.IsFrontBlocked()
+    while not (is_init and is_blocked):
         time.sleep(0.3) # This is so we don't starve other threads.
+        is_blocked, is_init = controllerInstance.IsFrontBlocked()
         continue
 
     set_state(RobotState.GREETING)
@@ -57,13 +59,19 @@ def FinalProjectInitialization(controllerInstance: RobotController):
     startnextstage = False
 
     while(not startnextstage):
-        controllerInstance.drive(4500)
+        is_blocked, is_init = controllerInstance.IsFrontBlocked()
+
+        if (is_init):
+            controllerInstance.drive(4500)
+        else:
+            controllerInstance.stop_drive()
+
         time.sleep(0.5)
-        if(controllerInstance.IsFrontBlocked()):
+        if(is_blocked):
             controllerInstance.stop_drive()
             #time.sleep(4)
-            startnextstage = controllerInstance.IsFrontBlocked()
-            continue
+            #startnextstage = controllerInstance.IsFrontBlocked()
+            break
 
     set_state(RobotState.MOVING_TO_T)
     controllerInstance.stop_drive()

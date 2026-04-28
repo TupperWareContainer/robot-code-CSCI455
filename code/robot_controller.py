@@ -267,7 +267,7 @@ class RobotController:
                 self.__safeTimeSet = False
             time.sleep(1)
 
-    def __IsBlocked(self, angles: list[int], right = False) -> bool:
+    def __IsBlocked(self, angles: list[int], right = False) -> tuple[bool, bool]:
         distances = []
         for a in angles:
             distances.append(self._lidar_controller.GetDistanceMM(a))
@@ -280,28 +280,28 @@ class RobotController:
         # If all readings are -1, no lidar data — fail safe and block
         if len(non_zero) == 0:
             print("Not initialized")
-            return True
+            return True, False
 
         # Filter out robot's own body readings
         external = [(angle,distance) for (angle,distance) in readings if distance > BODY_SIZE]
 
         # If nothing external detected, path is clear
         if len(external) == 0:
-            return False
+            return False, True
         return any(d < stop_dist for (a,d) in external)
 
-    def IsFrontBlocked(self, right = False) -> bool:
+    def IsFrontBlocked(self, right = False) -> tuple[bool, bool]:
         front_angles = list(range(355, 360)) + list(range(0, 5))  # Front angles: 350-359 and 0-9
-        is_front_blocked = self.__IsBlocked(front_angles, right)
+        is_front_blocked, init = self.__IsBlocked(front_angles, right)
      
         if is_front_blocked:
             print("Front is BLOCKED")
 
-        return is_front_blocked
+        return is_front_blocked, init
 
     def IsRearBlocked(self) -> bool:
         rear_angles = list(range(170, 190)) # Rear angles: 170 to 189
-        is_rear_blocked = self.__IsBlocked(rear_angles)
+        is_rear_blocked, _ = self.__IsBlocked(rear_angles)
 
         if is_rear_blocked:
             print("Rear is BLOCKED")
@@ -454,9 +454,9 @@ class RobotController:
 
                 isFrontBlocked = False
                 if(self.__wall_desired == "right"):
-                    isFrontBlocked = self.IsFrontBlocked(True)
+                    isFrontBlocked, _ = self.IsFrontBlocked(True)
                 else:
-                    isFrontBlocked = self.IsFrontBlocked(False)
+                    isFrontBlocked, _ = self.IsFrontBlocked(False)
 
                 # If the non-desired side has no data, treat as far away
                  
