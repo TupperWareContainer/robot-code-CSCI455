@@ -22,7 +22,7 @@ def set_state(new_state: RobotState):
     current_state = new_state
 
 def StartFinalProjectBehavior(controllerInstance : RobotController):
-    time.sleep(4)
+    time.sleep(5)
 
     set_state(RobotState.WAITING)
     while(not controllerInstance.IsFrontBlocked()):
@@ -54,10 +54,12 @@ def FinalProjectInitialization(controllerInstance: RobotController):
     controllerInstance.steer_right()
     time.sleep(1.4)
     controllerInstance.stop_steer()
-    
-    #startnextstage = False
 
-    #while(startnextstage == False):
+    controllerInstance.AlignWithLeftWall()
+    
+    startnextstage = False
+
+    #while(not startnextstage):
     #    controllerInstance.drive(4500)
     #    if(controllerInstance.IsFrontBlocked()):
     #        controllerInstance.stop_drive()
