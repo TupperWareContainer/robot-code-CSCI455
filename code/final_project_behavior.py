@@ -54,8 +54,6 @@ def FinalProjectInitialization(controllerInstance: RobotController):
     controllerInstance.steer_right()
     time.sleep(1.4)
     controllerInstance.stop_steer()
-
-    controllerInstance.AlignWithLeftWall()
     
     startnextstage = False
 
