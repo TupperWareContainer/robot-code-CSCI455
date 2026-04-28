@@ -35,6 +35,7 @@ def StartFinalProjectBehavior(controllerInstance : RobotController):
     # Change to the listening state and wait till the robot is done speaking.
     set_state(RobotState.LISTENING)
     while not controllerInstance.get_destination():
+        print("listening...")
         time.sleep(0.1)
         continue
     FinalProjectInitialization(controllerInstance)
