@@ -80,8 +80,8 @@ def FinalProjectInitialization(controllerInstance: RobotController):
 
 def PathToBathroom(controllerInstance : RobotController):
     controllerInstance.SetWallDesired("right")
-    controllerInstance.WallFollowTick()
+    #controllerInstance.WallFollowTick()
 
 def PathToLab(controllerInstance : RobotController):
     controllerInstance.SetWallDesired("left")
-    controllerInstance.WallFollowTick()
+    #controllerInstance.WallFollowTick()
