@@ -22,11 +22,11 @@ def set_state(new_state: RobotState):
     current_state = new_state
 
 def StartFinalProjectBehavior(controllerInstance : RobotController):
-    time.sleep(5)
+    time.sleep(2)
 
     set_state(RobotState.WAITING)
     while(not controllerInstance.IsFrontBlocked()):
-        time.sleep(0.1) # This is so we don't starve other threads.
+        time.sleep(0.3) # This is so we don't starve other threads.
         continue
 
     set_state(RobotState.GREETING)
@@ -35,7 +35,6 @@ def StartFinalProjectBehavior(controllerInstance : RobotController):
     # Change to the listening state and wait till the robot is done speaking.
     set_state(RobotState.LISTENING)
     while not controllerInstance.get_destination():
-        print("listening...")
         time.sleep(0.1)
         continue
     FinalProjectInitialization(controllerInstance)
