@@ -227,10 +227,12 @@
           if (element) element.textContent = message
         }
 
-        function setSpeechMsg(message) {
+        function setDisplayMessage(message) {
           const element = document.getElementById("message");
           if (element) element.textContent = message
         }
+
+        isListening = false
 
         function initSpeechRecognition() {
           if (speechRecognition) return speechRecognition;
@@ -251,31 +253,34 @@
             setSpeechStatus("Listening...")
           }
 
+          let finalBuffer = "";
           rec.onend = () => {
-            setSpeechStatus("Stopped...")
+              if (isListening) {
+                  rec.start();
+              } else {
+                  finalBuffer = "";
+                  setSpeechStatus("Stopped...");
+                  message = finalBuffer;
+              }
           }
 
           rec.onresult = (event) => {
-            let finalTranscript = "";
-            let interimTranscript = "";
+              let interim = "";
 
-            for (let i = event.resultIndex; i < event.results.length; i += 1) {
-              const result = event.results[i];
-              const transcript = result[0].transcript.trim();
+              for (let i = event.resultIndex; i < event.results.length; i++) {
+                  const result = event.results[i];
+                  const text = result[0].transcript.trim();
 
-              if (result.isFinal) {
-                finalTranscript += transcript;
-              } else {
-                interimTranscript += transcript;
+                  if (result.isFinal && result[0].confidence > 0.75) {
+                      finalBuffer += result[0].transcript.trim() + " ";
+                  } else {
+                      interim = text;
+                  }
               }
-              console.log(result)
-            }
 
-            console.log(interimTranscript)
-
-            setSpeechMsg(finalTranscript || interimTranscript)
-            message = finalTranscript
-        }
+              setDisplayMessage(finalBuffer + interim);
+              message = finalBuffer
+          }
           return rec;
         }
 
@@ -555,6 +560,7 @@
                 try {
                     recognition.start();
                     startBtn.disabled = true;
+                    isListening = true;
                 } catch (e) {
                     console.log("Recognition already started or error:", e);
                 }
@@ -564,6 +570,7 @@
                 try {
                     recognition.stop();
                     startBtn.disabled = false;
+                    isListening = false
                 } catch (e) {
                     console.log("Recognition already stopped or error.", e)
                 }
