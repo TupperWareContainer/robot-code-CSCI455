@@ -31,6 +31,7 @@ def StartFinalProjectBehavior(controllerInstance : RobotController):
 
     set_state(RobotState.GREETING)
     controllerInstance.SpeakPhrase("Hello, How Can I Help?")
+    print("Hello, How Can I Help?")
 
     # Change to the listening state and wait till the robot is done speaking.
     set_state(RobotState.LISTENING)
