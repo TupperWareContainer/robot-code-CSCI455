@@ -55,15 +55,15 @@ def FinalProjectInitialization(controllerInstance: RobotController):
     time.sleep(1.4)
     controllerInstance.stop_steer()
     
-    startnextstage = False
+    #startnextstage = False
 
-    while(startnextstage == False):
-        controllerInstance.drive(4500)
-        if(controllerInstance.IsFrontBlocked()):
-            controllerInstance.stop_drive()
-            time.sleep(4)
-            startnextstage = controllerInstance.IsFrontBlocked()
-            continue
+    #while(startnextstage == False):
+    #    controllerInstance.drive(4500)
+    #    if(controllerInstance.IsFrontBlocked()):
+    #        controllerInstance.stop_drive()
+    #        time.sleep(4)
+    #        startnextstage = controllerInstance.IsFrontBlocked()
+    #        continue
 
     set_state(RobotState.MOVING_TO_T)
     controllerInstance.stop_drive()
