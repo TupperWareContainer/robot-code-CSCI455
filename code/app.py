@@ -137,17 +137,19 @@ def greet():
 
         # Detect destination from speech
         if any(word in question_words for word in ["bathroom", "restroom"]):
-            final_project_behavior.PathToBathroom(robot_controller)
-            start_pathing("Bathroom")
+            robot_controller.set_destination("Bathroom")
         elif any(word in question_words for word in ["lab", "robot"]):
-            final_project_behavior.PathToLab(robot_controller)
-            start_pathing("Robot lab")
+            robot_controller.set_destination("Lab")
+
+        if not final_project_behavior.greeting_done.wait(timeout=10):
+            dest = robot_controller.get_destination()
+            start_pathing(dest)
         return jsonify({"response": f"Received: {data.get('question', 'no question')}"}), 200
     return jsonify({"error": "Request must be JSON"}), 400
 
 def start_pathing(destination : str):
     message_queue.put(destination + " follow me")
-    final_project_behavior.StartFinalProjectBehavior(robot_controller)
+    final_project_behavior.FinalProjectInitialization(robot_controller)
 
 @app.post('/ask')
 def ask():
@@ -225,6 +227,10 @@ def main():
     thread.start()
 
     robot_controller.stop_drive()
+
+    final_thread = threading.Thread(target=final_project_behavior.StartFinalProjectBehavior,
+                                    args=(robot_controller,))
+    final_thread.start()
 
     app.config["SERVER_NAME"] = server_name
     app.run(host=server_name, port=5002, debug=True, use_reloader=False)

@@ -1,27 +1,29 @@
+from threading import Thread, Event
+
 from robot_controller import RobotController
 import time
 
+greeting_done = Event()
+
 def StartFinalProjectBehavior(controllerInstance : RobotController):
     while(not controllerInstance.IsFrontBlocked()):
+        time.sleep(0.1) # This is so we don't starve other threads.
         continue
 
-    controllerInstance.SpeakPhrase("Hello, How Can I Help?") 
-    # poll audio until special phrase is spoken
+    controllerInstance.SpeakPhrase("Hello, How Can I Help?")
+    greeting_done.set()
 
-      
-    
-    # set destination depending on phrase
+    wall_follow_thread = Thread(target=controllerInstance.WallFollowTick)
+    wall_follow_thread.start()
     pass
 
+# Called in the greet flask route to initialize the pathing
 def FinalProjectInitialization(controllerInstance: RobotController):
     
     ## turn 180 degrees
     controllerInstance.steer_right()
     time.sleep(1.4)
     controllerInstance.stop_steer()
-   
-    # TODO: find a way to modify this value
-    destination = "Lab"
     
     startnextstage = False
 
@@ -34,19 +36,18 @@ def FinalProjectInitialization(controllerInstance: RobotController):
             continue  
     
     controllerInstance.stop_drive()
+    destination = controllerInstance.get_destination()
      
     if(destination == "Lab"):
         PathToLab(controllerInstance)
     elif (destination == "Bathroom"):
         PathToBathroom(controllerInstance)
-    
-    pass
+    else:
+        controllerInstance.SpeakPhrase("Sorry, I don't know that destination.")
 
 
 def PathToBathroom(controllerInstance : RobotController):
-       
-
-    pass
+    controllerInstance.SetWallDesired("right")
 
 def PathToLab(controllerInstance : RobotController):
-    pass
+    controllerInstance.SetWallDesired("left")
