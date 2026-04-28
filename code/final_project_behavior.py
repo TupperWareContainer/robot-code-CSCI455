@@ -35,7 +35,7 @@ def StartFinalProjectBehavior(controllerInstance : RobotController):
     # Change to the listening state and wait till the robot is done speaking.
     set_state(RobotState.LISTENING)
     while not controllerInstance.get_destination():
-        time.sleep(0.1)
+        time.sleep(0.3)
         continue
     FinalProjectInitialization(controllerInstance)
 
@@ -56,13 +56,14 @@ def FinalProjectInitialization(controllerInstance: RobotController):
     
     startnextstage = False
 
-    #while(not startnextstage):
-    #    controllerInstance.drive(4500)
-    #    if(controllerInstance.IsFrontBlocked()):
-    #        controllerInstance.stop_drive()
-    #        time.sleep(4)
-    #        startnextstage = controllerInstance.IsFrontBlocked()
-    #        continue
+    while(not startnextstage):
+        controllerInstance.drive(4500)
+        time.sleep(0.3)
+        if(controllerInstance.IsFrontBlocked()):
+            controllerInstance.stop_drive()
+            time.sleep(4)
+            startnextstage = controllerInstance.IsFrontBlocked()
+            continue
 
     set_state(RobotState.MOVING_TO_T)
     controllerInstance.stop_drive()
