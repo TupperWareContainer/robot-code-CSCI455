@@ -134,7 +134,6 @@ def greet():
         translator = str.maketrans('', '', ".,?!'")
         question = question.translate(translator)
         question_words = question.lower().split()
-        dest = ""
 
         # Detect destination from speech
         if any(word in question_words for word in ["bathroom", "restroom"]):
