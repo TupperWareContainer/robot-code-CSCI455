@@ -189,7 +189,7 @@
     <div class="control-group button-col">
       <div>Would you like to go to the robot lab or the bathroom?</div>
       <button id="speechStartBtn">Start Recording</button>
-      <button id="speechStopBtn">Stop Recording</button>
+      <button id="speechClearBtn">Clear Recording</button>
       <button id="speechSendBtn">Send Recording</button>
       <div id="speechStatus"></div>
       <div id="message"></div>
@@ -214,7 +214,7 @@
         let speechRecognition = null;
         let isListening = false;
         const startBtn = document.getElementById("speechStartBtn");
-        const stopBtn = document.getElementById("speechStopBtn");
+        const clearBtn = document.getElementById("speechClearBtn");
         const sendBtn = document.getElementById("speechSendBtn");
         let message = ""
 
@@ -232,7 +232,7 @@
           if (element) element.textContent = message
         }
 
-        isListening = false
+        let finalBuffer = "";
 
         function initSpeechRecognition() {
           if (speechRecognition) return speechRecognition;
@@ -253,14 +253,11 @@
             setSpeechStatus("Listening...")
           }
 
-          let finalBuffer = "";
           rec.onend = () => {
               if (isListening) {
                   rec.start();
               } else {
-                  finalBuffer = "";
                   setSpeechStatus("Stopped...");
-                  message = finalBuffer;
               }
           }
 
@@ -550,7 +547,6 @@
                 wallFollow.textContent = "Start Wall Follow";
                 wallFollow.classList.remove("selected");
                 sendWallFollow(false);
-
             }
         })
         const recognition = initSpeechRecognition();
@@ -558,19 +554,30 @@
         if (recognition) {
             startBtn.addEventListener('click', () => {
                 try {
+                  if (!startBtn.classList.contains("selected")) {
                     recognition.start();
-                    startBtn.disabled = true;
                     isListening = true;
+                    startBtn.textContent = "Stop Recording"
+                    startBtn.classList.add("selected")
+                  } else {
+                    recognition.stop();
+                    isListening = false;
+                    startBtn.textContent = "Start Recording"
+                    startBtn.classList.remove("selected")
+                  }
                 } catch (e) {
                     console.log("Recognition already started or error:", e);
                 }
             })
 
-            stopBtn.addEventListener('click', () => {
+            clearBtn.addEventListener('click', () => {
                 try {
                     recognition.stop();
-                    startBtn.disabled = false;
                     isListening = false
+                    message = ""
+                    finalBuffer = ""
+                    setDisplayMessage(message)
+                    setSpeechStatus("Cleared...")
                 } catch (e) {
                     console.log("Recognition already stopped or error.", e)
                 }
