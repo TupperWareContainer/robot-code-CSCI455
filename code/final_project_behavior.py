@@ -1,6 +1,5 @@
 from threading import Thread, Event
 
-from code.app import robot_controller
 from robot_controller import RobotController
 import time
 from enum import Enum
