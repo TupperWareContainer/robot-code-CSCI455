@@ -1,5 +1,6 @@
 from threading import Thread, Event
 
+from code.app import robot_controller
 from robot_controller import RobotController
 import time
 from enum import Enum
@@ -15,7 +16,6 @@ class RobotState(Enum):
     FINAL_MOVEMENT      = 7
     STOPPED             = 8
 
-greeting_done = Event()
 current_state = RobotState.WAITING
 
 def set_state(new_state: RobotState):
@@ -30,11 +30,18 @@ def StartFinalProjectBehavior(controllerInstance : RobotController):
 
     set_state(RobotState.GREETING)
     controllerInstance.SpeakPhrase("Hello, How Can I Help?")
-    greeting_done.set()
 
+    # Change to the listening state and wait till the robot is done speaking.
     set_state(RobotState.LISTENING)
-    # TODO: Add a blocking call here to wait for our flask app to set the destination.
+    while not controllerInstance.get_destination():
+        time.sleep(0.1)
+        continue
+    FinalProjectInitialization(controllerInstance)
 
+    destination = controllerInstance.get_destination()
+    controllerInstance.SpeakPhrase(destination + " follow me")
+
+    # After we get the destination then follow the wall to it.
     wall_follow_thread = Thread(target=controllerInstance.WallFollowTick)
     wall_follow_thread.start()
 

@@ -142,19 +142,8 @@ def greet():
         elif any(word in question_words for word in ["lab", "robot"]):
             dest = "Lab"
             robot_controller.set_destination(dest)
-        else:
-            return jsonify({"error": "Unknown destination"}), 400
-
-        if final_project_behavior.greeting_done.wait(timeout=10):
-            start_pathing(dest)
-            return jsonify({"response": f"Received: {data.get('question', 'no question')}"}), 200
-        else:
-            return jsonify({"error": "Robot not ready, timed out"}), 503
+        return jsonify({"response": f"Received: {data.get('question', 'no question')}"}), 200
     return jsonify({"error": "Request must be JSON"}), 400
-
-def start_pathing(destination : str):
-    message_queue.put(destination + " follow me")
-    final_project_behavior.FinalProjectInitialization(robot_controller)
 
 @app.post('/ask')
 def ask():
