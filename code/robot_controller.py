@@ -288,7 +288,7 @@ class RobotController:
         # If nothing external detected, path is clear
         if len(external) == 0:
             return False, True
-        return any(d < stop_dist for (a,d) in external)
+        return any(d < stop_dist for (a,d) in external), True
 
     def IsFrontBlocked(self, right = False) -> tuple[bool, bool]:
         front_angles = list(range(355, 360)) + list(range(0, 5))  # Front angles: 350-359 and 0-9
