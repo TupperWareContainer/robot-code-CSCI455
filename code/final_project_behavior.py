@@ -41,10 +41,6 @@ def StartFinalProjectBehavior(controllerInstance : RobotController):
     destination = controllerInstance.get_destination()
     controllerInstance.SpeakPhrase(destination + " follow me")
 
-    # After we get the destination then follow the wall to it.
-    wall_follow_thread = Thread(target=controllerInstance.WallFollowTick)
-    wall_follow_thread.start()
-
     set_state(RobotState.FINAL_MOVEMENT)
     pass
 
@@ -82,6 +78,8 @@ def FinalProjectInitialization(controllerInstance: RobotController):
 
 def PathToBathroom(controllerInstance : RobotController):
     controllerInstance.SetWallDesired("right")
+    controllerInstance.WallFollowTick()
 
 def PathToLab(controllerInstance : RobotController):
     controllerInstance.SetWallDesired("left")
+    controllerInstance.WallFollowTick()
