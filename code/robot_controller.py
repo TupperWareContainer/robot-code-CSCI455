@@ -94,6 +94,7 @@ class RobotController:
         self.__wallRightAngle = wall_right_angle
         self._do_wall_follow = True
         self._destination = ""
+        self.__wall_desired = ""
         
         self._lidar_controller = LidarController(LIDAR_PORT, timeout=3, max_distance=0)
 
@@ -401,7 +402,9 @@ class RobotController:
         self.__state = RobotState.IDLE
         self.__robotInstance.StopAllChannels()
         self.__robotInstance.ResetServoPositions()
-
+    # either "right" or "left"
+    def SetWallDesired(self, wall : str):
+        self.__wall_desired = wall.lower()
     def GetScope(self) -> list[str]:
         return self.__scope
 
@@ -417,7 +420,6 @@ class RobotController:
 
     def WallFollowTick(self):
         try:
-            self.__wall_desired = "right"
             self.__last_alignment = False
             self.__last_alignment_state = WallFollowState.NONE
             self.__wallfollowstate = WallFollowState.NONE
