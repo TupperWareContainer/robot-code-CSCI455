@@ -187,9 +187,9 @@
 
     <!-- Column 4: Audio Recorder Buttons -->
     <div class="control-group button-col">
-      <div>Ask the robot anything</div>
+      <div>Would you like to go to the robot lab or the bathroom?</div>
       <button id="speechStartBtn">Start Recording</button>
-      <button id="speechStopBtn">Stop Recording</button>
+      <button id="speechClearBtn">Clear Recording</button>
       <button id="speechSendBtn">Send Recording</button>
       <div id="speechStatus"></div>
       <div id="message"></div>
@@ -214,7 +214,7 @@
         let speechRecognition = null;
         let isListening = false;
         const startBtn = document.getElementById("speechStartBtn");
-        const stopBtn = document.getElementById("speechStopBtn");
+        const clearBtn = document.getElementById("speechClearBtn");
         const sendBtn = document.getElementById("speechSendBtn");
         let message = ""
 
@@ -227,10 +227,12 @@
           if (element) element.textContent = message
         }
 
-        function setSpeechMsg(message) {
+        function setDisplayMessage(message) {
           const element = document.getElementById("message");
           if (element) element.textContent = message
         }
+
+        let finalBuffer = "";
 
         function initSpeechRecognition() {
           if (speechRecognition) return speechRecognition;
@@ -252,30 +254,30 @@
           }
 
           rec.onend = () => {
-            setSpeechStatus("Stopped...")
+              if (isListening) {
+                  rec.start();
+              } else {
+                  setSpeechStatus("Stopped...");
+              }
           }
 
           rec.onresult = (event) => {
-            let finalTranscript = "";
-            let interimTranscript = "";
+              let interim = "";
 
-            for (let i = event.resultIndex; i < event.results.length; i += 1) {
-              const result = event.results[i];
-              const transcript = result[0].transcript.trim();
+              for (let i = event.resultIndex; i < event.results.length; i++) {
+                  const result = event.results[i];
+                  const text = result[0].transcript.trim();
 
-              if (result.isFinal) {
-                finalTranscript += transcript;
-              } else {
-                interimTranscript += transcript;
+                  if (result.isFinal && result[0].confidence > 0.75) {
+                      finalBuffer += result[0].transcript.trim() + " ";
+                  } else {
+                      interim = text;
+                  }
               }
-              console.log(result)
-            }
 
-            console.log(interimTranscript)
-
-            setSpeechMsg(finalTranscript || interimTranscript)
-            message = finalTranscript
-        }
+              setDisplayMessage(finalBuffer + interim);
+              message = finalBuffer
+          }
           return rec;
         }
 
@@ -289,7 +291,7 @@
             Make sure that this url is pointing to the
             flask server running on the robot
             */
-            fetch('http://10.158.167.65:5002/' + endpoint, {
+            fetch('http://10.95.199.65:5002/' + endpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -348,7 +350,7 @@
             const joystick_data = {x: stickPos.x, y: stickPos.y};
 
             try {
-                const response = await fetch('http://10.158.167.65:5002/drive', {
+                const response = await fetch('http://10.95.199.65:5002/drive', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(joystick_data)
@@ -367,7 +369,7 @@
             const joystick_data = {x: stickPos.x, y: stickPos.y};
 
             try {
-                const response = await fetch('http://10.158.167.65:5002/drive', {
+                const response = await fetch('http://10.95.199.65:5002/drive', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(joystick_data)
@@ -406,7 +408,7 @@
             Make sure that this url is pointing to the
             flask server running on the robot
             */
-            fetch('http://10.158.167.65:5002/speak', {
+            fetch('http://10.95.199.65:5002/speak', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -418,11 +420,32 @@
         }
 
         const sendPing = () => {
-            fetch('http://10.158.167.65:5002/ping', {
+            fetch('http://10.95.199.65:5002/ping', {
                 method: 'GET'
             }).then(response => response.json())
                 .then(data => console.log(data))
                 .catch(error => console.error('Error:', error));
+        }
+
+        const sendGreeting = (question) => {
+            const question_data = {
+                'question': question
+            }
+            const jsonData = JSON.stringify(question_data)
+
+            /*
+            Make sure that this url is pointing to the
+            flask server running on the robot
+            */
+            fetch('http://10.95.199.65:5002/greet', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: jsonData
+            }).then(response => response.json())
+                    .then(data => console.log('Success:', data))
+                    .catch((error) => console.error('Error:', error))
         }
 
         const sendQuestion = (question) => {
@@ -435,7 +458,7 @@
             Make sure that this url is pointing to the
             flask server running on the robot
             */
-            fetch('http://10.158.167.65:5002/ask', {
+            fetch('http://10.95.199.65:5002/ask', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -456,7 +479,7 @@
             Make sure that this url is pointing to the
             flask server running on the robot
             */
-            fetch('http://10.158.167.65:5002/wall_follow', {
+            fetch('http://10.95.199.65:5002/wall_follow', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -524,7 +547,6 @@
                 wallFollow.textContent = "Start Wall Follow";
                 wallFollow.classList.remove("selected");
                 sendWallFollow(false);
-
             }
         })
         const recognition = initSpeechRecognition();
@@ -532,17 +554,30 @@
         if (recognition) {
             startBtn.addEventListener('click', () => {
                 try {
+                  if (!startBtn.classList.contains("selected")) {
                     recognition.start();
-                    startBtn.disabled = true;
+                    isListening = true;
+                    startBtn.textContent = "Stop Recording"
+                    startBtn.classList.add("selected")
+                  } else {
+                    recognition.stop();
+                    isListening = false;
+                    startBtn.textContent = "Start Recording"
+                    startBtn.classList.remove("selected")
+                  }
                 } catch (e) {
                     console.log("Recognition already started or error:", e);
                 }
             })
 
-            stopBtn.addEventListener('click', () => {
+            clearBtn.addEventListener('click', () => {
                 try {
                     recognition.stop();
-                    startBtn.disabled = false;
+                    isListening = false
+                    message = ""
+                    finalBuffer = ""
+                    setDisplayMessage(message)
+                    setSpeechStatus("Cleared...")
                 } catch (e) {
                     console.log("Recognition already stopped or error.", e)
                 }
@@ -551,8 +586,8 @@
             sendBtn.addEventListener('click', () => {
               if (message !== "") {
                 console.log("Sending " + message)
-                sendQuestion(message);
-                setSpeechStatus("Sending...")
+                sendGreeting(message);
+                setSpeechStatus("Sent")
               } else {
                 setSpeechStatus("No message to send...")
               }

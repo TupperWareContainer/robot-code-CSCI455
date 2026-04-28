@@ -10,6 +10,8 @@ from threading import Timer, Thread
 import atexit
 import time
 
+import final_project_behavior
+
 class RepeatingTimer(Timer):
     def run(self):
         while not self.finished.wait(self.interval):
@@ -124,6 +126,35 @@ def speak():
         return jsonify({"response": f"Received: {data.get('message', 'no message')}"}), 200
     return jsonify({"error": "Request must be JSON"}), 400
 
+@app.post('/greet')
+def greet():
+    if request.is_json:
+        data = request.get_json()
+        question: str = data.get('question')
+        translator = str.maketrans('', '', ".,?!'")
+        question = question.translate(translator)
+        question_words = question.lower().split()
+
+        # Detect destination from speech
+        if any(word in question_words for word in ["bathroom", "restroom"]):
+            dest = "Bathroom"
+            robot_controller.set_destination(dest)
+        elif any(word in question_words for word in ["lab", "robot"]):
+            dest = "Lab"
+            robot_controller.set_destination(dest)
+        else:
+            return jsonify({"error": "Unknown destination"}), 400
+
+        if final_project_behavior.greeting_done.wait(timeout=10):
+            start_pathing(dest)
+            return jsonify({"response": f"Received: {data.get('question', 'no question')}"}), 200
+        else:
+            return jsonify({"error": "Robot not ready, timed out"}), 503
+    return jsonify({"error": "Request must be JSON"}), 400
+
+def start_pathing(destination : str):
+    message_queue.put(destination + " follow me")
+    final_project_behavior.FinalProjectInitialization(robot_controller)
 
 @app.post('/ask')
 def ask():
@@ -137,25 +168,12 @@ def ask():
         if question in ["stop", "cancel", "reset", "quit"]:
             robot_controller.reset_robot_dialog_and_state()
 
-        # Detect destination from speech
-        if any(word in question_words for word in ["bathroom", "restroom"]):
-            robot_controller.set_destination("bathroom")
-        elif any(word in question_words for word in ["lab", "robot"]):
-            robot_controller.set_destination("lab")
-
         # Get the question and resolve the response and add that to the message queue
         actions, response = robot_controller.get_dialog_response(question_words)
 
         print(actions)
         print(response)
         message_queue.put(response)
-
-        # Strip punctuation and make it lowercase so that it matches!
-        translator = str.maketrans('', '', ".,?!'")
-        response = response.translate(translator).lower()
-
-        if response == "follow me":
-            pass # We should start wall follow here
 
         if actions:
             robot_controller.queue_actions(actions)
@@ -215,8 +233,9 @@ def main():
 
     robot_controller.stop_drive()
 
-    wall_follow_thread = Thread(target=robot_controller.WallFollowTick)
-    wall_follow_thread.start()
+    final_thread = threading.Thread(target=final_project_behavior.StartFinalProjectBehavior,
+                                    args=(robot_controller,))
+    final_thread.start()
 
     app.config["SERVER_NAME"] = server_name
     app.run(host=server_name, port=5002, debug=True, use_reloader=False)

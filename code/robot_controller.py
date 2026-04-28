@@ -93,13 +93,20 @@ class RobotController:
         self.__wallLeftAngle = wall_left_angle
         self.__wallRightAngle = wall_right_angle
         self._do_wall_follow = True
-        self._destination = ""
         self.__wall_desired = ""
         
         self._lidar_controller = LidarController(LIDAR_PORT, timeout=3, max_distance=0)
 
         self.__safety_thread = threading.Thread(target=self.__SafetyTimer)
         self.__safety_thread.start()
+
+        self._destination = ""
+
+    def set_destination(self, destination: str):
+        self._destination = destination
+
+    def get_destination(self) -> str:
+        return self._destination
     
     def AlignWithLeftWall(self) -> bool: 
         print("ALIGNING WITH LEFT WALL")
@@ -414,9 +421,6 @@ class RobotController:
 
     def set_do_wall_follow(self, do_wall_follow):
         self._do_wall_follow = do_wall_follow
-
-    def set_destination(self, destination):
-        self._destination = destination
 
     def WallFollowTick(self):
         try:
