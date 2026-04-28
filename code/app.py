@@ -134,17 +134,23 @@ def greet():
         translator = str.maketrans('', '', ".,?!'")
         question = question.translate(translator)
         question_words = question.lower().split()
+        dest = ""
 
         # Detect destination from speech
         if any(word in question_words for word in ["bathroom", "restroom"]):
-            robot_controller.set_destination("Bathroom")
+            dest = "Bathroom"
+            robot_controller.set_destination(dest)
         elif any(word in question_words for word in ["lab", "robot"]):
-            robot_controller.set_destination("Lab")
+            dest = "Lab"
+            robot_controller.set_destination(dest)
+        else:
+            return jsonify({"error": "Unknown destination"}), 400
 
-        if not final_project_behavior.greeting_done.wait(timeout=10):
-            dest = robot_controller.get_destination()
+        if final_project_behavior.greeting_done.wait(timeout=10):
             start_pathing(dest)
-        return jsonify({"response": f"Received: {data.get('question', 'no question')}"}), 200
+            return jsonify({"response": f"Received: {data.get('question', 'no question')}"}), 200
+        else:
+            return jsonify({"error": "Robot not ready, timed out"}), 503
     return jsonify({"error": "Request must be JSON"}), 400
 
 def start_pathing(destination : str):
