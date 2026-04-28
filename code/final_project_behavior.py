@@ -61,7 +61,7 @@ def FinalProjectInitialization(controllerInstance: RobotController):
         time.sleep(0.3)
         if(controllerInstance.IsFrontBlocked()):
             controllerInstance.stop_drive()
-            time.sleep(4)
+            #time.sleep(4)
             startnextstage = controllerInstance.IsFrontBlocked()
             continue
 
