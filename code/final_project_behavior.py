@@ -22,8 +22,6 @@ def set_state(new_state: RobotState):
     current_state = new_state
 
 def StartFinalProjectBehavior(controllerInstance : RobotController):
-    time.sleep(2)
-
     set_state(RobotState.WAITING)
     is_blocked, is_init = controllerInstance.IsFrontBlocked()
     while not (is_init and is_blocked):
