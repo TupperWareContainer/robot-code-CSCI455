@@ -185,7 +185,7 @@ class RobotController:
             
     def AlignWithRightWall(self) -> bool: 
         self.steer_left()
-        time.sleep(0.25)
+        time.sleep(0.20)
         self.stop_steer()
         return True
 
