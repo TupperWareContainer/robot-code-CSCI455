@@ -13,7 +13,7 @@ Command Based Interface for controlling a Robot instance
 '''
 
 LIDAR_PORT = '/dev/ttyUSB0'
-STOP_DISTANCE = 405
+STOP_DISTANCE = 505 # Was 405
 
 WALL_CLOSE_DISTANCE = 625
 
@@ -267,7 +267,7 @@ class RobotController:
                 self.__safeTimeSet = False
             time.sleep(1)
 
-    def __IsBlocked(self, angles: list[int], right = False, stop_dist=405) -> tuple[bool, bool]:
+    def __IsBlocked(self, angles: list[int], right = False, stop_dist=505) -> tuple[bool, bool]:
         distances = []
         for a in angles:
             distances.append(self._lidar_controller.GetDistanceMM(a))
@@ -290,7 +290,7 @@ class RobotController:
             return False, True
         return any(d < stop_dist for (a,d) in external), True
 
-    def IsFrontBlocked(self, right = False, stop_dist=405) -> tuple[bool, bool]:
+    def IsFrontBlocked(self, right = False, stop_dist=505) -> tuple[bool, bool]:
         front_angles = list(range(355, 360)) + list(range(0, 5))  # Front angles: 350-359 and 0-9
         is_front_blocked, init = self.__IsBlocked(front_angles, right, stop_dist)
      
