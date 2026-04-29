@@ -62,7 +62,6 @@ def FinalProjectInitialization(controllerInstance: RobotController):
 
         if (is_init):
             controllerInstance.drive(5000)
-            time.sleep(2)
         else:
             controllerInstance.stop_drive()
 
