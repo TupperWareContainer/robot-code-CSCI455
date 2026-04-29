@@ -108,7 +108,12 @@ class RobotController:
     def get_destination(self) -> str:
         return self._destination
     
-    def AlignWithLeftWall(self) -> bool: 
+    def AlignWithLeftWall(self) -> bool:
+        self.steer_right()
+        time.sleep(0.25)
+        self.stop_steer()
+        return True
+        '''
         print("ALIGNING WITH LEFT WALL")
         alignment_data  = [] # distance, distance, angle A, angle B, delta angle (from left angle), delta distance
 
@@ -169,6 +174,7 @@ class RobotController:
         time.sleep(0.125)
         self.stop_steer()
         return False
+    '''
 
 
             
