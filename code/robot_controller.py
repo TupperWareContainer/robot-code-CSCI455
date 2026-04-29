@@ -267,14 +267,14 @@ class RobotController:
                 self.__safeTimeSet = False
             time.sleep(1)
 
-    def __IsBlocked(self, angles: list[int], right = False) -> tuple[bool, bool]:
+    def __IsBlocked(self, angles: list[int], right = False, stop_dist=405) -> tuple[bool, bool]:
         distances = []
         for a in angles:
             distances.append(self._lidar_controller.GetDistanceMM(a))
 
         readings = list(zip(angles, distances)) # [(angle, distance) for angle in angles for distance in distances]
         non_zero = [distance for (a,distance) in readings if distance != -1]
-        stop_dist = STOP_DISTANCE
+
         if(right):
             stop_dist = STOP_DISTANCE + BODY_SIZE + 100
         # If all readings are -1, no lidar data — fail safe and block
@@ -290,9 +290,9 @@ class RobotController:
             return False, True
         return any(d < stop_dist for (a,d) in external), True
 
-    def IsFrontBlocked(self, right = False) -> tuple[bool, bool]:
+    def IsFrontBlocked(self, right = False, stop_dist=405) -> tuple[bool, bool]:
         front_angles = list(range(355, 360)) + list(range(0, 5))  # Front angles: 350-359 and 0-9
-        is_front_blocked, init = self.__IsBlocked(front_angles, right)
+        is_front_blocked, init = self.__IsBlocked(front_angles, right, stop_dist)
      
         if is_front_blocked:
             print("Front is BLOCKED")
