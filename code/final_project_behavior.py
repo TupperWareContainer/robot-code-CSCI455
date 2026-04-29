@@ -54,6 +54,9 @@ def FinalProjectInitialization(controllerInstance: RobotController):
     
     startnextstage = False
 
+    destination = controllerInstance.get_destination()
+    controllerInstance.SpeakPhrase(destination + " follow me")
+
     while(not startnextstage):
         is_blocked, is_init = controllerInstance.IsFrontBlocked(stop_dist=1000)
 
@@ -69,8 +72,6 @@ def FinalProjectInitialization(controllerInstance: RobotController):
 
     set_state(RobotState.MOVING_TO_T)
     controllerInstance.stop_drive()
-    destination = controllerInstance.get_destination()
-    controllerInstance.SpeakPhrase(destination + " follow me")
      
     if(destination == "Lab"):
         PathToLab(controllerInstance)
