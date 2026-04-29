@@ -441,11 +441,11 @@ class RobotController:
             time.sleep(4) # Wait for the lidar to populate the data before we start!
 
             while self._do_wall_follow:
-                if self.IsAtDestination():
-                    print("Arrived at destination: " + self._destination)
-                    self.stop_drive()
-                    self._do_wall_follow = False
-                    break
+                #if self.IsAtDestination():
+                #    print("Arrived at destination: " + self._destination)
+                #    self.stop_drive()
+                #    self._do_wall_follow = False
+                #    break
 
                 self.__last_alignment_state = self.__wallfollowstate
 
