@@ -58,7 +58,7 @@ def FinalProjectInitialization(controllerInstance: RobotController):
     startnextstage = False
 
     while(not startnextstage):
-        is_blocked, is_init = controllerInstance.IsFrontBlocked(stop_dist=800)
+        is_blocked, is_init = controllerInstance.IsFrontBlocked(stop_dist=1000)
 
         if (is_init):
             controllerInstance.drive(5000)
@@ -68,11 +68,8 @@ def FinalProjectInitialization(controllerInstance: RobotController):
         time.sleep(0.5)
         if(is_blocked):
             controllerInstance.stop_drive()
-            #time.sleep(4)
-            #startnextstage = controllerInstance.IsFrontBlocked()
             break
 
-    print("Moving to T")
     set_state(RobotState.MOVING_TO_T)
     controllerInstance.stop_drive()
     destination = controllerInstance.get_destination()
