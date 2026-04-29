@@ -52,23 +52,23 @@ def FinalProjectInitialization(controllerInstance: RobotController):
     time.sleep(1.4)
     controllerInstance.stop_steer()
     
-    startnextstage = False
+ #   startnextstage = False
 
     destination = controllerInstance.get_destination()
     controllerInstance.SpeakPhrase(destination + " follow me")
 
-    while(not startnextstage):
-        is_blocked, is_init = controllerInstance.IsFrontBlocked(stop_dist=1000)
-
-        if (is_init):
-            controllerInstance.drive(5000) # Change this back to 5000
-        else:
-            controllerInstance.stop_drive()
-
-        time.sleep(0.5)
-        if(is_blocked):
-            controllerInstance.stop_drive()
-            break
+    #while(not startnextstage):
+    #    is_blocked, is_init = controllerInstance.IsFrontBlocked(stop_dist=1000)
+#
+#        if (is_init):
+#            controllerInstance.drive(5000) # Change this back to 5000
+#        else:
+#            controllerInstance.stop_drive()
+#
+#        time.sleep(0.5)
+#        if(is_blocked):
+#            controllerInstance.stop_drive()
+#            break
 
     set_state(RobotState.MOVING_TO_T)
     controllerInstance.stop_drive()
