@@ -61,7 +61,7 @@ def FinalProjectInitialization(controllerInstance: RobotController):
         is_blocked, is_init = controllerInstance.IsFrontBlocked(stop_dist=1000)
 
         if (is_init):
-            controllerInstance.drive(4800) # Change this back to 5000
+            controllerInstance.drive(5500) # Change this back to 5000
         else:
             controllerInstance.stop_drive()
 
