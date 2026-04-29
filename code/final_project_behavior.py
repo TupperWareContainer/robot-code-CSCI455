@@ -58,7 +58,7 @@ def FinalProjectInitialization(controllerInstance: RobotController):
     startnextstage = False
 
     while(not startnextstage):
-        is_blocked, is_init = controllerInstance.IsFrontBlocked(stop_dist=600)
+        is_blocked, is_init = controllerInstance.IsFrontBlocked(stop_dist=800)
 
         if (is_init):
             controllerInstance.drive(5000)
