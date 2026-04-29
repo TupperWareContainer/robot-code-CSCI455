@@ -40,9 +40,6 @@ def StartFinalProjectBehavior(controllerInstance : RobotController):
         continue
     FinalProjectInitialization(controllerInstance)
 
-    destination = controllerInstance.get_destination()
-    controllerInstance.SpeakPhrase(destination + " follow me")
-
     set_state(RobotState.FINAL_MOVEMENT)
     pass
 
@@ -73,6 +70,7 @@ def FinalProjectInitialization(controllerInstance: RobotController):
     set_state(RobotState.MOVING_TO_T)
     controllerInstance.stop_drive()
     destination = controllerInstance.get_destination()
+    controllerInstance.SpeakPhrase(destination + " follow me")
      
     if(destination == "Lab"):
         PathToLab(controllerInstance)
