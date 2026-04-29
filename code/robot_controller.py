@@ -107,13 +107,19 @@ class RobotController:
 
     def get_destination(self) -> str:
         return self._destination
+
+    def IsAtDestination(self) -> bool:
+        if self._destination == "Bathroom":
+            # Arrived at bathroom when right wall opens up (doorway)
+            rightDist = self._lidar_controller.GetDistanceMM(self.__wallRightAngle)
+            return rightDist == -1 or rightDist > FAR_DISTANCE
+        elif self._destination == "Lab":
+            # Arrived at lab when left wall opens up (doorway)
+            leftDist = self._lidar_controller.GetDistanceMM(self.__wallLeftAngle)
+            return leftDist == -1 or leftDist > FAR_DISTANCE
+        return False
     
     def AlignWithLeftWall(self) -> bool:
-        self.steer_right()
-        time.sleep(0.25)
-        self.stop_steer()
-        return True
-        '''
         print("ALIGNING WITH LEFT WALL")
         alignment_data  = [] # distance, distance, angle A, angle B, delta angle (from left angle), delta distance
 
@@ -174,7 +180,6 @@ class RobotController:
         time.sleep(0.125)
         self.stop_steer()
         return False
-    '''
 
 
             
@@ -436,6 +441,12 @@ class RobotController:
             time.sleep(4) # Wait for the lidar to populate the data before we start!
 
             while self._do_wall_follow:
+                if self.IsAtDestination():
+                    print("Arrived at destination: " + self._destination)
+                    self.stop_drive()
+                    self._do_wall_follow = False
+                    break
+
                 self.__last_alignment_state = self.__wallfollowstate
 
                 leftDist = self._lidar_controller.GetDistanceMM(self.__wallLeftAngle)

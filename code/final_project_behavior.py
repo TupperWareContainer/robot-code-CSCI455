@@ -85,7 +85,15 @@ def FinalProjectInitialization(controllerInstance: RobotController):
 def PathToBathroom(controllerInstance : RobotController):
     controllerInstance.SetWallDesired("right")
     controllerInstance.WallFollowTick()
+    controllerInstance.SpeakPhrase("We have arrived at the Bathroom.")
+    set_state(RobotState.FINAL_MOVEMENT)
 
 def PathToLab(controllerInstance : RobotController):
     controllerInstance.SetWallDesired("left")
     controllerInstance.WallFollowTick()
+
+def PathToBathroom(controllerInstance: RobotController):
+    controllerInstance.SetWallDesired("right")
+    controllerInstance.WallFollowTick()  # blocks until arrived
+    controllerInstance.SpeakPhrase("We have arrived at the Lab.")
+    set_state(RobotState.FINAL_MOVEMENT)
