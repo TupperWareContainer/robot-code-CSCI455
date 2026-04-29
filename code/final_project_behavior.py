@@ -73,6 +73,7 @@ def FinalProjectInitialization(controllerInstance: RobotController):
             #startnextstage = controllerInstance.IsFrontBlocked()
             break
 
+    print("Moving to T")
     set_state(RobotState.MOVING_TO_T)
     controllerInstance.stop_drive()
     destination = controllerInstance.get_destination()
