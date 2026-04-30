@@ -1,5 +1,17 @@
 # README.md
 
+## Project 5
+
+To send a recording start by hitting the start recording button.
+
+Approach the robot and he'll say "Hello, How Can I Help?"
+
+Next say "bathroom" or say "robot lab" and click the send recording button.
+
+Then he'll say follow me and he will take you to the robot lab or bathroom.
+
+At any time you can click the clear button to clear the recording.
+
 # PROJECT 4
 
 ## Notes
